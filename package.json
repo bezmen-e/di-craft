@@ -1,0 +1,69 @@
+{
+	"name": "di-craft",
+	"version": "0.0.1",
+	"description": "A tiny TypeScript dependency injection container",
+	"type": "module",
+	"sideEffects": false,
+	"engines": {
+		"node": ">=20"
+	},
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.mts",
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.mts",
+				"default": "./dist/index.mjs"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "tsdown",
+		"test": "bun test",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"format": "biome check --write .",
+		"publint": "publint",
+		"check": "bun run lint && bun run typecheck && bun test && bun run build && bun run publint"
+	},
+	"keywords": [
+		"dependency-injection",
+		"di",
+		"ioc",
+		"typescript",
+		"container"
+	],
+	"homepage": "https://github.com/bezmen-e/di-craft",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bezmen-e/di-craft.git"
+	},
+	"bugs": {
+		"url": "https://github.com/bezmen-e/di-craft/issues"
+	},
+	"author": {
+		"name": "Egor Bezmen",
+		"email": "egor1911@gmail.com"
+	},
+	"license": "MIT",
+	"dependencies": {},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.16",
+		"@types/bun": "1.3.14",
+		"publint": "0.3.21",
+		"tsdown": "0.22.0",
+		"typescript": "6.0.3",
+		"unrun": "0.3.0"
+	}
+}
