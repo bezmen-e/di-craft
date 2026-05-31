@@ -1,16 +1,16 @@
 import type { Token } from "./types";
 
 class TokenClass<T> implements Token<T> {
-  readonly name: string;
-  readonly id: symbol;
+	readonly name: string;
+	readonly id: symbol;
 
-  declare readonly __type?: T;
+	declare readonly __type?: T;
 
-  constructor(name: string) {
-    this.name = name;
-    this.id = Symbol(name);
-  }
+	constructor(name: string) {
+		this.name = name;
+		this.id = Symbol(name);
+	}
 }
 
 export const createToken = <T>(name: string): Token<T> =>
-  new TokenClass<T>(name);
+	new TokenClass<T>(name);

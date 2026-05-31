@@ -1,6 +1,6 @@
 export type Token<T> = {
-  readonly id: symbol;
-  readonly name: string;
+	readonly id: symbol;
+	readonly name: string;
 
-  readonly __type?: T;
+	readonly __type?: T;
 };
