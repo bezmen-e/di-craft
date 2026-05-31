@@ -1,4 +1,4 @@
-import type { Token } from "./types.ts";
+import type { Token } from "./types";
 
 class TokenClass<T> implements Token<T> {
   readonly name: string;
