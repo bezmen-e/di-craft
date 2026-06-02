@@ -8,6 +8,7 @@
 		"email": "egor1911@gmail.com"
 	},
 	"type": "module",
+	"packageManager": "bun@1.3.14",
 	"sideEffects": false,
 	"engines": {
 		"node": ">=20"
@@ -40,7 +41,11 @@
 		"lint": "biome check .",
 		"format": "biome check --write .",
 		"publint": "publint",
+		"prepare": "simple-git-hooks",
 		"checks": "bun run lint && bun run typecheck && bun run test && bun run build && bun run publint"
+	},
+	"simple-git-hooks": {
+		"pre-commit": "bun run lint && bun run typecheck"
 	},
 	"keywords": [
 		"dependency-injection",
@@ -61,6 +66,7 @@
 		"@biomejs/biome": "2.4.16",
 		"@types/bun": "1.3.14",
 		"publint": "0.3.21",
+		"simple-git-hooks": "2.13.1",
 		"tsdown": "0.22.0",
 		"typescript": "6.0.3"
 	}
