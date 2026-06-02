@@ -9,10 +9,15 @@
 		"verbatimModuleSyntax": true,
 		"erasableSyntaxOnly": true,
 		"declaration": true,
-		"declarationMap": true,
-		"sourceMap": true,
+		"declarationMap": false,
+		"sourceMap": false,
 		"skipLibCheck": true,
-		"types": ["@types/bun"]
+		"types": [
+			"@types/bun"
+		]
 	},
-	"include": ["src", "test"]
+	"include": [
+		"src",
+		"test"
+	]
 }
