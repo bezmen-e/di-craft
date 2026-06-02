@@ -40,7 +40,7 @@
 		"lint": "biome check .",
 		"format": "biome check --write .",
 		"publint": "publint",
-		"checks": "bun run lint && bun run typecheck && bun run test && bun run build && bun run publint",
+		"checks": "bun run lint && bun run typecheck && bun run test && bun run build && bun run publint"
 	},
 	"keywords": [
 		"dependency-injection",
