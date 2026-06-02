@@ -24,11 +24,6 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
-      - run: node --version
-      - run: npm --version
-      - run: bun --version
-      - run: npm config get registry
-
       - run: bun install --frozen-lockfile
 
       - run: bun run checks
