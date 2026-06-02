@@ -28,6 +28,9 @@
 		},
 		"./package.json": "./package.json"
 	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	},
 	"files": [
 		"dist",
 		"README.md",
@@ -40,7 +43,8 @@
 		"lint": "biome check .",
 		"format": "biome check --write .",
 		"publint": "publint",
-		"checks": "bun run lint && bun run typecheck && bun run test && bun run build && bun run publint"
+		"checks": "bun run lint && bun run typecheck && bun run test && bun run build && bun run publint",
+		"prepack": "bun run build"
 	},
 	"keywords": [
 		"dependency-injection",
