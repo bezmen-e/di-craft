@@ -1,4 +1,4 @@
-name: CI
+name: checks
 
 on:
   push:
@@ -14,9 +14,9 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+
+      - run: bun --version
 
       - run: bun install --frozen-lockfile
 
-      - run: bun run ci
+      - run: bun run checks
