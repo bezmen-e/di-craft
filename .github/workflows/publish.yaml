@@ -28,4 +28,4 @@ jobs:
 
       - run: bun run checks
 
-      - run: npm publish
+      - run: npm publish --provenance
