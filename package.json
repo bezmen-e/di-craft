@@ -52,7 +52,7 @@
 	"homepage": "https://github.com/bezmen-e/di-craft",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/bezmen-e/di-craft.git"
+		"url": "git+https://github.com/bezmen-e/di-craft.git"
 	},
 	"bugs": {
 		"url": "https://github.com/bezmen-e/di-craft/issues"
