@@ -12,12 +12,7 @@
 		"declarationMap": false,
 		"sourceMap": false,
 		"skipLibCheck": true,
-		"types": [
-			"@types/bun"
-		]
+		"types": ["@types/bun"]
 	},
-	"include": [
-		"src",
-		"test"
-	]
+	"include": ["src", "test"]
 }
