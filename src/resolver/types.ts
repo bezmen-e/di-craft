@@ -5,5 +5,6 @@ export type Resolver = {
 };
 
 export type ResolutionContext = {
-	readonly stack: Token<unknown>[];
+	readonly resolving: Set<symbol>;
+	readonly path: Token<unknown>[];
 };

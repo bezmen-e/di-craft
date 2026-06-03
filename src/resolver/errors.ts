@@ -1,4 +1,6 @@
-export class MissingProviderError extends Error {
+import { DiError } from "../error";
+
+export class MissingProviderError extends DiError {
 	constructor(tokenName: string) {
 		super(`Provider for token "${tokenName}" is not registered`);
 
@@ -6,7 +8,7 @@ export class MissingProviderError extends Error {
 	}
 }
 
-export class InvalidDependencyError extends Error {
+export class InvalidDependencyError extends DiError {
 	constructor(dependencyKey: string) {
 		super(`Invalid dependency "${dependencyKey}"`);
 
@@ -14,7 +16,7 @@ export class InvalidDependencyError extends Error {
 	}
 }
 
-export class CircularDependencyError extends Error {
+export class CircularDependencyError extends DiError {
 	constructor(tokenNames: string[]) {
 		super(`Circular dependency detected: ${tokenNames.join(" -> ")}`);
 

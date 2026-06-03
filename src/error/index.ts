@@ -1,0 +1,1 @@
+export { DiError } from "./error";

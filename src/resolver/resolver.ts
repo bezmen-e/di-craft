@@ -19,23 +19,12 @@ class ResolverClass implements Resolver {
 
 	resolve<T>(token: Token<T>): T {
 		return this.resolveToken(token, {
-			stack: [],
+			resolving: new Set(),
+			path: [],
 		});
 	}
 
 	private resolveToken<T>(token: Token<T>, context: ResolutionContext): T {
-		const cycleStartIndex = context.stack.findIndex(
-			(stackToken) => stackToken.id === token.id,
-		);
-
-		if (cycleStartIndex !== -1) {
-			const cycle = [...context.stack.slice(cycleStartIndex), token];
-
-			throw new CircularDependencyError(
-				cycle.map((cycleToken) => cycleToken.name),
-			);
-		}
-
 		const provider = this.registry.get(token);
 
 		if (!provider) {
@@ -53,18 +42,34 @@ class ResolverClass implements Resolver {
 				return this.instances.get(token.id) as T;
 			}
 
-			const nextContext: ResolutionContext = {
-				stack: [...context.stack, token],
-			};
+			if (context.resolving.has(token.id)) {
+				const cycleStartIndex = context.path.findIndex(
+					(pathToken) => pathToken.id === token.id,
+				);
 
-			const deps = this.resolveDeps(provider.deps, nextContext);
-			const value = provider.useFactory(deps) as T;
+				const cycle = [...context.path.slice(cycleStartIndex), token];
 
-			if (scope === "singleton") {
-				this.instances.set(token.id, value);
+				throw new CircularDependencyError(
+					cycle.map((cycleToken) => cycleToken.name),
+				);
 			}
 
-			return value;
+			context.resolving.add(token.id);
+			context.path.push(token);
+
+			try {
+				const deps = this.resolveDeps(provider.deps, context);
+				const value = provider.useFactory(deps) as T;
+
+				if (scope === "singleton") {
+					this.instances.set(token.id, value);
+				}
+
+				return value;
+			} finally {
+				context.path.pop();
+				context.resolving.delete(token.id);
+			}
 		}
 
 		throw new MissingProviderError(token.name);

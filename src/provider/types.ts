@@ -23,6 +23,7 @@ export type FactoryProvider<T, TDeps extends DepsMap = Record<never, never>> = {
 	readonly useFactory: Factory<T, TDeps>;
 };
 
+// biome-ignore lint/suspicious/noExplicitAny: factory deps are invariant, any is required to keep specific FactoryProvider types assignable to the Provider union
 export type AnyFactoryProvider = FactoryProvider<unknown, any>;
 
 export type Provider = ValueProvider<unknown> | AnyFactoryProvider;

@@ -1,6 +1,7 @@
 import {
 	createContainer,
 	createToken,
+	type Provider,
 	provideFactory,
 	provideValue,
 } from "./index";
@@ -8,7 +9,7 @@ import {
 const COUNTER = createToken<{ value: number }>("counter");
 const MULTIPLIER = createToken<{ value: number }>("multiplier");
 
-const providers = [
+const providers: Provider[] = [
 	provideValue(COUNTER, { value: 5 }),
 	provideFactory(MULTIPLIER, {
 		deps: {
