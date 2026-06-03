@@ -13,3 +13,11 @@ export class InvalidDependencyError extends Error {
 		this.name = "InvalidDependencyError";
 	}
 }
+
+export class CircularDependencyError extends Error {
+	constructor(tokenNames: string[]) {
+		super(`Circular dependency detected: ${tokenNames.join(" -> ")}`);
+
+		this.name = "CircularDependencyError";
+	}
+}

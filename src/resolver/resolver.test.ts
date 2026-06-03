@@ -4,10 +4,11 @@ import { provideFactory, provideValue } from "../provider";
 import { createRegistry } from "../registry";
 import { createToken } from "../token";
 import {
-	createResolver,
+	CircularDependencyError,
 	InvalidDependencyError,
 	MissingProviderError,
-} from ".";
+} from "./errors";
+import { createResolver } from "./resolver";
 
 describe("resolver", () => {
 	test("resolves value provider", () => {
@@ -323,5 +324,120 @@ describe("resolver", () => {
 		expect(first.dep.value).toBe(1);
 		expect(second.dep.value).toBe(2);
 		expect(depCalls).toBe(2);
+	});
+
+	test("throws CircularDependencyError for direct cycle", () => {
+		const A = createToken<number>("A");
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(A, {
+				deps: {
+					a: A,
+				},
+				useFactory: ({ a }) => a + 1,
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(() => resolver.resolve(A)).toThrow(CircularDependencyError);
+
+		expect(() => resolver.resolve(A)).toThrow(
+			"Circular dependency detected: A -> A",
+		);
+	});
+
+	test("throws CircularDependencyError for nested cycle", () => {
+		const A = createToken<number>("A");
+		const B = createToken<number>("B");
+		const C = createToken<number>("C");
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(A, {
+				deps: {
+					b: B,
+				},
+				useFactory: ({ b }) => b + 1,
+			}),
+		);
+
+		registry.register(
+			provideFactory(B, {
+				deps: {
+					c: C,
+				},
+				useFactory: ({ c }) => c + 1,
+			}),
+		);
+
+		registry.register(
+			provideFactory(C, {
+				deps: {
+					a: A,
+				},
+				useFactory: ({ a }) => a + 1,
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(() => resolver.resolve(A)).toThrow(CircularDependencyError);
+
+		expect(() => resolver.resolve(A)).toThrow(
+			"Circular dependency detected: A -> B -> C -> A",
+		);
+	});
+
+	test("does not throw CircularDependencyError for reused singleton after resolved", () => {
+		const A = createToken<{ value: number }>("A");
+		const B = createToken<{ a: { value: number } }>("B");
+		const C = createToken<{
+			a: { value: number };
+			b: { a: { value: number } };
+		}>("C");
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(A, {
+				useFactory: () => ({
+					value: 1,
+				}),
+			}),
+		);
+
+		registry.register(
+			provideFactory(B, {
+				deps: {
+					a: A,
+				},
+				useFactory: ({ a }) => ({
+					a,
+				}),
+			}),
+		);
+
+		registry.register(
+			provideFactory(C, {
+				deps: {
+					a: A,
+					b: B,
+				},
+				useFactory: ({ a, b }) => ({
+					a,
+					b,
+				}),
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		const value = resolver.resolve(C);
+
+		expect(value.a).toBe(value.b.a);
 	});
 });

@@ -1,9 +1,13 @@
-import type { DepsMap, ResolveDeps, Scope } from "../provider";
+import type { DepsMap, ResolveDeps } from "../provider";
 import { isFactoryProvider, isValueProvider } from "../provider";
 import type { Registry } from "../registry";
 import type { Token } from "../token";
-import { InvalidDependencyError, MissingProviderError } from "./errors";
-import type { Resolver } from "./types";
+import {
+	CircularDependencyError,
+	InvalidDependencyError,
+	MissingProviderError,
+} from "./errors";
+import type { ResolutionContext, Resolver } from "./types";
 
 class ResolverClass implements Resolver {
 	private readonly registry: Registry;
@@ -14,6 +18,24 @@ class ResolverClass implements Resolver {
 	}
 
 	resolve<T>(token: Token<T>): T {
+		return this.resolveToken(token, {
+			stack: [],
+		});
+	}
+
+	private resolveToken<T>(token: Token<T>, context: ResolutionContext): T {
+		const cycleStartIndex = context.stack.findIndex(
+			(stackToken) => stackToken.id === token.id,
+		);
+
+		if (cycleStartIndex !== -1) {
+			const cycle = [...context.stack.slice(cycleStartIndex), token];
+
+			throw new CircularDependencyError(
+				cycle.map((cycleToken) => cycleToken.name),
+			);
+		}
+
 		const provider = this.registry.get(token);
 
 		if (!provider) {
@@ -25,13 +47,17 @@ class ResolverClass implements Resolver {
 		}
 
 		if (isFactoryProvider(provider)) {
-			const scope: Scope = provider.scope ?? "singleton";
+			const scope = provider.scope ?? "singleton";
 
 			if (scope === "singleton" && this.instances.has(token.id)) {
 				return this.instances.get(token.id) as T;
 			}
 
-			const deps = this.resolveDeps(provider.deps);
+			const nextContext: ResolutionContext = {
+				stack: [...context.stack, token],
+			};
+
+			const deps = this.resolveDeps(provider.deps, nextContext);
 			const value = provider.useFactory(deps) as T;
 
 			if (scope === "singleton") {
@@ -46,6 +72,7 @@ class ResolverClass implements Resolver {
 
 	private resolveDeps<TDeps extends DepsMap>(
 		deps: TDeps | undefined,
+		context: ResolutionContext,
 	): ResolveDeps<TDeps> {
 		if (!deps) {
 			return {} as ResolveDeps<TDeps>;
@@ -60,7 +87,10 @@ class ResolverClass implements Resolver {
 				throw new InvalidDependencyError(String(key));
 			}
 
-			resolvedDeps[key] = this.resolve(token) as ResolveDeps<TDeps>[typeof key];
+			resolvedDeps[key] = this.resolveToken(
+				token,
+				context,
+			) as ResolveDeps<TDeps>[typeof key];
 		}
 
 		return resolvedDeps as ResolveDeps<TDeps>;
