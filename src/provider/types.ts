@@ -23,8 +23,10 @@ export type FactoryProvider<T, TDeps extends DepsMap = Record<never, never>> = {
 	readonly useFactory: Factory<T, TDeps>;
 };
 
-export type Provider<T = unknown> =
-	| ValueProvider<T>
-	| FactoryProvider<T, DepsMap>;
+export type AnyFactoryProvider = FactoryProvider<unknown, any>;
+
+export type AnyProvider = ValueProvider<unknown> | AnyFactoryProvider;
+
+export type Provider = AnyProvider;
 
 export type Scope = "singleton" | "transient";

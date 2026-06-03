@@ -6,6 +6,8 @@ export {
 } from "./provider";
 
 export type {
+	AnyFactoryProvider,
+	AnyProvider,
 	DepsMap,
 	Factory,
 	FactoryProvider,

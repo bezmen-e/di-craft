@@ -1,4 +1,6 @@
 export type {
+	AnyFactoryProvider,
+	AnyProvider,
 	DepsMap,
 	Factory,
 	FactoryProvider,

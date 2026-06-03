@@ -1,5 +1,6 @@
 import type { Token } from "../token";
 import type {
+	AnyFactoryProvider,
 	DepsMap,
 	Factory,
 	FactoryProvider,
@@ -36,14 +37,14 @@ export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 	};
 };
 
-export const isValueProvider = <T>(
-	provider: Provider<T>,
-): provider is ValueProvider<T> => {
+export const isValueProvider = (
+	provider: Provider,
+): provider is ValueProvider<unknown> => {
 	return "useValue" in provider;
 };
 
-export const isFactoryProvider = <T>(
-	provider: Provider<T>,
-): provider is FactoryProvider<T> => {
+export const isFactoryProvider = (
+	provider: Provider,
+): provider is AnyFactoryProvider => {
 	return "useFactory" in provider;
 };
