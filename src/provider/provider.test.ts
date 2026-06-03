@@ -5,7 +5,7 @@ import {
 	isValueProvider,
 	provideFactory,
 	provideValue,
-} from "./";
+} from ".";
 
 describe("provider", () => {
 	test("creates value provider", () => {
@@ -21,15 +21,15 @@ describe("provider", () => {
 
 	test("creates factory provider", () => {
 		const TOKEN = createToken<string>("TOKEN");
-		const useFactory = () => "value";
+		const createValue = () => "value";
 
 		const provider = provideFactory(TOKEN, {
-			useFactory,
+			useFactory: createValue,
 		});
 
 		expect(provider).toEqual({
 			provide: TOKEN,
-			useFactory,
+			useFactory: createValue,
 		});
 	});
 
@@ -37,7 +37,7 @@ describe("provider", () => {
 		const COUNTER = createToken<{ value: number }>("counter");
 		const MULTIPLIER = createToken<{ value: number }>("multiplier");
 
-		const useFactory = ({ counter }: { counter: { value: number } }) => ({
+		const createMultiplier = ({ counter }: { counter: { value: number } }) => ({
 			value: counter.value * 2,
 		});
 
@@ -45,7 +45,7 @@ describe("provider", () => {
 			deps: {
 				counter: COUNTER,
 			},
-			useFactory,
+			useFactory: createMultiplier,
 		});
 
 		expect(provider).toEqual({
@@ -53,8 +53,67 @@ describe("provider", () => {
 			deps: {
 				counter: COUNTER,
 			},
-			useFactory,
+			useFactory: createMultiplier,
 		});
+	});
+
+	test("creates factory provider with scope", () => {
+		const TOKEN = createToken<string>("TOKEN");
+		const createValue = () => "value";
+
+		const provider = provideFactory(TOKEN, {
+			scope: "transient",
+			useFactory: createValue,
+		});
+
+		expect(provider).toEqual({
+			provide: TOKEN,
+			scope: "transient",
+			useFactory: createValue,
+		});
+	});
+
+	test("creates factory provider with deps and scope", () => {
+		const COUNTER = createToken<{ value: number }>("counter");
+		const MULTIPLIER = createToken<{ value: number }>("multiplier");
+
+		const createMultiplier = ({ counter }: { counter: { value: number } }) => ({
+			value: counter.value * 2,
+		});
+
+		const provider = provideFactory(MULTIPLIER, {
+			scope: "singleton",
+			deps: {
+				counter: COUNTER,
+			},
+			useFactory: createMultiplier,
+		});
+
+		expect(provider).toEqual({
+			provide: MULTIPLIER,
+			scope: "singleton",
+			deps: {
+				counter: COUNTER,
+			},
+			useFactory: createMultiplier,
+		});
+	});
+
+	test("creates factory provider from class instance", () => {
+		class Service {
+			readonly value = "service";
+		}
+
+		const SERVICE = createToken<Service>("SERVICE");
+
+		const provider = provideFactory(SERVICE, {
+			useFactory: () => new Service(),
+		});
+
+		expect(provider.provide).toBe(SERVICE);
+		expect(isFactoryProvider(provider)).toBe(true);
+		expect(provider.useFactory({})).toBeInstanceOf(Service);
+		expect(provider.useFactory({}).value).toBe("service");
 	});
 
 	test("detects value provider", () => {
@@ -136,6 +195,26 @@ describe("provider", () => {
 					value: counter.missing,
 				};
 			},
+		});
+	});
+
+	test("factory provider scope is typed", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		provideFactory(TOKEN, {
+			scope: "singleton",
+			useFactory: () => "value",
+		});
+
+		provideFactory(TOKEN, {
+			scope: "transient",
+			useFactory: () => "value",
+		});
+
+		provideFactory(TOKEN, {
+			// @ts-expect-error invalid scope
+			scope: "request",
+			useFactory: () => "value",
 		});
 	});
 });

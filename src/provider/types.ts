@@ -19,9 +19,12 @@ export type ValueProvider<T> = {
 export type FactoryProvider<T, TDeps extends DepsMap = Record<never, never>> = {
 	readonly provide: Token<T>;
 	readonly deps?: TDeps;
+	readonly scope?: Scope;
 	readonly useFactory: Factory<T, TDeps>;
 };
 
 export type Provider<T = unknown> =
 	| ValueProvider<T>
 	| FactoryProvider<T, DepsMap>;
+
+export type Scope = "singleton" | "transient";

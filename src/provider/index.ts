@@ -11,6 +11,7 @@ export type {
 	FactoryProvider,
 	Provider,
 	ResolveDeps,
+	Scope,
 	TokenValue,
 	ValueProvider,
 } from "./types";

@@ -4,36 +4,35 @@ import type {
 	Factory,
 	FactoryProvider,
 	Provider,
+	Scope,
 	ValueProvider,
 } from "./types";
 
 export const provideValue = <T>(
-	provide: Token<T>,
+	token: Token<T>,
 	useValue: T,
 ): ValueProvider<T> => ({
-	provide,
+	provide: token,
 	useValue,
 });
 
 export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
-	provide: Token<T>,
+	token: Token<T>,
 	options: {
 		readonly deps?: TDeps;
+		readonly scope?: Scope;
 		readonly useFactory: Factory<T, TDeps>;
 	},
 ): FactoryProvider<T, TDeps> => {
 	const provider = {
-		provide,
+		provide: token,
 		useFactory: options.useFactory,
 	};
 
-	if (!options.deps) {
-		return provider;
-	}
-
 	return {
 		...provider,
-		deps: options.deps,
+		...(options.deps ? { deps: options.deps } : {}),
+		...(options.scope ? { scope: options.scope } : {}),
 	};
 };
 
