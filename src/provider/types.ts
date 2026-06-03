@@ -25,8 +25,6 @@ export type FactoryProvider<T, TDeps extends DepsMap = Record<never, never>> = {
 
 export type AnyFactoryProvider = FactoryProvider<unknown, any>;
 
-export type AnyProvider = ValueProvider<unknown> | AnyFactoryProvider;
-
-export type Provider = AnyProvider;
+export type Provider = ValueProvider<unknown> | AnyFactoryProvider;
 
 export type Scope = "singleton" | "transient";

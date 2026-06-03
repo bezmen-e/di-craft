@@ -1,20 +1,11 @@
 export type { Container } from "./container";
 export { createContainer } from "./container";
 export type {
-	AnyFactoryProvider,
-	AnyProvider,
-	DepsMap,
-	Factory,
 	FactoryProvider,
-	Provider,
-	ResolveDeps,
 	Scope,
-	TokenValue,
 	ValueProvider,
 } from "./provider";
 export {
-	isFactoryProvider,
-	isValueProvider,
 	provideFactory,
 	provideValue,
 } from "./provider";
