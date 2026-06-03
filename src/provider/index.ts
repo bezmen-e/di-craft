@@ -1,4 +1,4 @@
-export { factory, value } from "./helpers";
+export { provideFactory, provideValue } from "./helpers";
 export { isFactoryProvider, isValueProvider } from "./provider";
 
 export type {
