@@ -1,3 +1,5 @@
+export type { Container } from "./container";
+export { createContainer } from "./container";
 export type {
 	AnyFactoryProvider,
 	AnyProvider,
