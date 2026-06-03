@@ -25,6 +25,7 @@ describe("resolver", () => {
 		const TOKEN = createToken<string>("TOKEN");
 
 		const registry = createRegistry();
+
 		registry.register(
 			provideFactory(TOKEN, {
 				useFactory: () => "value",
@@ -153,5 +154,174 @@ describe("resolver", () => {
 		expect(() => resolver.resolve(TOKEN)).toThrow(
 			'Invalid dependency "invalid"',
 		);
+	});
+
+	test("caches factory provider by default", () => {
+		const TOKEN = createToken<{ value: number }>("TOKEN");
+
+		let calls = 0;
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(TOKEN, {
+				useFactory: () => {
+					calls += 1;
+
+					return { value: calls };
+				},
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		const first = resolver.resolve(TOKEN);
+		const second = resolver.resolve(TOKEN);
+
+		expect(first).toBe(second);
+		expect(first.value).toBe(1);
+		expect(second.value).toBe(1);
+		expect(calls).toBe(1);
+	});
+
+	test("caches singleton factory provider", () => {
+		const TOKEN = createToken<{ value: number }>("TOKEN");
+
+		let calls = 0;
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(TOKEN, {
+				scope: "singleton",
+				useFactory: () => {
+					calls += 1;
+
+					return { value: calls };
+				},
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		const first = resolver.resolve(TOKEN);
+		const second = resolver.resolve(TOKEN);
+
+		expect(first).toBe(second);
+		expect(first.value).toBe(1);
+		expect(second.value).toBe(1);
+		expect(calls).toBe(1);
+	});
+
+	test("does not cache transient factory provider", () => {
+		const TOKEN = createToken<{ value: number }>("TOKEN");
+
+		let calls = 0;
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(TOKEN, {
+				scope: "transient",
+				useFactory: () => {
+					calls += 1;
+
+					return { value: calls };
+				},
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		const first = resolver.resolve(TOKEN);
+		const second = resolver.resolve(TOKEN);
+
+		expect(first).not.toBe(second);
+		expect(first.value).toBe(1);
+		expect(second.value).toBe(2);
+		expect(calls).toBe(2);
+	});
+
+	test("reuses singleton dependency for transient provider", () => {
+		const DEP = createToken<{ value: number }>("DEP");
+		const SERVICE = createToken<{ dep: { value: number } }>("SERVICE");
+
+		let depCalls = 0;
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(DEP, {
+				useFactory: () => {
+					depCalls += 1;
+
+					return { value: depCalls };
+				},
+			}),
+		);
+
+		registry.register(
+			provideFactory(SERVICE, {
+				scope: "transient",
+				deps: {
+					dep: DEP,
+				},
+				useFactory: ({ dep }) => ({
+					dep,
+				}),
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		const first = resolver.resolve(SERVICE);
+		const second = resolver.resolve(SERVICE);
+
+		expect(first).not.toBe(second);
+		expect(first.dep).toBe(second.dep);
+		expect(depCalls).toBe(1);
+	});
+
+	test("recreates transient dependency when resolving transient provider", () => {
+		const DEP = createToken<{ value: number }>("DEP");
+		const SERVICE = createToken<{ dep: { value: number } }>("SERVICE");
+
+		let depCalls = 0;
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(DEP, {
+				scope: "transient",
+				useFactory: () => {
+					depCalls += 1;
+
+					return { value: depCalls };
+				},
+			}),
+		);
+
+		registry.register(
+			provideFactory(SERVICE, {
+				scope: "transient",
+				deps: {
+					dep: DEP,
+				},
+				useFactory: ({ dep }) => ({
+					dep,
+				}),
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		const first = resolver.resolve(SERVICE);
+		const second = resolver.resolve(SERVICE);
+
+		expect(first).not.toBe(second);
+		expect(first.dep).not.toBe(second.dep);
+		expect(first.dep.value).toBe(1);
+		expect(second.dep.value).toBe(2);
+		expect(depCalls).toBe(2);
 	});
 });

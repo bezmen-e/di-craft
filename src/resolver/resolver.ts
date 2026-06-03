@@ -1,6 +1,5 @@
-import type { DepsMap, ResolveDeps } from "../provider";
+import type { DepsMap, ResolveDeps, Scope } from "../provider";
 import { isFactoryProvider, isValueProvider } from "../provider";
-
 import type { Registry } from "../registry";
 import type { Token } from "../token";
 import { InvalidDependencyError, MissingProviderError } from "./errors";
@@ -8,6 +7,7 @@ import type { Resolver } from "./types";
 
 class ResolverClass implements Resolver {
 	private readonly registry: Registry;
+	private readonly instances = new Map<symbol, unknown>();
 
 	constructor(registry: Registry) {
 		this.registry = registry;
@@ -25,9 +25,20 @@ class ResolverClass implements Resolver {
 		}
 
 		if (isFactoryProvider(provider)) {
-			const deps = this.resolveDeps(provider.deps);
+			const scope: Scope = provider.scope ?? "singleton";
 
-			return provider.useFactory(deps) as T;
+			if (scope === "singleton" && this.instances.has(token.id)) {
+				return this.instances.get(token.id) as T;
+			}
+
+			const deps = this.resolveDeps(provider.deps);
+			const value = provider.useFactory(deps) as T;
+
+			if (scope === "singleton") {
+				this.instances.set(token.id, value);
+			}
+
+			return value;
 		}
 
 		throw new MissingProviderError(token.name);
