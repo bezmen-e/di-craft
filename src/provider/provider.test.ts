@@ -30,6 +30,7 @@ describe("provider", () => {
 		expect(provider).toEqual({
 			provide: TOKEN,
 			useFactory: createValue,
+			scope: "singleton",
 		});
 	});
 
@@ -54,6 +55,7 @@ describe("provider", () => {
 				counter: COUNTER,
 			},
 			useFactory: createMultiplier,
+			scope: "singleton",
 		});
 	});
 

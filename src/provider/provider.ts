@@ -1,4 +1,4 @@
-import type { Scope } from "../scope";
+import { type Scope, Scopes } from "../scope";
 import type { Token } from "../token";
 import type {
 	AnyFactoryProvider,
@@ -27,15 +27,11 @@ export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 		readonly onDispose?: DisposeHook<T>;
 	},
 ): FactoryProvider<T, TDeps> => {
-	const provider = {
+	return {
 		provide: token,
 		useFactory: options.useFactory,
-	};
-
-	return {
-		...provider,
+		scope: options.scope ?? Scopes.Singleton,
 		...(options.deps ? { deps: options.deps } : {}),
-		...(options.scope ? { scope: options.scope } : {}),
 		...(options.onDispose ? { onDispose: options.onDispose } : {}),
 	};
 };

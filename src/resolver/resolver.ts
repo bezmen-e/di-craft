@@ -59,10 +59,8 @@ class ResolverClass implements Resolver {
 		}
 
 		if (isFactoryProvider(provider)) {
-			const scope = provider.scope ?? Scopes.Singleton;
-
 			// Singleton and scoped instances are cached; transient ones never are.
-			const isCached = scope !== Scopes.Transient;
+			const isCached = provider.scope !== Scopes.Transient;
 
 			if (isCached) {
 				const cached = this.instances.get(token.id);
