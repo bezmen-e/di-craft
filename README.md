@@ -267,13 +267,6 @@ import {
   Scopes,
 } from "di-craft";
 
-// Type-safe `request.container`.
-declare module "fastify" {
-  interface FastifyRequest {
-    container: Container;
-  }
-}
-
 const DB = createToken<Pool>("db");
 const REQUEST = createToken<FastifyRequest>("request");
 const REQUEST_ID = createToken<string>("request-id");
@@ -299,19 +292,23 @@ const root = createContainer([
   }),
 ]);
 
-// A fresh child per request, seeded with the request object.
+// Keep each request's child container without patching Fastify's types.
+const containers = new WeakMap<FastifyRequest, Container>();
+
 app.addHook("onRequest", async (request) => {
-  request.container = createChildContainer(root, [provideValue(REQUEST, request)]);
+  // A fresh child per request, seeded with the request object.
+  containers.set(request, createChildContainer(root, [provideValue(REQUEST, request)]));
 });
 
-// Release this request's scoped instances once the response is sent.
 app.addHook("onResponse", async (request) => {
-  await request.container.dispose();
+  // Release this request's scoped instances once the response is sent.
+  await containers.get(request)?.dispose();
 });
 
-app.get("/users/:id", async (request) => {
-  const users = request.container.get(USERS);
-  const id = request.container.get(REQUEST_ID); // unique to this request
+app.get<{ Params: { id: string } }>("/users/:id", async (request) => {
+  const container = containers.get(request)!;
+  const users = container.get(USERS);
+  const id = container.get(REQUEST_ID); // unique to this request
 
   return users.findById(request.params.id, { traceId: id });
 });
@@ -329,7 +326,7 @@ What each scope buys you here:
 - `DB` is a **singleton** — created once on the root and reused by every request, so you don't open a new pool per call.
 - `REQUEST_ID` and `USERS` are **scoped** — a new instance per child, so each request gets isolated state even though the providers are declared once on the root.
 - `REQUEST` is a per-request **value** registered on the child, and the scoped `REQUEST_ID` resolves it from that same child.
-- `request.container.dispose()` releases only that request's scoped instances; the shared pool stays open until `root.dispose()` runs on `onClose`.
+- The child's `dispose()` releases only that request's scoped instances; the shared pool stays open until `root.dispose()` runs on `onClose`.
 
 ## Error handling
 
