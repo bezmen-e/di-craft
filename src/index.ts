@@ -2,6 +2,7 @@ export type { Container } from "./container";
 export { createContainer } from "./container";
 export { DiError } from "./error";
 export type {
+	DisposeHook,
 	FactoryProvider,
 	Provider,
 	Scope,

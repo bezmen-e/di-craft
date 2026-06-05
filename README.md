@@ -110,6 +110,7 @@ const container = createContainer(providers); // providers are optional
 container.register(provideValue(PORT, 3000)); // register more at any time
 container.has(PORT);                           // true
 container.get(PORT);                           // 3000
+await container.dispose();                     // release resolved singletons
 ```
 
 Registering the same token twice throws `DuplicateProviderError`. To replace an
@@ -140,6 +141,34 @@ container.get(ID) !== container.get(ID); // true
 ```
 
 A transient provider that depends on a singleton still reuses the shared singleton instance.
+
+### Disposal
+
+Factory providers can declare an `onDispose` hook to release resources (database
+pools, sockets, timers, subscriptions). Calling `container.dispose()` runs the
+hooks for every resolved singleton and clears the cache:
+
+```ts
+const DB = createToken<Pool>("db");
+
+const container = createContainer([
+  provideFactory(DB, {
+    useFactory: () => createPool(url),
+    onDispose: (pool) => pool.end(), // may be sync or async
+  }),
+]);
+
+container.get(DB);
+
+await container.dispose(); // awaits async hooks, then clears instances
+```
+
+Details:
+
+- Hooks run in reverse creation order (dependents before their dependencies).
+- `dispose()` returns a promise and awaits async hooks.
+- It is idempotent — calling it again is a no-op.
+- Only resolved singletons are disposed; transient and never-resolved instances are not tracked.
 
 ### Cycle detection
 
@@ -186,7 +215,7 @@ try {
 | `provideFactory(token, options)` | Provider that builds a value via a factory.       |
 | `createContainer(providers?)` | Create a container, optionally seeded with providers. |
 
-Exported types: `Container`, `Token`, `Provider`, `ValueProvider`, `FactoryProvider`, `Scope`.
+Exported types: `Container`, `Token`, `Provider`, `ValueProvider`, `FactoryProvider`, `Scope`, `DisposeHook`.
 
 Exported errors: `DiError`, `MissingProviderError`, `DuplicateProviderError`, `CircularDependencyError`, `InvalidDependencyError`.
 

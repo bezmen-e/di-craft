@@ -8,6 +8,7 @@ export {
 export type {
 	AnyFactoryProvider,
 	DepsMap,
+	DisposeHook,
 	Factory,
 	FactoryProvider,
 	Provider,

@@ -2,6 +2,7 @@ import type { Token } from "../token";
 import type {
 	AnyFactoryProvider,
 	DepsMap,
+	DisposeHook,
 	Factory,
 	FactoryProvider,
 	Provider,
@@ -23,6 +24,7 @@ export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 		readonly deps?: TDeps;
 		readonly scope?: Scope;
 		readonly useFactory: Factory<T, TDeps>;
+		readonly onDispose?: DisposeHook<T>;
 	},
 ): FactoryProvider<T, TDeps> => {
 	const provider = {
@@ -34,6 +36,7 @@ export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 		...provider,
 		...(options.deps ? { deps: options.deps } : {}),
 		...(options.scope ? { scope: options.scope } : {}),
+		...(options.onDispose ? { onDispose: options.onDispose } : {}),
 	};
 };
 

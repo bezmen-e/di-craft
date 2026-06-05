@@ -195,4 +195,150 @@ describe("container", () => {
 			"Circular dependency detected: A -> B -> A",
 		);
 	});
+
+	test("dispose calls onDispose for resolved singletons", async () => {
+		const TOKEN = createToken<{ closed: boolean }>("TOKEN");
+
+		const instance = { closed: false };
+
+		const container = createContainer([
+			provideFactory(TOKEN, {
+				useFactory: () => instance,
+				onDispose: (value) => {
+					value.closed = true;
+				},
+			}),
+		]);
+
+		container.get(TOKEN);
+
+		await container.dispose();
+
+		expect(instance.closed).toBe(true);
+	});
+
+	test("dispose runs hooks in reverse creation order", async () => {
+		const DEP = createToken<string>("DEP");
+		const SERVICE = createToken<string>("SERVICE");
+
+		const order: string[] = [];
+
+		const container = createContainer([
+			provideFactory(DEP, {
+				useFactory: () => "dep",
+				onDispose: () => {
+					order.push("dep");
+				},
+			}),
+			provideFactory(SERVICE, {
+				deps: { dep: DEP },
+				useFactory: () => "service",
+				onDispose: () => {
+					order.push("service");
+				},
+			}),
+		]);
+
+		container.get(SERVICE);
+
+		await container.dispose();
+
+		expect(order).toEqual(["service", "dep"]);
+	});
+
+	test("dispose awaits async onDispose hooks", async () => {
+		const TOKEN = createToken<{ closed: boolean }>("TOKEN");
+
+		const instance = { closed: false };
+
+		const container = createContainer([
+			provideFactory(TOKEN, {
+				useFactory: () => instance,
+				onDispose: async (value) => {
+					await Promise.resolve();
+
+					value.closed = true;
+				},
+			}),
+		]);
+
+		container.get(TOKEN);
+
+		await container.dispose();
+
+		expect(instance.closed).toBe(true);
+	});
+
+	test("dispose is idempotent", async () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		let calls = 0;
+
+		const container = createContainer([
+			provideFactory(TOKEN, {
+				useFactory: () => "value",
+				onDispose: () => {
+					calls += 1;
+				},
+			}),
+		]);
+
+		container.get(TOKEN);
+
+		await container.dispose();
+		await container.dispose();
+
+		expect(calls).toBe(1);
+	});
+
+	test("dispose does nothing for providers without onDispose", async () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const container = createContainer([
+			provideFactory(TOKEN, {
+				useFactory: () => "value",
+			}),
+		]);
+
+		container.get(TOKEN);
+
+		await expect(container.dispose()).resolves.toBeUndefined();
+	});
+
+	test("dispose ignores unresolved and transient instances", async () => {
+		const SINGLETON = createToken<string>("SINGLETON");
+		const UNUSED = createToken<string>("UNUSED");
+		const TRANSIENT = createToken<string>("TRANSIENT");
+
+		const disposed: string[] = [];
+
+		const container = createContainer([
+			provideFactory(SINGLETON, {
+				useFactory: () => "singleton",
+				onDispose: () => {
+					disposed.push("singleton");
+				},
+			}),
+			provideFactory(UNUSED, {
+				useFactory: () => "unused",
+				onDispose: () => {
+					disposed.push("unused");
+				},
+			}),
+			provideFactory(TRANSIENT, {
+				scope: "transient",
+				useFactory: () => "transient",
+				onDispose: () => {
+					disposed.push("transient");
+				},
+			}),
+		]);
+
+		container.get(SINGLETON);
+		container.get(TRANSIENT);
+
+		await container.dispose();
+
+		expect(disposed).toEqual(["singleton"]);
+	});
 });

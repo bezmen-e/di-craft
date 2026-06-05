@@ -6,4 +6,5 @@ export type Container = {
 	register(provider: Provider, options?: RegisterOptions): void;
 	get<T>(token: Token<T>): T;
 	has(token: Token<unknown>): boolean;
+	dispose(): Promise<void>;
 };

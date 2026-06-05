@@ -37,6 +37,10 @@ class ContainerClass implements Container {
 	has(token: Token<unknown>): boolean {
 		return this.registry.has(token);
 	}
+
+	dispose(): Promise<void> {
+		return this.resolver.dispose();
+	}
 }
 
 export const createContainer = (
