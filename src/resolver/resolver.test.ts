@@ -440,4 +440,35 @@ describe("resolver", () => {
 
 		expect(value.a).toBe(value.b.a);
 	});
+
+	test("invalidate clears the cached singleton instance", () => {
+		const TOKEN = createToken<{ value: number }>("TOKEN");
+
+		let calls = 0;
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(TOKEN, {
+				useFactory: () => {
+					calls += 1;
+
+					return { value: calls };
+				},
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		const first = resolver.resolve(TOKEN);
+
+		resolver.invalidate(TOKEN);
+
+		const second = resolver.resolve(TOKEN);
+
+		expect(first).not.toBe(second);
+		expect(first.value).toBe(1);
+		expect(second.value).toBe(2);
+		expect(calls).toBe(2);
+	});
 });

@@ -83,4 +83,42 @@ describe("registry", () => {
 		expect(registry.get(FIRST_TOKEN)).toBe(firstProvider);
 		expect(registry.get(SECOND_TOKEN)).toBe(secondProvider);
 	});
+
+	test("replaces provider when override is enabled", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const firstProvider = provideValue(TOKEN, "first");
+		const secondProvider = provideValue(TOKEN, "second");
+
+		const registry = createRegistry();
+
+		registry.register(firstProvider);
+		registry.register(secondProvider, { allowOverride: true });
+
+		expect(registry.get(TOKEN)).toBe(secondProvider);
+	});
+
+	test("still throws DuplicateProviderError when override is false", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const registry = createRegistry();
+
+		registry.register(provideValue(TOKEN, "first"));
+
+		expect(() =>
+			registry.register(provideValue(TOKEN, "second"), {
+				allowOverride: false,
+			}),
+		).toThrow(DuplicateProviderError);
+	});
+
+	test("registers a new token with override without error", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const registry = createRegistry();
+
+		registry.register(provideValue(TOKEN, "value"), { allowOverride: true });
+
+		expect(registry.get(TOKEN)).toBeDefined();
+	});
 });

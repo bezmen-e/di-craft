@@ -11,6 +11,7 @@ export {
 	provideFactory,
 	provideValue,
 } from "./provider";
+export type { RegisterOptions } from "./registry";
 export { DuplicateProviderError } from "./registry";
 export {
 	CircularDependencyError,

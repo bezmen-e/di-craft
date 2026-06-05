@@ -24,6 +24,10 @@ class ResolverClass implements Resolver {
 		});
 	}
 
+	invalidate(token: Token<unknown>): void {
+		this.instances.delete(token.id);
+	}
+
 	private resolveToken<T>(token: Token<T>, context: ResolutionContext): T {
 		const provider = this.registry.get(token);
 

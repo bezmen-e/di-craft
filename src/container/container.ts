@@ -1,5 +1,9 @@
 import type { Provider } from "../provider";
-import { createRegistry, type Registry } from "../registry";
+import {
+	createRegistry,
+	type RegisterOptions,
+	type Registry,
+} from "../registry";
 import { createResolver, type Resolver } from "../resolver";
 import type { Token } from "../token";
 import type { Container } from "./types";
@@ -18,8 +22,12 @@ class ContainerClass implements Container {
 		this.resolver = createResolver(this.registry);
 	}
 
-	register(provider: Provider): void {
-		this.registry.register(provider);
+	register(provider: Provider, options?: RegisterOptions): void {
+		this.registry.register(provider, options);
+
+		if (options?.allowOverride) {
+			this.resolver.invalidate(provider.provide);
+		}
 	}
 
 	get<T>(token: Token<T>): T {

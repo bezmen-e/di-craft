@@ -75,6 +75,51 @@ describe("container", () => {
 		}).toThrow('Provider for token "TOKEN" is already registered');
 	});
 
+	test("overrides an existing provider with override option", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const container = createContainer([provideValue(TOKEN, "first")]);
+
+		container.register(provideValue(TOKEN, "second"), { allowOverride: true });
+
+		expect(container.get(TOKEN)).toBe("second");
+	});
+
+	test("override invalidates an already resolved singleton", () => {
+		const TOKEN = createToken<{ value: string }>("TOKEN");
+
+		const container = createContainer([
+			provideFactory(TOKEN, {
+				useFactory: () => ({ value: "first" }),
+			}),
+		]);
+
+		const first = container.get(TOKEN);
+
+		container.register(
+			provideFactory(TOKEN, {
+				useFactory: () => ({ value: "second" }),
+			}),
+			{ allowOverride: true },
+		);
+
+		const second = container.get(TOKEN);
+
+		expect(first.value).toBe("first");
+		expect(second.value).toBe("second");
+		expect(first).not.toBe(second);
+	});
+
+	test("override on a missing token registers it", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const container = createContainer();
+
+		container.register(provideValue(TOKEN, "value"), { allowOverride: true });
+
+		expect(container.get(TOKEN)).toBe("value");
+	});
+
 	test("caches singleton factory provider", () => {
 		const TOKEN = createToken<{ value: number }>("TOKEN");
 

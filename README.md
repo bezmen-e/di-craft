@@ -112,7 +112,16 @@ container.has(PORT);                           // true
 container.get(PORT);                           // 3000
 ```
 
-Registering the same token twice throws `DuplicateProviderError`.
+Registering the same token twice throws `DuplicateProviderError`. To replace an
+existing provider on purpose (handy for tests, mocks, and environment-specific
+overrides), pass `{ allowOverride: true }`:
+
+```ts
+container.register(provideValue(API, fakeApi), { allowOverride: true });
+```
+
+Overriding a token whose value was already resolved as a singleton drops the
+cached instance, so the next `get` rebuilds it from the new provider.
 
 ### Scopes
 

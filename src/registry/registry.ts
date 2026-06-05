@@ -1,13 +1,16 @@
 import type { Provider } from "../provider";
 import type { Token } from "../token";
 import { DuplicateProviderError } from "./errors";
-import type { Registry } from "./types";
+import type { RegisterOptions, Registry } from "./types";
 
 class RegistryClass implements Registry {
 	private readonly providers = new Map<symbol, Provider>();
 
-	register(provider: Provider): void {
-		if (this.providers.has(provider.provide.id)) {
+	register(provider: Provider, options?: RegisterOptions): void {
+		const isDuplicate =
+			!options?.allowOverride && this.providers.has(provider.provide.id);
+
+		if (isDuplicate) {
 			throw new DuplicateProviderError(provider.provide.name);
 		}
 
