@@ -1,4 +1,4 @@
-import type { DepsMap, ResolveDeps } from "../provider";
+import type { DepsMap, Provider, ResolveDeps } from "../provider";
 import { isFactoryProvider, isValueProvider } from "../provider";
 import type { Registry } from "../registry";
 import { type Scope, Scopes } from "../scope";
@@ -19,7 +19,7 @@ class ResolverClass implements Resolver {
 	}
 
 	resolve<T>(token: Token<T>): T {
-		return this.resolveToken(token, new ResolutionContext());
+		return this.resolveToken(token, undefined);
 	}
 
 	invalidate(token: Token<unknown>): void {
@@ -30,16 +30,28 @@ class ResolverClass implements Resolver {
 		return this.store.dispose();
 	}
 
-	private resolveToken<T>(token: Token<T>, context: ResolutionContext): T {
-		const owner = this.findOwner(token);
+	// `context` is created lazily by the first factory that actually builds:
+	// value providers and cache hits return without allocating one.
+	private resolveToken<T>(
+		token: Token<T>,
+		context: ResolutionContext | undefined,
+	): T {
+		// Single walk up the parent chain, fetching the provider directly instead
+		// of probing with `has` and then re-reading it from the owning registry.
+		let owner: ResolverClass | undefined = this;
+		let provider: Provider | undefined;
 
-		if (!owner) {
-			throw new MissingProviderError(token.name);
+		while (owner) {
+			provider = owner.registry.get(token);
+
+			if (provider) {
+				break;
+			}
+
+			owner = owner.parent;
 		}
 
-		const provider = owner.registry.get(token);
-
-		if (!provider) {
+		if (!provider || !owner) {
 			throw new MissingProviderError(token.name);
 		}
 
@@ -61,12 +73,14 @@ class ResolverClass implements Resolver {
 				}
 			}
 
-			context.enter(token);
+			// Allocate cycle detection only now, threading it through the build.
+			const ctx = context ?? new ResolutionContext();
+			ctx.enter(token);
 
 			try {
 				// Dependencies resolve from the host so a scoped instance sees the
 				// requesting container's providers, while a singleton sees its owner's.
-				const deps = (host ?? this).resolveDeps(provider.deps, context);
+				const deps = (host ?? this).resolveDeps(provider.deps, ctx);
 				const value = provider.useFactory(deps) as T;
 
 				if (host) {
@@ -78,25 +92,11 @@ class ResolverClass implements Resolver {
 
 				return value;
 			} finally {
-				context.exit(token);
+				ctx.exit(token);
 			}
 		}
 
 		throw new MissingProviderError(token.name);
-	}
-
-	private findOwner(token: Token<unknown>): ResolverClass | undefined {
-		let resolver: ResolverClass | undefined = this;
-
-		while (resolver) {
-			if (resolver.registry.has(token)) {
-				return resolver;
-			}
-
-			resolver = resolver.parent;
-		}
-
-		return undefined;
 	}
 
 	private selectHost(
