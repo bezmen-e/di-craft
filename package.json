@@ -1,7 +1,7 @@
 {
 	"name": "di-craft",
 	"version": "0.0.10",
-	"description": "A tiny TypeScript dependency injection container",
+	"description": "A tiny, type-safe dependency injection container for TypeScript",
 	"license": "MIT",
 	"author": {
 		"name": "Egor Bezmen",
