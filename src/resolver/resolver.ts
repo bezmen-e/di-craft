@@ -1,7 +1,7 @@
 import type { DepsMap, ResolveDeps } from "../provider";
 import { isFactoryProvider, isValueProvider } from "../provider";
 import type { Registry } from "../registry";
-import { Scopes } from "../scope";
+import { type Scope, Scopes } from "../scope";
 import { createStore, type Store } from "../store";
 import type { Token } from "../token";
 import { ResolutionContext } from "./context";
@@ -11,9 +11,11 @@ import type { Resolver } from "./types";
 class ResolverClass implements Resolver {
 	private readonly registry: Registry;
 	private readonly store: Store = createStore();
+	private readonly parent: ResolverClass | undefined;
 
-	constructor(registry: Registry) {
+	constructor(registry: Registry, parent?: ResolverClass) {
 		this.registry = registry;
+		this.parent = parent;
 	}
 
 	resolve<T>(token: Token<T>): T {
@@ -29,7 +31,13 @@ class ResolverClass implements Resolver {
 	}
 
 	private resolveToken<T>(token: Token<T>, context: ResolutionContext): T {
-		const provider = this.registry.get(token);
+		const owner = this.findOwner(token);
+
+		if (!owner) {
+			throw new MissingProviderError(token.name);
+		}
+
+		const provider = owner.registry.get(token);
 
 		if (!provider) {
 			throw new MissingProviderError(token.name);
@@ -40,11 +48,13 @@ class ResolverClass implements Resolver {
 		}
 
 		if (isFactoryProvider(provider)) {
-			// Singleton and scoped instances are cached; transient ones never are.
-			const isCached = provider.scope !== Scopes.Transient;
+			// Where the instance lives depends on its scope: singletons are cached
+			// on the owner (shared by the whole subtree), scoped instances on the
+			// requesting container (one per child), transient ones nowhere.
+			const host = this.selectHost(provider.scope, owner);
 
-			if (isCached) {
-				const cached = this.store.get(token);
+			if (host) {
+				const cached = host.store.get(token);
 
 				if (cached) {
 					return cached.value as T;
@@ -54,11 +64,13 @@ class ResolverClass implements Resolver {
 			context.enter(token);
 
 			try {
-				const deps = this.resolveDeps(provider.deps, context);
+				// Dependencies resolve from the host so a scoped instance sees the
+				// requesting container's providers, while a singleton sees its owner's.
+				const deps = (host ?? this).resolveDeps(provider.deps, context);
 				const value = provider.useFactory(deps) as T;
 
-				if (isCached) {
-					this.store.set(token, {
+				if (host) {
+					host.store.set(token, {
 						value,
 						...(provider.onDispose ? { onDispose: provider.onDispose } : {}),
 					});
@@ -71,6 +83,35 @@ class ResolverClass implements Resolver {
 		}
 
 		throw new MissingProviderError(token.name);
+	}
+
+	private findOwner(token: Token<unknown>): ResolverClass | undefined {
+		let resolver: ResolverClass | undefined = this;
+
+		while (resolver) {
+			if (resolver.registry.has(token)) {
+				return resolver;
+			}
+
+			resolver = resolver.parent;
+		}
+
+		return undefined;
+	}
+
+	private selectHost(
+		scope: Scope | undefined,
+		owner: ResolverClass,
+	): ResolverClass | undefined {
+		if (scope === Scopes.Transient) {
+			return undefined;
+		}
+
+		if (scope === Scopes.Scoped) {
+			return this;
+		}
+
+		return owner;
 	}
 
 	private resolveDeps<TDeps extends DepsMap>(
@@ -100,5 +141,7 @@ class ResolverClass implements Resolver {
 	}
 }
 
-export const createResolver = (registry: Registry): Resolver =>
-	new ResolverClass(registry);
+export const createResolver = (
+	registry: Registry,
+	parent?: Resolver,
+): Resolver => new ResolverClass(registry, parent as ResolverClass | undefined);

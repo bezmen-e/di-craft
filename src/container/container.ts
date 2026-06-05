@@ -11,15 +11,17 @@ import type { Container } from "./types";
 class ContainerClass implements Container {
 	private readonly registry: Registry;
 	private readonly resolver: Resolver;
+	private readonly parent: ContainerClass | undefined;
 
-	constructor(providers: readonly Provider[] = []) {
+	constructor(providers: readonly Provider[] = [], parent?: ContainerClass) {
+		this.parent = parent;
 		this.registry = createRegistry();
 
 		for (const provider of providers) {
 			this.registry.register(provider);
 		}
 
-		this.resolver = createResolver(this.registry);
+		this.resolver = createResolver(this.registry, parent?.resolver);
 	}
 
 	register(provider: Provider, options?: RegisterOptions): void {
@@ -35,7 +37,7 @@ class ContainerClass implements Container {
 	}
 
 	has(token: Token<unknown>): boolean {
-		return this.registry.has(token);
+		return this.registry.has(token) || (this.parent?.has(token) ?? false);
 	}
 
 	dispose(): Promise<void> {
@@ -46,3 +48,8 @@ class ContainerClass implements Container {
 export const createContainer = (
 	providers: readonly Provider[] = [],
 ): Container => new ContainerClass(providers);
+
+export const createChildContainer = (
+	parent: Container,
+	providers: readonly Provider[] = [],
+): Container => new ContainerClass(providers, parent as ContainerClass);

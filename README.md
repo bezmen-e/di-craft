@@ -130,7 +130,7 @@ cached instance, so the next `get` rebuilds it from the new provider.
 | ---------------------- | ---------------------------------------------------------------- |
 | `singleton` (default)  | The factory runs once; the same instance is returned every time. |
 | `transient`            | The factory runs on every `get`, producing a fresh instance.     |
-| `scoped`               | One instance per container (today the same as `singleton`; differs once child containers are introduced). |
+| `scoped`               | One instance per container. In a child container each child gets its own instance, while the provider can still be declared once on the parent. |
 
 Use the `Scopes` helper for autocompletion, or pass the plain string — both work:
 
@@ -174,6 +174,41 @@ Details:
 - `dispose()` returns a promise and awaits async hooks.
 - It is idempotent — calling it again is a no-op.
 - Only resolved singletons are disposed; transient and never-resolved instances are not tracked.
+
+### Child containers
+
+`createChildContainer(parent, providers?)` creates a child that inherits
+everything from its parent but can add or override providers locally. This is the
+typical pattern for per-request isolation on a server: shared services live on
+the root, request-specific values live on a short-lived child.
+
+```ts
+const root = createContainer([
+  provideFactory(LOGGER, { useFactory: () => console }), // singleton, shared
+  provideFactory(HANDLER, {
+    scope: Scopes.Scoped, // one instance per child
+    deps: { request: REQUEST },
+    useFactory: ({ request }) => createHandler(request),
+  }),
+]);
+
+function handle(request: Request) {
+  const child = createChildContainer(root, [provideValue(REQUEST, request)]);
+
+  child.get(LOGGER); // same logger as the root and every other child
+  child.get(HANDLER); // a fresh handler, unique to this child
+
+  return child.dispose(); // release only this child's instances
+}
+```
+
+How resolution works across the chain:
+
+- A token is looked up in the child first, then walks up to the parent.
+- `singleton` is cached on the container that **owns** the provider, so it is shared by the whole subtree.
+- `scoped` is cached on the **requesting** child, so each child gets its own instance — even when the provider is declared once on the parent.
+- A `scoped` provider resolves its dependencies from the requesting child, so it can depend on values registered only in that child (like `REQUEST`).
+- `dispose()` only releases the container it is called on; it does not cascade to parents or children.
 
 ### Cycle detection
 
@@ -219,6 +254,7 @@ try {
 | `provideValue(token, value)` | Provider that returns an existing value.              |
 | `provideFactory(token, options)` | Provider that builds a value via a factory.       |
 | `createContainer(providers?)` | Create a container, optionally seeded with providers. |
+| `createChildContainer(parent, providers?)` | Create a child container that inherits from `parent`. |
 | `Scopes`                | Object of scope values (`Scopes.Singleton`, `Scopes.Transient`, `Scopes.Scoped`). |
 
 Exported types: `Container`, `Token`, `Provider`, `ValueProvider`, `FactoryProvider`, `Scope`, `DisposeHook`.

@@ -3,7 +3,7 @@ import { provideFactory, provideValue } from "../provider";
 import { DuplicateProviderError } from "../registry";
 import { CircularDependencyError, MissingProviderError } from "../resolver";
 import { createToken } from "../token";
-import { createContainer } from ".";
+import { createChildContainer, createContainer } from ".";
 
 describe("container", () => {
 	test("creates container with initial providers", () => {
@@ -340,5 +340,173 @@ describe("container", () => {
 		await container.dispose();
 
 		expect(disposed).toEqual(["singleton"]);
+	});
+
+	test("child resolves providers inherited from the parent", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const root = createContainer([provideValue(TOKEN, "value")]);
+		const child = createChildContainer(root);
+
+		expect(child.get(TOKEN)).toBe("value");
+	});
+
+	test("singleton from the parent is shared across children", () => {
+		const TOKEN = createToken<{ value: number }>("TOKEN");
+
+		let calls = 0;
+
+		const root = createContainer([
+			provideFactory(TOKEN, {
+				useFactory: () => {
+					calls += 1;
+
+					return { value: calls };
+				},
+			}),
+		]);
+
+		const childA = createChildContainer(root);
+		const childB = createChildContainer(root);
+
+		const fromA = childA.get(TOKEN);
+		const fromB = childB.get(TOKEN);
+		const fromRoot = root.get(TOKEN);
+
+		expect(fromA).toBe(fromB);
+		expect(fromA).toBe(fromRoot);
+		expect(calls).toBe(1);
+	});
+
+	test("scoped provider yields one instance per child", () => {
+		const TOKEN = createToken<{ value: number }>("TOKEN");
+
+		let calls = 0;
+
+		const root = createContainer([
+			provideFactory(TOKEN, {
+				scope: "scoped",
+				useFactory: () => {
+					calls += 1;
+
+					return { value: calls };
+				},
+			}),
+		]);
+
+		const childA = createChildContainer(root);
+		const childB = createChildContainer(root);
+
+		const firstFromA = childA.get(TOKEN);
+		const secondFromA = childA.get(TOKEN);
+		const fromB = childB.get(TOKEN);
+
+		expect(firstFromA).toBe(secondFromA);
+		expect(firstFromA).not.toBe(fromB);
+		expect(calls).toBe(2);
+	});
+
+	test("scoped provider from the root sees child-registered dependencies", () => {
+		const REQUEST = createToken<{ id: number }>("REQUEST");
+		const HANDLER = createToken<{ requestId: number }>("HANDLER");
+
+		const root = createContainer([
+			provideFactory(HANDLER, {
+				scope: "scoped",
+				deps: { request: REQUEST },
+				useFactory: ({ request }) => ({ requestId: request.id }),
+			}),
+		]);
+
+		const child = createChildContainer(root, [
+			provideValue(REQUEST, { id: 42 }),
+		]);
+
+		expect(child.get(HANDLER).requestId).toBe(42);
+	});
+
+	test("child override does not affect the parent", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const root = createContainer([provideValue(TOKEN, "root")]);
+		const child = createChildContainer(root, [provideValue(TOKEN, "child")]);
+
+		expect(child.get(TOKEN)).toBe("child");
+		expect(root.get(TOKEN)).toBe("root");
+	});
+
+	test("disposing a child leaves the parent intact", async () => {
+		const PARENT_TOKEN = createToken<string>("PARENT_TOKEN");
+		const CHILD_TOKEN = createToken<string>("CHILD_TOKEN");
+
+		const disposed: string[] = [];
+
+		const root = createContainer([
+			provideFactory(PARENT_TOKEN, {
+				useFactory: () => "parent",
+				onDispose: () => {
+					disposed.push("parent");
+				},
+			}),
+		]);
+
+		const child = createChildContainer(root, [
+			provideFactory(CHILD_TOKEN, {
+				useFactory: () => "child",
+				onDispose: () => {
+					disposed.push("child");
+				},
+			}),
+		]);
+
+		child.get(CHILD_TOKEN);
+		root.get(PARENT_TOKEN);
+
+		await child.dispose();
+
+		expect(disposed).toEqual(["child"]);
+
+		await root.dispose();
+
+		expect(disposed).toEqual(["child", "parent"]);
+	});
+
+	test("has walks the parent chain", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const root = createContainer([provideValue(TOKEN, "value")]);
+		const child = createChildContainer(root);
+
+		expect(child.has(TOKEN)).toBe(true);
+		expect(root.has(TOKEN)).toBe(true);
+	});
+
+	test("throws MissingProviderError when no container in the chain has the token", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const root = createContainer();
+		const child = createChildContainer(root);
+
+		expect(() => child.get(TOKEN)).toThrow(MissingProviderError);
+	});
+
+	test("detects circular dependencies when resolving from a child", () => {
+		const A = createToken<number>("A");
+		const B = createToken<number>("B");
+
+		const root = createContainer([
+			provideFactory(A, {
+				deps: { b: B },
+				useFactory: ({ b }) => b + 1,
+			}),
+			provideFactory(B, {
+				deps: { a: A },
+				useFactory: ({ a }) => a + 1,
+			}),
+		]);
+
+		const child = createChildContainer(root);
+
+		expect(() => child.get(A)).toThrow(CircularDependencyError);
 	});
 });
