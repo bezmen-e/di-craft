@@ -5,8 +5,3 @@ export type Resolver = {
 	invalidate(token: Token<unknown>): void;
 	dispose(): Promise<void>;
 };
-
-export type ResolutionContext = {
-	readonly resolving: Set<symbol>;
-	readonly path: Token<unknown>[];
-};

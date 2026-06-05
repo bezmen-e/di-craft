@@ -4,12 +4,9 @@ import type { Registry } from "../registry";
 import { Scopes } from "../scope";
 import { createStore, type Store } from "../store";
 import type { Token } from "../token";
-import {
-	CircularDependencyError,
-	InvalidDependencyError,
-	MissingProviderError,
-} from "./errors";
-import type { ResolutionContext, Resolver } from "./types";
+import { ResolutionContext } from "./context";
+import { InvalidDependencyError, MissingProviderError } from "./errors";
+import type { Resolver } from "./types";
 
 class ResolverClass implements Resolver {
 	private readonly registry: Registry;
@@ -20,10 +17,7 @@ class ResolverClass implements Resolver {
 	}
 
 	resolve<T>(token: Token<T>): T {
-		return this.resolveToken(token, {
-			resolving: new Set(),
-			path: [],
-		});
+		return this.resolveToken(token, new ResolutionContext());
 	}
 
 	invalidate(token: Token<unknown>): void {
@@ -57,20 +51,7 @@ class ResolverClass implements Resolver {
 				}
 			}
 
-			if (context.resolving.has(token.id)) {
-				const cycleStartIndex = context.path.findIndex(
-					(pathToken) => pathToken.id === token.id,
-				);
-
-				const cycle = [...context.path.slice(cycleStartIndex), token];
-
-				throw new CircularDependencyError(
-					cycle.map((cycleToken) => cycleToken.name),
-				);
-			}
-
-			context.resolving.add(token.id);
-			context.path.push(token);
+			context.enter(token);
 
 			try {
 				const deps = this.resolveDeps(provider.deps, context);
@@ -85,8 +66,7 @@ class ResolverClass implements Resolver {
 
 				return value;
 			} finally {
-				context.path.pop();
-				context.resolving.delete(token.id);
+				context.exit(token);
 			}
 		}
 
