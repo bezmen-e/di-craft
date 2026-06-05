@@ -1,7 +1,8 @@
-import type { DepsMap, DisposeHook, ResolveDeps } from "../provider";
+import type { DepsMap, ResolveDeps } from "../provider";
 import { isFactoryProvider, isValueProvider } from "../provider";
 import type { Registry } from "../registry";
 import { Scopes } from "../scope";
+import { createStore, type Store } from "../store";
 import type { Token } from "../token";
 import {
 	CircularDependencyError,
@@ -10,14 +11,9 @@ import {
 } from "./errors";
 import type { ResolutionContext, Resolver } from "./types";
 
-type InstanceRecord = {
-	readonly value: unknown;
-	readonly onDispose?: DisposeHook<unknown>;
-};
-
 class ResolverClass implements Resolver {
 	private readonly registry: Registry;
-	private readonly instances = new Map<symbol, InstanceRecord>();
+	private readonly store: Store = createStore();
 
 	constructor(registry: Registry) {
 		this.registry = registry;
@@ -31,20 +27,11 @@ class ResolverClass implements Resolver {
 	}
 
 	invalidate(token: Token<unknown>): void {
-		this.instances.delete(token.id);
+		this.store.delete(token);
 	}
 
-	async dispose(): Promise<void> {
-		// Snapshot and clear first so dispose() is idempotent and re-entrancy safe.
-		const records = [...this.instances.values()].reverse();
-
-		this.instances.clear();
-
-		for (const record of records) {
-			if (record.onDispose) {
-				await record.onDispose(record.value);
-			}
-		}
+	dispose(): Promise<void> {
+		return this.store.dispose();
 	}
 
 	private resolveToken<T>(token: Token<T>, context: ResolutionContext): T {
@@ -63,7 +50,7 @@ class ResolverClass implements Resolver {
 			const isCached = provider.scope !== Scopes.Transient;
 
 			if (isCached) {
-				const cached = this.instances.get(token.id);
+				const cached = this.store.get(token);
 
 				if (cached) {
 					return cached.value as T;
@@ -90,7 +77,7 @@ class ResolverClass implements Resolver {
 				const value = provider.useFactory(deps) as T;
 
 				if (isCached) {
-					this.instances.set(token.id, {
+					this.store.set(token, {
 						value,
 						...(provider.onDispose ? { onDispose: provider.onDispose } : {}),
 					});
