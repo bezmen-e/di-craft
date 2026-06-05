@@ -5,7 +5,6 @@ export type {
 	DisposeHook,
 	FactoryProvider,
 	Provider,
-	Scope,
 	ValueProvider,
 } from "./provider";
 export {
@@ -19,5 +18,7 @@ export {
 	InvalidDependencyError,
 	MissingProviderError,
 } from "./resolver";
+export type { Scope } from "./scope";
+export { Scopes } from "./scope";
 export type { Token } from "./token";
 export { createToken } from "./token";

@@ -130,10 +130,15 @@ cached instance, so the next `get` rebuilds it from the new provider.
 | ---------------------- | ---------------------------------------------------------------- |
 | `singleton` (default)  | The factory runs once; the same instance is returned every time. |
 | `transient`            | The factory runs on every `get`, producing a fresh instance.     |
+| `scoped`               | One instance per container (today the same as `singleton`; differs once child containers are introduced). |
+
+Use the `Scopes` helper for autocompletion, or pass the plain string — both work:
 
 ```ts
+import { Scopes, provideFactory } from "di-craft";
+
 provideFactory(ID, {
-  scope: "transient",
+  scope: Scopes.Transient, // or scope: "transient"
   useFactory: () => crypto.randomUUID(),
 });
 
@@ -214,6 +219,7 @@ try {
 | `provideValue(token, value)` | Provider that returns an existing value.              |
 | `provideFactory(token, options)` | Provider that builds a value via a factory.       |
 | `createContainer(providers?)` | Create a container, optionally seeded with providers. |
+| `Scopes`                | Object of scope values (`Scopes.Singleton`, `Scopes.Transient`, `Scopes.Scoped`). |
 
 Exported types: `Container`, `Token`, `Provider`, `ValueProvider`, `FactoryProvider`, `Scope`, `DisposeHook`.
 

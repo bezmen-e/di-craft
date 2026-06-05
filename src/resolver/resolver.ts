@@ -1,6 +1,7 @@
 import type { DepsMap, DisposeHook, ResolveDeps } from "../provider";
 import { isFactoryProvider, isValueProvider } from "../provider";
 import type { Registry } from "../registry";
+import { Scopes } from "../scope";
 import type { Token } from "../token";
 import {
 	CircularDependencyError,
@@ -58,9 +59,12 @@ class ResolverClass implements Resolver {
 		}
 
 		if (isFactoryProvider(provider)) {
-			const scope = provider.scope ?? "singleton";
+			const scope = provider.scope ?? Scopes.Singleton;
 
-			if (scope === "singleton") {
+			// Singleton and scoped instances are cached; transient ones never are.
+			const isCached = scope !== Scopes.Transient;
+
+			if (isCached) {
 				const cached = this.instances.get(token.id);
 
 				if (cached) {
@@ -87,7 +91,7 @@ class ResolverClass implements Resolver {
 				const deps = this.resolveDeps(provider.deps, context);
 				const value = provider.useFactory(deps) as T;
 
-				if (scope === "singleton") {
+				if (isCached) {
 					this.instances.set(token.id, {
 						value,
 						...(provider.onDispose ? { onDispose: provider.onDispose } : {}),

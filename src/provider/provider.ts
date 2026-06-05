@@ -1,3 +1,4 @@
+import type { Scope } from "../scope";
 import type { Token } from "../token";
 import type {
 	AnyFactoryProvider,
@@ -6,7 +7,6 @@ import type {
 	Factory,
 	FactoryProvider,
 	Provider,
-	Scope,
 	ValueProvider,
 } from "./types";
 

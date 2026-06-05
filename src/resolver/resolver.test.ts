@@ -243,6 +243,33 @@ describe("resolver", () => {
 		expect(calls).toBe(2);
 	});
 
+	test("caches scoped factory provider within the resolver", () => {
+		const TOKEN = createToken<{ value: number }>("TOKEN");
+
+		let calls = 0;
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(TOKEN, {
+				scope: "scoped",
+				useFactory: () => {
+					calls += 1;
+
+					return { value: calls };
+				},
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		const first = resolver.resolve(TOKEN);
+		const second = resolver.resolve(TOKEN);
+
+		expect(first).toBe(second);
+		expect(calls).toBe(1);
+	});
+
 	test("reuses singleton dependency for transient provider", () => {
 		const DEP = createToken<{ value: number }>("DEP");
 		const SERVICE = createToken<{ dep: { value: number } }>("SERVICE");

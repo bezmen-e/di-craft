@@ -1,3 +1,4 @@
+import type { Scope } from "../scope";
 import type { Token } from "../token";
 
 export type DepsMap = Record<string, Token<unknown>>;
@@ -30,5 +31,3 @@ export type FactoryProvider<T, TDeps extends DepsMap = Record<never, never>> = {
 export type AnyFactoryProvider = FactoryProvider<any, any>;
 
 export type Provider = ValueProvider<unknown> | AnyFactoryProvider;
-
-export type Scope = "singleton" | "transient";
