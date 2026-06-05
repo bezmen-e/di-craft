@@ -2,6 +2,11 @@
 
 A tiny, type-safe dependency injection container for TypeScript.
 
+[![npm version](https://img.shields.io/npm/v/di-craft.svg)](https://www.npmjs.com/package/di-craft)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/di-craft.svg)](https://bundlephobia.com/package/di-craft)
+[![types](https://img.shields.io/npm/types/di-craft.svg)](https://www.npmjs.com/package/di-craft)
+[![license](https://img.shields.io/npm/l/di-craft.svg)](./LICENSE)
+
 ```ts
 import {
   createContainer,
@@ -32,6 +37,24 @@ const container = createContainer(providers);
 const users = container.get(USERS); // UserService, fully typed
 ```
 
+## Contents
+
+- [Philosophy](#philosophy)
+- [Features](#features)
+- [Install](#install)
+- [Core concepts](#core-concepts)
+  - [Tokens](#tokens)
+  - [Providers](#providers)
+  - [Container](#container)
+  - [Scopes](#scopes)
+  - [Disposal](#disposal)
+  - [Child containers](#child-containers)
+  - [Cycle detection](#cycle-detection)
+- [Example: per-request container](#example-per-request-container)
+- [Error handling](#error-handling)
+- [API reference](#api-reference)
+- [License](#license)
+
 ## Philosophy
 
 `di-craft` is a small DI container with no magic.
@@ -48,9 +71,10 @@ Just **tokens**, **providers**, a **container**, **scopes**, and **cycle detecti
 - No decorators
 - No `reflect-metadata`
 - Framework agnostic
-- Type-safe tokens
-- Explicit factories
-- Singleton and transient scopes
+- Type-safe tokens and factories
+- Singleton, transient, and scoped lifetimes
+- Hierarchical child containers
+- Deterministic disposal with `onDispose` hooks
 - Circular dependency detection
 - Tree-shakable, tiny bundle size
 - Ships both ESM and CommonJS builds
@@ -219,6 +243,90 @@ If providers form a dependency cycle, resolution throws `CircularDependencyError
 container.get(A); // throws: Circular dependency detected: A -> B -> A
 ```
 
+## Example: per-request container
+
+A common server pattern: build one **root** container at startup with the
+long-lived singletons (a database pool, clients, config), then fork a
+short-lived **child** per request for request-specific state. `scoped` providers
+give each request its own instance, and `dispose()` releases them once the
+response is sent.
+
+```ts
+import Fastify, { type FastifyRequest } from "fastify";
+import {
+  type Container,
+  createContainer,
+  createChildContainer,
+  createToken,
+  provideValue,
+  provideFactory,
+  Scopes,
+} from "di-craft";
+
+// Type-safe `request.container`.
+declare module "fastify" {
+  interface FastifyRequest {
+    container: Container;
+  }
+}
+
+const DB = createToken<Pool>("db");
+const REQUEST = createToken<FastifyRequest>("request");
+const REQUEST_ID = createToken<string>("request-id");
+const USERS = createToken<UserService>("users");
+
+const app = Fastify({ logger: true });
+
+// Built once, shared by every request.
+const root = createContainer([
+  provideFactory(DB, {
+    useFactory: () => createPool(process.env.DATABASE_URL),
+    onDispose: (pool) => pool.end(), // closed only on shutdown
+  }),
+  provideFactory(REQUEST_ID, {
+    scope: Scopes.Scoped, // one id per request
+    deps: { request: REQUEST }, // resolves the value registered on the child
+    useFactory: ({ request }) => request.id, // Fastify's built-in request id
+  }),
+  provideFactory(USERS, {
+    scope: Scopes.Scoped, // one service per request...
+    deps: { db: DB }, // ...but reuses the shared pool
+    useFactory: ({ db }) => new UserService(db),
+  }),
+]);
+
+// A fresh child per request, seeded with the request object.
+app.addHook("onRequest", async (request) => {
+  request.container = createChildContainer(root, [provideValue(REQUEST, request)]);
+});
+
+// Release this request's scoped instances once the response is sent.
+app.addHook("onResponse", async (request) => {
+  await request.container.dispose();
+});
+
+app.get("/users/:id", async (request) => {
+  const users = request.container.get(USERS);
+  const id = request.container.get(REQUEST_ID); // unique to this request
+
+  return users.findById(request.params.id, { traceId: id });
+});
+
+// On shutdown, dispose the root to close the shared pool.
+app.addHook("onClose", async () => {
+  await root.dispose();
+});
+
+await app.listen({ port: 3000 });
+```
+
+What each scope buys you here:
+
+- `DB` is a **singleton** — created once on the root and reused by every request, so you don't open a new pool per call.
+- `REQUEST_ID` and `USERS` are **scoped** — a new instance per child, so each request gets isolated state even though the providers are declared once on the root.
+- `REQUEST` is a per-request **value** registered on the child, and the scoped `REQUEST_ID` resolves it from that same child.
+- `request.container.dispose()` releases only that request's scoped instances; the shared pool stays open until `root.dispose()` runs on `onClose`.
+
 ## Error handling
 
 All errors extend the shared `DiError` base class, so you can catch any container error with a single check:
@@ -257,7 +365,7 @@ try {
 | `createChildContainer(parent, providers?)` | Create a child container that inherits from `parent`. |
 | `Scopes`                | Object of scope values (`Scopes.Singleton`, `Scopes.Transient`, `Scopes.Scoped`). |
 
-Exported types: `Container`, `Token`, `Provider`, `ValueProvider`, `FactoryProvider`, `Scope`, `DisposeHook`.
+Exported types: `Container`, `Token`, `Provider`, `ValueProvider`, `FactoryProvider`, `Scope`, `DisposeHook`, `RegisterOptions`.
 
 Exported errors: `DiError`, `MissingProviderError`, `DuplicateProviderError`, `CircularDependencyError`, `InvalidDependencyError`.
 
