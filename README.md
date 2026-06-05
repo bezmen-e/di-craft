@@ -2,10 +2,30 @@
 
 A tiny, type-safe dependency injection container for TypeScript.
 
-[![npm version](https://img.shields.io/npm/v/di-craft.svg)](https://www.npmjs.com/package/di-craft)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/di-craft.svg)](https://bundlephobia.com/package/di-craft)
-[![types](https://img.shields.io/npm/types/di-craft.svg)](https://www.npmjs.com/package/di-craft)
-[![license](https://img.shields.io/npm/l/di-craft.svg)](./LICENSE)
+## Contents
+
+- [Quick start](#quick-start)
+- [Philosophy](#philosophy)
+- [Features](#features)
+- [Install](#install)
+- [Core concepts](#core-concepts)
+  - [Tokens](#tokens)
+  - [Providers](#providers)
+  - [Container](#container)
+  - [Scopes](#scopes)
+  - [Disposal](#disposal)
+  - [Child containers](#child-containers)
+  - [Cycle detection](#cycle-detection)
+- [Example: per-request container](#example-per-request-container)
+- [Error handling](#error-handling)
+- [API reference](#api-reference)
+- [License](#license)
+
+## Quick start
+
+Declare typed tokens, describe how each one is built with a provider, then create
+a container and resolve from it. Dependencies are wired explicitly through the
+`deps` map and resolved for you.
 
 ```ts
 import {
@@ -37,40 +57,15 @@ const container = createContainer(providers);
 const users = container.get(USERS); // UserService, fully typed
 ```
 
-## Contents
-
-- [Philosophy](#philosophy)
-- [Features](#features)
-- [Install](#install)
-- [Core concepts](#core-concepts)
-  - [Tokens](#tokens)
-  - [Providers](#providers)
-  - [Container](#container)
-  - [Scopes](#scopes)
-  - [Disposal](#disposal)
-  - [Child containers](#child-containers)
-  - [Cycle detection](#cycle-detection)
-- [Example: per-request container](#example-per-request-container)
-- [Error handling](#error-handling)
-- [API reference](#api-reference)
-- [License](#license)
-
 ## Philosophy
 
-`di-craft` is a small DI container with no magic.
-
-- No decorators
-- No `reflect-metadata`
-- No framework dependencies
-
-Just **tokens**, **providers**, a **container**, **scopes**, and **cycle detection**.
+Dependency injection without the magic — no decorators, no `reflect-metadata`, no
+framework coupling. You work with just **tokens**, **providers**, a **container**,
+**scopes**, and **cycle detection**.
 
 ## Features
 
 - Zero runtime dependencies
-- No decorators
-- No `reflect-metadata`
-- Framework agnostic
 - Type-safe tokens and factories
 - Singleton, transient, and scoped lifetimes
 - Hierarchical child containers
@@ -127,6 +122,15 @@ provideFactory(HTTP, {
 The keys in `deps` become the keys of the object passed to `useFactory`, each resolved to its token's type.
 
 ### Container
+
+The container holds your providers and resolves values on demand. Create one
+from a list of providers (all optional), then add more, check, resolve, and
+dispose:
+
+- `register(provider, options?)` — add a provider at any time.
+- `has(token)` — whether a provider for the token is registered.
+- `get(token)` — resolve the value, building and caching it as its scope dictates.
+- `dispose()` — run `onDispose` hooks and release resolved instances.
 
 ```ts
 const container = createContainer(providers); // providers are optional
