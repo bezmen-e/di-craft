@@ -17,6 +17,7 @@ A tiny, type-safe dependency injection container for TypeScript.
   - [Child containers](#child-containers)
   - [Cycle detection](#cycle-detection)
 - [Example: per-request container](#example-per-request-container)
+- [Dependency injection vs service location](#dependency-injection-vs-service-location)
 - [Error handling](#error-handling)
 - [API reference](#api-reference)
 - [License](#license)
@@ -327,6 +328,50 @@ What each scope buys you here:
 - `REQUEST_ID` and `USERS` are **scoped** — a new instance per child, so each request gets isolated state even though the providers are declared once on the root.
 - `REQUEST` is a per-request **value** registered on the child, and the scoped `REQUEST_ID` resolves it from that same child.
 - The child's `dispose()` releases only that request's scoped instances; the shared pool stays open until `root.dispose()` runs on `onClose`.
+
+## Dependency injection vs service location
+
+di-craft is built for **dependency injection**: dependencies are declared up front
+and handed to your code. The opposite is **service location**, where code reaches
+into a container at runtime to pull what it needs — which hides dependencies and
+couples your domain to the container.
+
+Two habits keep usage canonical:
+
+1. Call `container.get()` only at the **composition root** — the entrypoint,
+   framework hooks, or route handlers. Never inside domain logic.
+2. Never pass the container into your classes or functions.
+
+di-craft enforces the most important half of this for you: **a factory only ever
+receives its declared `deps`, never the container**, so a provider physically
+cannot reach in and locate arbitrary services.
+
+```ts
+// Dependency injection — deps are explicit, the class never sees the container.
+provideFactory(USERS, {
+  deps: { repo: REPO, logger: LOGGER },
+  useFactory: ({ repo, logger }) => new UserService(repo, logger),
+});
+
+const users = container.get(USERS); // resolved at the root, then injected down
+```
+
+```ts
+// Service location (anti-pattern) — the container is smuggled into domain code.
+class UserService {
+  constructor(private container: Container) {}
+
+  list() {
+    const repo = this.container.get(REPO); // hidden, runtime-only dependency
+  }
+}
+```
+
+The second form compiles, but it conceals dependencies and defeats the purpose of
+DI. There is no runtime flag that can forbid it — `get()` is the same call the
+composition root relies on — so keep resolution at the edges by convention. If you
+want hard enforcement, restrict where `.get()` may be called with a lint rule
+(e.g. allow it only in your composition-root files).
 
 ## Error handling
 
