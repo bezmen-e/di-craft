@@ -51,8 +51,12 @@
 		"dependency-injection",
 		"di",
 		"ioc",
+		"inversion-of-control",
 		"typescript",
-		"container"
+		"type-safe",
+		"container",
+		"scoped",
+		"tree-shakable"
 	],
 	"homepage": "https://github.com/bezmen-e/di-craft",
 	"repository": {
