@@ -17,6 +17,7 @@ A tiny, type-safe dependency injection container for TypeScript.
   - [Disposal](#disposal)
   - [Child containers](#child-containers)
   - [Cycle detection](#cycle-detection)
+  - [Async dependencies](#async-dependencies)
 - [Example: per-request container](#example-per-request-container)
 - [Dependency injection vs service location](#dependency-injection-vs-service-location)
 - [Error handling](#error-handling)
@@ -283,6 +284,42 @@ If providers form a dependency cycle, resolution throws `CircularDependencyError
 ```ts
 // A -> B -> A
 container.get(A); // throws: Circular dependency detected: A -> B -> A
+```
+
+### Async dependencies
+
+di-craft resolves synchronously by design — there is no `getAsync`, and async
+never colors the rest of your graph. Asynchronous values are handled with one of
+two patterns, which together cover the vast majority of cases.
+
+**Resolve first, then register.** Do the async work at your composition root and
+register the resolved value. Simplest and most common:
+
+```ts
+const db = await connectDatabase(config);
+container.register(provideValue(DB, db));
+```
+
+**Promise as value (lazy).** Register a factory that returns a promise. The
+container caches it like any other singleton, so the async work runs once and
+every consumer awaits the same promise:
+
+```ts
+const POOL = createToken<Promise<Pool>>("pool");
+
+container.register(provideFactory(POOL, { useFactory: () => createPool() }));
+
+const pool = await container.get(POOL);
+```
+
+A factory that depends on `POOL` receives the promise and awaits it itself:
+
+```ts
+provideFactory(USERS, {
+  deps: { pool: POOL },
+  useFactory: async ({ pool }) => new UsersRepo(await pool),
+});
+// USERS is now Token<Promise<UsersRepo>> — consumers await it too.
 ```
 
 ## Example: per-request container
