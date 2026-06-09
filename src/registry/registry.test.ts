@@ -121,4 +121,17 @@ describe("registry", () => {
 
 		expect(registry.get(TOKEN)).toBeDefined();
 	});
+
+	test("returns false for a first registration and true on override", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const registry = createRegistry();
+
+		expect(registry.register(provideValue(TOKEN, "first"))).toBe(false);
+		expect(
+			registry.register(provideValue(TOKEN, "second"), {
+				allowOverride: true,
+			}),
+		).toBe(true);
+	});
 });

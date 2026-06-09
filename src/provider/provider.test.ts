@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { createToken } from "../token";
 import {
+	InvalidProviderError,
 	isFactoryProvider,
 	isValueProvider,
 	provideFactory,
@@ -116,6 +117,30 @@ describe("provider", () => {
 		expect(isFactoryProvider(provider)).toBe(true);
 		expect(provider.useFactory({})).toBeInstanceOf(Service);
 		expect(provider.useFactory({}).value).toBe("service");
+	});
+
+	test("throws when a transient provider declares onDispose", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		expect(() =>
+			provideFactory(TOKEN, {
+				scope: "transient",
+				useFactory: () => "value",
+				onDispose: () => {},
+			}),
+		).toThrow(InvalidProviderError);
+	});
+
+	test("allows onDispose for non-transient providers", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		expect(() =>
+			provideFactory(TOKEN, {
+				scope: "scoped",
+				useFactory: () => "value",
+				onDispose: () => {},
+			}),
+		).not.toThrow();
 	});
 
 	test("detects value provider", () => {

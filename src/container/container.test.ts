@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { provideFactory, provideValue } from "../provider";
+import {
+	InvalidProviderError,
+	provideFactory,
+	provideValue,
+} from "../provider";
 import { DuplicateProviderError } from "../registry";
 import { CircularDependencyError, MissingProviderError } from "../resolver";
 import { createToken } from "../token";
@@ -118,6 +122,71 @@ describe("container", () => {
 		container.register(provideValue(TOKEN, "value"), { allowOverride: true });
 
 		expect(container.get(TOKEN)).toBe("value");
+	});
+
+	test("override of a resolved disposable singleton throws", () => {
+		const TOKEN = createToken<{ value: string }>("TOKEN");
+
+		const container = createContainer([
+			provideFactory(TOKEN, {
+				useFactory: () => ({ value: "first" }),
+				onDispose: () => {},
+			}),
+		]);
+
+		container.get(TOKEN);
+
+		expect(() =>
+			container.register(
+				provideFactory(TOKEN, { useFactory: () => ({ value: "second" }) }),
+				{ allowOverride: true },
+			),
+		).toThrow(InvalidProviderError);
+	});
+
+	test("override of an unresolved disposable provider is allowed", () => {
+		const TOKEN = createToken<{ value: string }>("TOKEN");
+
+		const container = createContainer([
+			provideFactory(TOKEN, {
+				useFactory: () => ({ value: "first" }),
+				onDispose: () => {},
+			}),
+		]);
+
+		container.register(
+			provideFactory(TOKEN, { useFactory: () => ({ value: "second" }) }),
+			{ allowOverride: true },
+		);
+
+		expect(container.get(TOKEN).value).toBe("second");
+	});
+
+	test("override of a disposable singleton works after dispose", async () => {
+		const TOKEN = createToken<{ value: string }>("TOKEN");
+
+		const disposed: string[] = [];
+
+		const container = createContainer([
+			provideFactory(TOKEN, {
+				useFactory: () => ({ value: "first" }),
+				onDispose: () => {
+					disposed.push("first");
+				},
+			}),
+		]);
+
+		container.get(TOKEN);
+
+		await container.dispose();
+
+		container.register(
+			provideFactory(TOKEN, { useFactory: () => ({ value: "second" }) }),
+			{ allowOverride: true },
+		);
+
+		expect(disposed).toEqual(["first"]);
+		expect(container.get(TOKEN).value).toBe("second");
 	});
 
 	test("caches singleton factory provider", () => {
@@ -305,10 +374,9 @@ describe("container", () => {
 		await expect(container.dispose()).resolves.toBeUndefined();
 	});
 
-	test("dispose ignores unresolved and transient instances", async () => {
+	test("dispose ignores unresolved instances", async () => {
 		const SINGLETON = createToken<string>("SINGLETON");
 		const UNUSED = createToken<string>("UNUSED");
-		const TRANSIENT = createToken<string>("TRANSIENT");
 
 		const disposed: string[] = [];
 
@@ -325,17 +393,9 @@ describe("container", () => {
 					disposed.push("unused");
 				},
 			}),
-			provideFactory(TRANSIENT, {
-				scope: "transient",
-				useFactory: () => "transient",
-				onDispose: () => {
-					disposed.push("transient");
-				},
-			}),
 		]);
 
 		container.get(SINGLETON);
-		container.get(TRANSIENT);
 
 		await container.dispose();
 

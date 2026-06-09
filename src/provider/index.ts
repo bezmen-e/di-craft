@@ -1,3 +1,4 @@
+export { InvalidProviderError } from "./errors";
 export {
 	isFactoryProvider,
 	isValueProvider,

@@ -1,5 +1,6 @@
 import { type Scope, Scopes } from "../scope";
 import type { Token } from "../token";
+import { InvalidProviderError } from "./errors";
 import type {
 	AnyFactoryProvider,
 	DepsMap,
@@ -27,6 +28,14 @@ export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 		readonly onDispose?: DisposeHook<T>;
 	},
 ): FactoryProvider<T, TDeps> => {
+	// Transient instances are never cached, so dispose hooks would never run.
+	// Fail fast instead of silently ignoring the hook.
+	if (options.scope === Scopes.Transient && options.onDispose) {
+		throw new InvalidProviderError(
+			`onDispose is not supported for transient providers (token "${token.name}"): transient instances are not tracked, so the hook would never run.`,
+		);
+	}
+
 	return {
 		provide: token,
 		useFactory: options.useFactory,

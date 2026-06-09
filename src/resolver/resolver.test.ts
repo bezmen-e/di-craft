@@ -468,6 +468,31 @@ describe("resolver", () => {
 		expect(value.a).toBe(value.b.a);
 	});
 
+	test("hasDisposableInstance reflects a cached instance with onDispose", () => {
+		const PLAIN = createToken<string>("PLAIN");
+		const DISPOSABLE = createToken<string>("DISPOSABLE");
+
+		const registry = createRegistry();
+
+		registry.register(provideFactory(PLAIN, { useFactory: () => "plain" }));
+		registry.register(
+			provideFactory(DISPOSABLE, {
+				useFactory: () => "disposable",
+				onDispose: () => {},
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(resolver.hasDisposableInstance(DISPOSABLE)).toBe(false);
+
+		resolver.resolve(PLAIN);
+		resolver.resolve(DISPOSABLE);
+
+		expect(resolver.hasDisposableInstance(PLAIN)).toBe(false);
+		expect(resolver.hasDisposableInstance(DISPOSABLE)).toBe(true);
+	});
+
 	test("invalidate clears the cached singleton instance", () => {
 		const TOKEN = createToken<{ value: number }>("TOKEN");
 

@@ -8,6 +8,7 @@ export type {
 	ValueProvider,
 } from "./provider";
 export {
+	InvalidProviderError,
 	provideFactory,
 	provideValue,
 } from "./provider";

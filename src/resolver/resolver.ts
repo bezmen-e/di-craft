@@ -26,6 +26,12 @@ class ResolverClass implements Resolver {
 		this.store.delete(token);
 	}
 
+	// Whether this container locally holds a resolved instance with an onDispose
+	// hook — used to refuse silently dropping a resource on override.
+	hasDisposableInstance(token: Token<unknown>): boolean {
+		return this.store.get(token)?.onDispose !== undefined;
+	}
+
 	dispose(): Promise<void> {
 		return this.store.dispose();
 	}

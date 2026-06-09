@@ -6,7 +6,7 @@ export type RegisterOptions = {
 };
 
 export type Registry = {
-	register(provider: Provider, options?: RegisterOptions): void;
+	register(provider: Provider, options?: RegisterOptions): boolean;
 	get(token: Token<unknown>): Provider | undefined;
 	has(token: Token<unknown>): boolean;
 };

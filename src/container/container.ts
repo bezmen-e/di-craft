@@ -1,4 +1,4 @@
-import type { Provider } from "../provider";
+import { InvalidProviderError, type Provider } from "../provider";
 import {
 	createRegistry,
 	type RegisterOptions,
@@ -25,9 +25,20 @@ class ContainerClass implements Container {
 	}
 
 	register(provider: Provider, options?: RegisterOptions): void {
-		this.registry.register(provider, options);
+		// Refuse to silently drop a live instance that owns resources: the caller
+		// must dispose the container before replacing such a provider.
+		if (
+			options?.allowOverride &&
+			this.resolver.hasDisposableInstance(provider.provide)
+		) {
+			throw new InvalidProviderError(
+				`Cannot override token "${provider.provide.name}": its instance was already created and has an onDispose hook. Dispose the container before replacing it.`,
+			);
+		}
 
-		if (options?.allowOverride) {
+		const overridden = this.registry.register(provider, options);
+
+		if (overridden) {
 			this.resolver.invalidate(provider.provide);
 		}
 	}

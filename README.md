@@ -151,7 +151,10 @@ container.register(provideValue(API, fakeApi), { allowOverride: true });
 ```
 
 Overriding a token whose value was already resolved as a singleton drops the
-cached instance, so the next `get` rebuilds it from the new provider.
+cached instance, so the next `get` rebuilds it from the new provider. If that
+resolved instance has an `onDispose` hook, the override throws
+`InvalidProviderError` instead of silently dropping it — call `dispose()` first
+so the resource is released, then register the replacement.
 
 ### Scopes
 
@@ -202,7 +205,8 @@ Details:
 - Hooks run in reverse creation order (dependents before their dependencies).
 - `dispose()` returns a promise and awaits async hooks.
 - It is idempotent — calling it again is a no-op.
-- Only resolved singletons are disposed; transient and never-resolved instances are not tracked.
+- Only resolved singletons (and scoped instances on their container) are disposed; never-resolved instances are not tracked.
+- `onDispose` is only meaningful for cached instances. Declaring it on a `transient` provider throws `InvalidProviderError`, since transient instances are never tracked and the hook could never run.
 
 ### Child containers
 
@@ -399,6 +403,7 @@ try {
 | `DuplicateProviderError`   | A token is registered more than once.                    |
 | `CircularDependencyError`  | Providers form a dependency cycle.                       |
 | `InvalidDependencyError`   | A declared dependency token is missing/undefined.        |
+| `InvalidProviderError`     | A provider is misconfigured (`onDispose` on a transient) or an override would drop a live disposable instance. |
 
 ## API reference
 
@@ -413,7 +418,7 @@ try {
 
 Exported types: `Container`, `Token`, `Provider`, `ValueProvider`, `FactoryProvider`, `Scope`, `DisposeHook`, `RegisterOptions`.
 
-Exported errors: `DiError`, `MissingProviderError`, `DuplicateProviderError`, `CircularDependencyError`, `InvalidDependencyError`.
+Exported errors: `DiError`, `MissingProviderError`, `DuplicateProviderError`, `CircularDependencyError`, `InvalidDependencyError`, `InvalidProviderError`.
 
 ## License
 

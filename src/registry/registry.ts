@@ -6,15 +6,18 @@ import type { RegisterOptions, Registry } from "./types";
 class RegistryClass implements Registry {
 	private readonly providers = new Map<symbol, Provider>();
 
-	register(provider: Provider, options?: RegisterOptions): void {
-		const isDuplicate =
-			!options?.allowOverride && this.providers.has(provider.provide.id);
+	register(provider: Provider, options?: RegisterOptions): boolean {
+		const existed = this.providers.has(provider.provide.id);
 
-		if (isDuplicate) {
+		if (existed && !options?.allowOverride) {
 			throw new DuplicateProviderError(provider.provide.name);
 		}
 
 		this.providers.set(provider.provide.id, provider);
+
+		// Returns whether an existing provider was actually replaced, so callers
+		// can invalidate cached instances exactly when an override happened.
+		return existed;
 	}
 
 	get(token: Token<unknown>): Provider | undefined {
