@@ -11,6 +11,7 @@ A tiny, type-safe dependency injection container for TypeScript.
 - [Core concepts](#core-concepts)
   - [Tokens](#tokens)
   - [Providers](#providers)
+  - [Optional dependencies](#optional-dependencies)
   - [Container](#container)
   - [Scopes](#scopes)
   - [Disposal](#disposal)
@@ -68,6 +69,7 @@ framework coupling. You work with just **tokens**, **providers**, a **container*
 
 - Zero runtime dependencies
 - Type-safe tokens and factories
+- Optional dependencies via `optional()`
 - Singleton, transient, and scoped lifetimes
 - Hierarchical child containers
 - Deterministic disposal with `onDispose` hooks
@@ -122,6 +124,37 @@ provideFactory(HTTP, {
 
 The keys in `deps` become the keys of the object passed to `useFactory`, each resolved to its token's type.
 
+### Optional dependencies
+
+Wrap a token with `optional` to mark a dependency as not required. When no
+provider for it is registered anywhere in the container chain, the factory
+receives `undefined` instead of the resolution throwing `MissingProviderError`.
+The inferred type is widened to `T | undefined`, so TypeScript forces you to
+handle the absent case:
+
+```ts
+import { optional, provideFactory } from "di-craft";
+
+provideFactory(USERS, {
+  deps: { logger: optional(LOGGER) }, // LOGGER may or may not be registered
+  useFactory: ({ logger }) => {
+    logger?.info("creating users service"); // logger: Logger | undefined
+    return new UsersService();
+  },
+});
+```
+
+The same descriptor works at the top level — `optional` can be passed anywhere a
+dependency is accepted, including `container.get`:
+
+```ts
+const logger = container.get(optional(LOGGER)); // Logger | undefined
+```
+
+Optional only affects the token itself: if a provider _is_ registered, it is
+resolved normally and its own errors (cycles, missing nested deps) still
+surface.
+
 ### Container
 
 The container holds your providers and resolves values on demand. Create one
@@ -130,7 +163,7 @@ dispose:
 
 - `register(provider, options?)` — add a provider at any time.
 - `has(token)` — whether a provider for the token is registered.
-- `get(token)` — resolve the value, building and caching it as its scope dictates.
+- `get(token)` — resolve the value, building and caching it as its scope dictates. Accepts `optional(token)` to get `undefined` instead of throwing when absent.
 - `dispose()` — run `onDispose` hooks and release resolved instances.
 
 ```ts
@@ -412,11 +445,12 @@ try {
 | `createToken<T>(name)`  | Create a unique, typed token.                              |
 | `provideValue(token, value)` | Provider that returns an existing value.              |
 | `provideFactory(token, options)` | Provider that builds a value via a factory.       |
+| `optional(token)`       | Mark a dependency as optional (resolves to `undefined` when absent). |
 | `createContainer(providers?)` | Create a container, optionally seeded with providers. |
 | `createChildContainer(parent, providers?)` | Create a child container that inherits from `parent`. |
 | `Scopes`                | Object of scope values (`Scopes.Singleton`, `Scopes.Transient`, `Scopes.Scoped`). |
 
-Exported types: `Container`, `Token`, `Provider`, `ValueProvider`, `FactoryProvider`, `Scope`, `DisposeHook`, `RegisterOptions`.
+Exported types: `Container`, `Token`, `Provider`, `ValueProvider`, `FactoryProvider`, `Dependency`, `OptionalDependency`, `Scope`, `DisposeHook`, `RegisterOptions`.
 
 Exported errors: `DiError`, `MissingProviderError`, `DuplicateProviderError`, `CircularDependencyError`, `InvalidDependencyError`, `InvalidProviderError`.
 

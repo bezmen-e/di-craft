@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Provider } from "../provider";
-import { provideFactory, provideValue } from "../provider";
+import { optional, provideFactory, provideValue } from "../provider";
 import { createRegistry } from "../registry";
 import { createToken } from "../token";
 import {
@@ -466,6 +466,68 @@ describe("resolver", () => {
 		const value = resolver.resolve(C);
 
 		expect(value.a).toBe(value.b.a);
+	});
+
+	test("resolves an optional dependency to undefined when its provider is missing", () => {
+		const LOGGER = createToken<{ log: () => void }>("LOGGER");
+		const SERVICE = createToken<{ hasLogger: boolean }>("SERVICE");
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(SERVICE, {
+				deps: { logger: optional(LOGGER) },
+				useFactory: ({ logger }) => ({ hasLogger: logger !== undefined }),
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(resolver.resolve(SERVICE)).toEqual({ hasLogger: false });
+	});
+
+	test("resolves an optional dependency normally when its provider exists", () => {
+		const LOGGER = createToken<{ tag: string }>("LOGGER");
+		const SERVICE = createToken<{ tag: string | undefined }>("SERVICE");
+
+		const registry = createRegistry();
+
+		registry.register(provideValue(LOGGER, { tag: "real" }));
+		registry.register(
+			provideFactory(SERVICE, {
+				deps: { logger: optional(LOGGER) },
+				useFactory: ({ logger }) => ({ tag: logger?.tag }),
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(resolver.resolve(SERVICE)).toEqual({ tag: "real" });
+	});
+
+	test("optional does not swallow errors from a present provider", () => {
+		const MISSING = createToken<number>("MISSING");
+		const FLAKY = createToken<number>("FLAKY");
+		const SERVICE = createToken<number>("SERVICE");
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(FLAKY, {
+				deps: { missing: MISSING },
+				useFactory: ({ missing }) => missing + 1,
+			}),
+		);
+		registry.register(
+			provideFactory(SERVICE, {
+				deps: { flaky: optional(FLAKY) },
+				useFactory: ({ flaky }) => flaky ?? 0,
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(() => resolver.resolve(SERVICE)).toThrow(MissingProviderError);
 	});
 
 	test("hasDisposableInstance reflects a cached instance with onDispose", () => {

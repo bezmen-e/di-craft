@@ -1,4 +1,10 @@
-import { InvalidProviderError, type Provider } from "../provider";
+import {
+	type Dependency,
+	InvalidProviderError,
+	isOptionalDependency,
+	type OptionalDependency,
+	type Provider,
+} from "../provider";
 import {
 	createRegistry,
 	type RegisterOptions,
@@ -25,8 +31,7 @@ class ContainerClass implements Container {
 	}
 
 	register(provider: Provider, options?: RegisterOptions): void {
-		// Refuse to silently drop a live instance that owns resources: the caller
-		// must dispose the container before replacing such a provider.
+		// Don't silently drop a live disposable instance; require explicit dispose.
 		if (
 			options?.allowOverride &&
 			this.resolver.hasDisposableInstance(provider.provide)
@@ -43,8 +48,14 @@ class ContainerClass implements Container {
 		}
 	}
 
-	get<T>(token: Token<T>): T {
-		return this.resolver.resolve(token);
+	get<T>(token: Token<T>): T;
+	get<T>(dependency: OptionalDependency<T>): T | undefined;
+	get<T>(dependency: Dependency<T>): T | undefined {
+		if (isOptionalDependency(dependency)) {
+			return this.resolver.resolveOptional(dependency.token);
+		}
+
+		return this.resolver.resolve(dependency);
 	}
 
 	has(token: Token<unknown>): boolean {

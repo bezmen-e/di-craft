@@ -3,7 +3,9 @@ import { createToken } from "../token";
 import {
 	InvalidProviderError,
 	isFactoryProvider,
+	isOptionalDependency,
 	isValueProvider,
+	optional,
 	provideFactory,
 	provideValue,
 } from ".";
@@ -222,6 +224,38 @@ describe("provider", () => {
 					value: counter.missing,
 				};
 			},
+		});
+	});
+
+	test("optional wraps a token into an optional dependency", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const dependency = optional(TOKEN);
+
+		expect(dependency).toEqual({ token: TOKEN, optional: true });
+		expect(isOptionalDependency(dependency)).toBe(true);
+		expect(isOptionalDependency(TOKEN)).toBe(false);
+	});
+
+	test("optional dependency widens the inferred type to include undefined", () => {
+		const COUNTER = createToken<{ value: number }>("counter");
+		const SERVICE = createToken<number>("service");
+
+		provideFactory(SERVICE, {
+			deps: {
+				counter: optional(COUNTER),
+			},
+			useFactory: ({ counter }) => {
+				// @ts-expect-error counter may be undefined
+				return counter.value;
+			},
+		});
+
+		provideFactory(SERVICE, {
+			deps: {
+				counter: optional(COUNTER),
+			},
+			useFactory: ({ counter }) => counter?.value ?? 0,
 		});
 	});
 

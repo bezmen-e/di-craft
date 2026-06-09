@@ -2,13 +2,16 @@ export type { Container } from "./container";
 export { createChildContainer, createContainer } from "./container";
 export { DiError } from "./error";
 export type {
+	Dependency,
 	DisposeHook,
 	FactoryProvider,
+	OptionalDependency,
 	Provider,
 	ValueProvider,
 } from "./provider";
 export {
 	InvalidProviderError,
+	optional,
 	provideFactory,
 	provideValue,
 } from "./provider";

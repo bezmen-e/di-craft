@@ -15,8 +15,7 @@ class RegistryClass implements Registry {
 
 		this.providers.set(provider.provide.id, provider);
 
-		// Returns whether an existing provider was actually replaced, so callers
-		// can invalidate cached instances exactly when an override happened.
+		// true if an existing provider was replaced (override).
 		return existed;
 	}
 

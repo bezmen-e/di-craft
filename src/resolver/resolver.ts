@@ -1,5 +1,9 @@
 import type { DepsMap, Provider, ResolveDeps } from "../provider";
-import { isFactoryProvider, isValueProvider } from "../provider";
+import {
+	isFactoryProvider,
+	isOptionalDependency,
+	isValueProvider,
+} from "../provider";
 import type { Registry } from "../registry";
 import { type Scope, Scopes } from "../scope";
 import { createStore, type Store } from "../store";
@@ -22,12 +26,15 @@ class ResolverClass implements Resolver {
 		return this.resolveToken(token, undefined);
 	}
 
+	resolveOptional<T>(token: Token<T>): T | undefined {
+		return this.lookupOptional(token, undefined);
+	}
+
 	invalidate(token: Token<unknown>): void {
 		this.store.delete(token);
 	}
 
-	// Whether this container locally holds a resolved instance with an onDispose
-	// hook — used to refuse silently dropping a resource on override.
+	// True if a locally-cached instance has an onDispose hook.
 	hasDisposableInstance(token: Token<unknown>): boolean {
 		return this.store.get(token)?.onDispose !== undefined;
 	}
@@ -36,14 +43,12 @@ class ResolverClass implements Resolver {
 		return this.store.dispose();
 	}
 
-	// `context` is created lazily by the first factory that actually builds:
-	// value providers and cache hits return without allocating one.
+	// context is allocated lazily by the first building factory (zero-alloc cache hits).
 	private resolveToken<T>(
 		token: Token<T>,
 		context: ResolutionContext | undefined,
 	): T {
-		// Single walk up the parent chain, fetching the provider directly instead
-		// of probing with `has` and then re-reading it from the owning registry.
+		// Single walk up the parent chain, fetching the provider directly.
 		let owner: ResolverClass | undefined = this;
 		let provider: Provider | undefined;
 
@@ -66,9 +71,7 @@ class ResolverClass implements Resolver {
 		}
 
 		if (isFactoryProvider(provider)) {
-			// Where the instance lives depends on its scope: singletons are cached
-			// on the owner (shared by the whole subtree), scoped instances on the
-			// requesting container (one per child), transient ones nowhere.
+			// Scope decides the host: singleton on owner, scoped on this, transient nowhere.
 			const host = this.selectHost(provider.scope, owner);
 
 			if (host) {
@@ -84,8 +87,7 @@ class ResolverClass implements Resolver {
 			ctx.enter(token);
 
 			try {
-				// Dependencies resolve from the host so a scoped instance sees the
-				// requesting container's providers, while a singleton sees its owner's.
+				// Resolve deps from the host: scoped sees this container, singleton sees owner.
 				const deps = (host ?? this).resolveDeps(provider.deps, ctx);
 				const value = provider.useFactory(deps) as T;
 
@@ -131,19 +133,38 @@ class ResolverClass implements Resolver {
 		const resolvedDeps: Partial<ResolveDeps<TDeps>> = {};
 
 		for (const key of Object.keys(deps) as Array<keyof TDeps>) {
-			const token = deps[key];
+			const dependency = deps[key];
 
-			if (token === undefined) {
+			if (dependency === undefined) {
 				throw new InvalidDependencyError(String(key));
 			}
 
-			resolvedDeps[key] = this.resolveToken(
-				token,
-				context,
+			resolvedDeps[key] = (
+				isOptionalDependency(dependency)
+					? this.lookupOptional(dependency.token, context)
+					: this.resolveToken(dependency, context)
 			) as ResolveDeps<TDeps>[typeof key];
 		}
 
 		return resolvedDeps as ResolveDeps<TDeps>;
+	}
+
+	// Absent provider -> undefined; a present one resolves normally (its errors surface).
+	private lookupOptional<T>(
+		token: Token<T>,
+		context: ResolutionContext | undefined,
+	): T | undefined {
+		let owner: ResolverClass | undefined = this;
+
+		while (owner) {
+			if (owner.registry.has(token)) {
+				return this.resolveToken(token, context);
+			}
+
+			owner = owner.parent;
+		}
+
+		return undefined;
 	}
 }
 

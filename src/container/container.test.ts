@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
 	InvalidProviderError,
+	optional,
 	provideFactory,
 	provideValue,
 } from "../provider";
@@ -400,6 +401,68 @@ describe("container", () => {
 		await container.dispose();
 
 		expect(disposed).toEqual(["singleton"]);
+	});
+
+	test("optional dependency resolves to undefined when absent", () => {
+		const CONFIG = createToken<{ debug: boolean }>("CONFIG");
+		const APP = createToken<{ debug: boolean }>("APP");
+
+		const container = createContainer([
+			provideFactory(APP, {
+				deps: { config: optional(CONFIG) },
+				useFactory: ({ config }) => ({ debug: config?.debug ?? false }),
+			}),
+		]);
+
+		expect(container.get(APP)).toEqual({ debug: false });
+	});
+
+	test("optional dependency is satisfied by a provider registered on a child", () => {
+		const CONFIG = createToken<{ debug: boolean }>("CONFIG");
+		const APP = createToken<{ debug: boolean }>("APP");
+
+		const root = createContainer([
+			provideFactory(APP, {
+				scope: "scoped",
+				deps: { config: optional(CONFIG) },
+				useFactory: ({ config }) => ({ debug: config?.debug ?? false }),
+			}),
+		]);
+
+		const child = createChildContainer(root, [
+			provideValue(CONFIG, { debug: true }),
+		]);
+
+		expect(child.get(APP)).toEqual({ debug: true });
+	});
+
+	test("get(optional(token)) returns undefined when the provider is absent", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const container = createContainer();
+
+		expect(container.get(optional(TOKEN))).toBeUndefined();
+	});
+
+	test("get(optional(token)) returns the value when the provider exists", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const container = createContainer([provideValue(TOKEN, "value")]);
+
+		const value = container.get(optional(TOKEN));
+
+		expect(value).toBe("value");
+		// @ts-expect-error value may be undefined
+		value.length;
+	});
+
+	test("get(optional(token)) walks the parent chain", () => {
+		const TOKEN = createToken<string>("TOKEN");
+
+		const root = createContainer([provideValue(TOKEN, "value")]);
+		const child = createChildContainer(root);
+
+		expect(child.get(optional(TOKEN))).toBe("value");
 	});
 
 	test("child resolves providers inherited from the parent", () => {
