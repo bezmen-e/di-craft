@@ -1,5 +1,10 @@
 # di-craft
 
+[![npm version](https://img.shields.io/npm/v/di-craft)](https://www.npmjs.com/package/di-craft)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/di-craft)](https://bundlephobia.com/package/di-craft)
+[![CI](https://github.com/bezmen-e/di-craft/actions/workflows/checks.yaml/badge.svg)](https://github.com/bezmen-e/di-craft/actions/workflows/checks.yaml)
+[![license](https://img.shields.io/npm/l/di-craft)](LICENSE)
+
 A tiny, type-safe dependency injection container for TypeScript.
 
 ## Contents
