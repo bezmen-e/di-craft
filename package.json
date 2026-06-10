@@ -1,6 +1,6 @@
 {
 	"name": "di-craft",
-	"version": "0.0.12",
+	"version": "0.0.13",
 	"description": "A tiny, type-safe dependency injection container for TypeScript",
 	"license": "MIT",
 	"author": {
