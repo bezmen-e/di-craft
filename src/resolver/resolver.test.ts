@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import type { Provider } from "../provider";
-import { optional, provideFactory, provideValue } from "../provider";
+import {
+	InvalidProviderError,
+	optional,
+	provideFactory,
+	provideValue,
+} from "../provider";
 import { createRegistry } from "../registry";
 import { createToken } from "../token";
 import {
@@ -553,6 +558,142 @@ describe("resolver", () => {
 
 		expect(resolver.hasDisposableInstance(PLAIN)).toBe(false);
 		expect(resolver.hasDisposableInstance(DISPOSABLE)).toBe(true);
+	});
+
+	test("throws when a singleton depends on a scoped provider", () => {
+		const SCOPED = createToken<number>("SCOPED");
+		const SINGLETON = createToken<number>("SINGLETON");
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(SCOPED, { scope: "scoped", useFactory: () => 1 }),
+		);
+		registry.register(
+			provideFactory(SINGLETON, {
+				deps: { scoped: SCOPED },
+				useFactory: ({ scoped }) => scoped + 1,
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(() => resolver.resolve(SINGLETON)).toThrow(InvalidProviderError);
+		expect(() => resolver.resolve(SINGLETON)).toThrow(
+			'"SINGLETON" (singleton) cannot depend on "SCOPED" (scoped)',
+		);
+	});
+
+	test("throws when a singleton depends on a transient provider", () => {
+		const TRANSIENT = createToken<number>("TRANSIENT");
+		const SINGLETON = createToken<number>("SINGLETON");
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(TRANSIENT, { scope: "transient", useFactory: () => 1 }),
+		);
+		registry.register(
+			provideFactory(SINGLETON, {
+				deps: { transient: TRANSIENT },
+				useFactory: ({ transient }) => transient + 1,
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(() => resolver.resolve(SINGLETON)).toThrow(InvalidProviderError);
+	});
+
+	test("throws when a scoped provider depends on a transient provider", () => {
+		const TRANSIENT = createToken<number>("TRANSIENT");
+		const SCOPED = createToken<number>("SCOPED");
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(TRANSIENT, { scope: "transient", useFactory: () => 1 }),
+		);
+		registry.register(
+			provideFactory(SCOPED, {
+				scope: "scoped",
+				deps: { transient: TRANSIENT },
+				useFactory: ({ transient }) => transient + 1,
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(() => resolver.resolve(SCOPED)).toThrow(InvalidProviderError);
+	});
+
+	test("throws for an optional shorter-lived dependency", () => {
+		const SCOPED = createToken<number>("SCOPED");
+		const SINGLETON = createToken<number>("SINGLETON");
+
+		const registry = createRegistry();
+
+		registry.register(
+			provideFactory(SCOPED, { scope: "scoped", useFactory: () => 1 }),
+		);
+		registry.register(
+			provideFactory(SINGLETON, {
+				deps: { scoped: optional(SCOPED) },
+				useFactory: ({ scoped }) => (scoped ?? 0) + 1,
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(() => resolver.resolve(SINGLETON)).toThrow(InvalidProviderError);
+	});
+
+	test("allows depending on a longer-lived provider", () => {
+		const SINGLETON = createToken<number>("SINGLETON");
+		const SCOPED = createToken<number>("SCOPED");
+		const TRANSIENT = createToken<number>("TRANSIENT");
+
+		const registry = createRegistry();
+
+		registry.register(provideFactory(SINGLETON, { useFactory: () => 1 }));
+		registry.register(
+			provideFactory(SCOPED, {
+				scope: "scoped",
+				deps: { singleton: SINGLETON },
+				useFactory: ({ singleton }) => singleton + 1,
+			}),
+		);
+		registry.register(
+			provideFactory(TRANSIENT, {
+				scope: "transient",
+				deps: { singleton: SINGLETON, scoped: SCOPED },
+				useFactory: ({ singleton, scoped }) => singleton + scoped,
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(resolver.resolve(SCOPED)).toBe(2);
+		expect(resolver.resolve(TRANSIENT)).toBe(3);
+	});
+
+	test("allows depending on a value regardless of scope", () => {
+		const VALUE = createToken<number>("VALUE");
+		const SINGLETON = createToken<number>("SINGLETON");
+
+		const registry = createRegistry();
+
+		registry.register(provideValue(VALUE, 1));
+		registry.register(
+			provideFactory(SINGLETON, {
+				deps: { value: VALUE },
+				useFactory: ({ value }) => value + 1,
+			}),
+		);
+
+		const resolver = createResolver(registry);
+
+		expect(resolver.resolve(SINGLETON)).toBe(2);
 	});
 
 	test("invalidate clears the cached singleton instance", () => {

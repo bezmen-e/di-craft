@@ -1,6 +1,6 @@
 import type { DepsMap, Provider, ResolveDeps } from "../provider";
 import {
-	isFactoryProvider,
+	InvalidProviderError,
 	isOptionalDependency,
 	isValueProvider,
 } from "../provider";
@@ -11,6 +11,11 @@ import type { Token } from "../token";
 import { ResolutionContext } from "./context";
 import { InvalidDependencyError, MissingProviderError } from "./errors";
 import type { Resolver } from "./types";
+
+// Lifetime ordering: longer-lived scopes rank lower. A provider may only depend
+// on dependencies that live at least as long as itself.
+const lifetimeRank = (scope: Scope | undefined): number =>
+	scope === Scopes.Scoped ? 1 : scope === Scopes.Transient ? 2 : 0;
 
 class ResolverClass implements Resolver {
 	private readonly registry: Registry;
@@ -44,9 +49,12 @@ class ResolverClass implements Resolver {
 	}
 
 	// context is allocated lazily by the first building factory (zero-alloc cache hits).
+	// consumerScope/consumerName describe the provider depending on this token, if any.
 	private resolveToken<T>(
 		token: Token<T>,
 		context: ResolutionContext | undefined,
+		consumerScope?: Scope,
+		consumerName?: string,
 	): T {
 		// Single walk up the parent chain, fetching the provider directly.
 		let owner: ResolverClass | undefined = this;
@@ -66,45 +74,58 @@ class ResolverClass implements Resolver {
 			throw new MissingProviderError(token.name);
 		}
 
+		// Values outlive every scope, so they are always a safe dependency.
 		if (isValueProvider(provider)) {
 			return provider.useValue as T;
 		}
 
-		if (isFactoryProvider(provider)) {
-			// Scope decides the host: singleton on owner, scoped on this, transient nowhere.
-			const host = this.selectHost(provider.scope, owner);
+		// Otherwise it is a factory provider (the only remaining variant).
+		// Reject capturing a shorter-lived dependency into a longer-lived consumer.
+		if (
+			consumerScope !== undefined &&
+			lifetimeRank(provider.scope) > lifetimeRank(consumerScope)
+		) {
+			throw new InvalidProviderError(
+				`"${consumerName}" (${consumerScope}) cannot depend on "${token.name}" (${provider.scope ?? Scopes.Singleton}): a longer-lived provider would capture a shorter-lived one. Widen the dependency's scope or narrow the consumer's.`,
+			);
+		}
 
-			if (host) {
-				const cached = host.store.get(token);
+		// Scope decides the host: singleton on owner, scoped on this, transient nowhere.
+		const host = this.selectHost(provider.scope, owner);
 
-				if (cached) {
-					return cached.value as T;
-				}
-			}
+		if (host) {
+			const cached = host.store.get(token);
 
-			// Allocate cycle detection only now, threading it through the build.
-			const ctx = context ?? new ResolutionContext();
-			ctx.enter(token);
-
-			try {
-				// Resolve deps from the host: scoped sees this container, singleton sees owner.
-				const deps = (host ?? this).resolveDeps(provider.deps, ctx);
-				const value = provider.useFactory(deps) as T;
-
-				if (host) {
-					host.store.set(token, {
-						value,
-						...(provider.onDispose ? { onDispose: provider.onDispose } : {}),
-					});
-				}
-
-				return value;
-			} finally {
-				ctx.exit(token);
+			if (cached) {
+				return cached.value as T;
 			}
 		}
 
-		throw new MissingProviderError(token.name);
+		// Allocate cycle detection only now, threading it through the build.
+		const ctx = context ?? new ResolutionContext();
+		ctx.enter(token);
+
+		try {
+			// Resolve deps from the host: scoped sees this container, singleton sees owner.
+			const deps = (host ?? this).resolveDeps(
+				provider.deps,
+				ctx,
+				provider.scope,
+				token.name,
+			);
+			const value = provider.useFactory(deps) as T;
+
+			if (host) {
+				host.store.set(token, {
+					value,
+					...(provider.onDispose ? { onDispose: provider.onDispose } : {}),
+				});
+			}
+
+			return value;
+		} finally {
+			ctx.exit(token);
+		}
 	}
 
 	private selectHost(
@@ -125,6 +146,8 @@ class ResolverClass implements Resolver {
 	private resolveDeps<TDeps extends DepsMap>(
 		deps: TDeps | undefined,
 		context: ResolutionContext,
+		consumerScope: Scope | undefined,
+		consumerName: string,
 	): ResolveDeps<TDeps> {
 		if (!deps) {
 			return {} as ResolveDeps<TDeps>;
@@ -141,8 +164,13 @@ class ResolverClass implements Resolver {
 
 			resolvedDeps[key] = (
 				isOptionalDependency(dependency)
-					? this.lookupOptional(dependency.token, context)
-					: this.resolveToken(dependency, context)
+					? this.lookupOptional(
+							dependency.token,
+							context,
+							consumerScope,
+							consumerName,
+						)
+					: this.resolveToken(dependency, context, consumerScope, consumerName)
 			) as ResolveDeps<TDeps>[typeof key];
 		}
 
@@ -153,12 +181,14 @@ class ResolverClass implements Resolver {
 	private lookupOptional<T>(
 		token: Token<T>,
 		context: ResolutionContext | undefined,
+		consumerScope?: Scope,
+		consumerName?: string,
 	): T | undefined {
 		let owner: ResolverClass | undefined = this;
 
 		while (owner) {
 			if (owner.registry.has(token)) {
-				return this.resolveToken(token, context);
+				return this.resolveToken(token, context, consumerScope, consumerName);
 			}
 
 			owner = owner.parent;

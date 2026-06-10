@@ -210,7 +210,12 @@ provideFactory(ID, {
 container.get(ID) !== container.get(ID); // true
 ```
 
-A transient provider that depends on a singleton still reuses the shared singleton instance.
+A provider may only depend on dependencies that live **at least as long** as
+itself, so a longer-lived instance never captures a shorter-lived one. A
+transient may depend on anything; a scoped may depend on scoped or singleton; a
+singleton may depend only on singletons (and values). Violating this throws
+`InvalidProviderError` at resolution. A transient that depends on a singleton, for
+example, reuses the shared singleton instance.
 
 ### Disposal
 
@@ -385,7 +390,7 @@ try {
 | `DuplicateProviderError`   | A token is registered more than once.                    |
 | `CircularDependencyError`  | Providers form a dependency cycle.                       |
 | `InvalidDependencyError`   | A declared dependency token is missing/undefined.        |
-| `InvalidProviderError`     | A provider is misconfigured (`onDispose` on a transient) or an override would drop a live disposable instance. |
+| `InvalidProviderError`     | A provider is misconfigured (`onDispose` on a transient, or a dependency that outlives its consumer) or an override would drop a live disposable instance. |
 
 ## API reference
 
