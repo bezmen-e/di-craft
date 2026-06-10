@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" role="img" aria-label="di-craft">
   <defs>
     <marker
-      id="arrow"
-      viewBox="0 0 8 8"
-      refX="7"
-      refY="4"
-      markerWidth="6"
-      markerHeight="6"
+      id="a"
+      viewBox="0 0 6 6"
+      refX="5"
+      refY="3"
+      markerWidth="4"
+      markerHeight="4"
       orient="auto"
     >
-      <path d="M0 0 L8 4 L0 8 Z" fill="#f59e0b" />
+      <path d="M0 0 L6 3 L0 6 Z" fill="#f59e0b" />
     </marker>
   </defs>
 
@@ -20,28 +20,24 @@
     stroke-linejoin="round"
   />
 
-  <circle cx="100" cy="62" r="11" fill="#ffffff" stroke="#94a3b8" stroke-width="3" />
-  <circle cx="100" cy="100" r="11" fill="#f59e0b" />
-  <circle cx="100" cy="138" r="11" fill="#3b82f6" />
+  <circle cx="56" cy="68" r="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2.5" />
+  <circle cx="108" cy="98" r="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2.5" />
+  <circle cx="146" cy="138" r="10" fill="#3b82f6" />
 
-  <line
-    x1="100"
-    y1="73"
-    x2="100"
-    y2="86"
+  <path
+    d="M66 68 H108 V88"
     stroke="#f59e0b"
-    stroke-width="5"
+    stroke-width="3.5"
     stroke-linecap="round"
-    marker-end="url(#arrow)"
+    stroke-linejoin="round"
+    marker-end="url(#a)"
   />
-  <line
-    x1="100"
-    y1="111"
-    x2="100"
-    y2="124"
+  <path
+    d="M118 98 H146 V128"
     stroke="#f59e0b"
-    stroke-width="5"
+    stroke-width="3.5"
     stroke-linecap="round"
-    marker-end="url(#arrow)"
+    stroke-linejoin="round"
+    marker-end="url(#a)"
   />
 </svg>
