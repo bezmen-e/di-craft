@@ -18,7 +18,6 @@ A tiny, type-safe dependency injection container for TypeScript.
   - [Child containers](#child-containers)
   - [Cycle detection](#cycle-detection)
   - [Async dependencies](#async-dependencies)
-- [Example: per-request container](#example-per-request-container)
 - [Dependency injection vs service location](#dependency-injection-vs-service-location)
 - [Error handling](#error-handling)
 - [API reference](#api-reference)
@@ -322,103 +321,17 @@ provideFactory(USERS, {
 // USERS is now Token<Promise<UsersRepo>> — consumers await it too.
 ```
 
-## Example: per-request container
-
-A common server pattern: build one **root** container at startup with the
-long-lived singletons (a database pool, clients, config), then fork a
-short-lived **child** per request for request-specific state. `scoped` providers
-give each request its own instance, and `dispose()` releases them once the
-response is sent.
-
-```ts
-import Fastify, { type FastifyRequest } from "fastify";
-import {
-  type Container,
-  createContainer,
-  createChildContainer,
-  createToken,
-  provideValue,
-  provideFactory,
-  Scopes,
-} from "di-craft";
-
-const DB = createToken<Pool>("db");
-const REQUEST = createToken<FastifyRequest>("request");
-const REQUEST_ID = createToken<string>("request-id");
-const USERS = createToken<UserService>("users");
-
-const app = Fastify({ logger: true });
-
-// Built once, shared by every request.
-const root = createContainer([
-  provideFactory(DB, {
-    useFactory: () => createPool(process.env.DATABASE_URL),
-    onDispose: (pool) => pool.end(), // closed only on shutdown
-  }),
-  provideFactory(REQUEST_ID, {
-    scope: Scopes.Scoped, // one id per request
-    deps: { request: REQUEST }, // resolves the value registered on the child
-    useFactory: ({ request }) => request.id, // Fastify's built-in request id
-  }),
-  provideFactory(USERS, {
-    scope: Scopes.Scoped, // one service per request...
-    deps: { db: DB }, // ...but reuses the shared pool
-    useFactory: ({ db }) => new UserService(db),
-  }),
-]);
-
-// Keep each request's child container without patching Fastify's types.
-const containers = new WeakMap<FastifyRequest, Container>();
-
-app.addHook("onRequest", async (request) => {
-  // A fresh child per request, seeded with the request object.
-  containers.set(request, createChildContainer(root, [provideValue(REQUEST, request)]));
-});
-
-app.addHook("onResponse", async (request) => {
-  // Release this request's scoped instances once the response is sent.
-  await containers.get(request)?.dispose();
-});
-
-app.get<{ Params: { id: string } }>("/users/:id", async (request) => {
-  const container = containers.get(request)!;
-  const users = container.get(USERS);
-  const id = container.get(REQUEST_ID); // unique to this request
-
-  return users.findById(request.params.id, { traceId: id });
-});
-
-// On shutdown, dispose the root to close the shared pool.
-app.addHook("onClose", async () => {
-  await root.dispose();
-});
-
-await app.listen({ port: 3000 });
-```
-
-What each scope buys you here:
-
-- `DB` is a **singleton** — created once on the root and reused by every request, so you don't open a new pool per call.
-- `REQUEST_ID` and `USERS` are **scoped** — a new instance per child, so each request gets isolated state even though the providers are declared once on the root.
-- `REQUEST` is a per-request **value** registered on the child, and the scoped `REQUEST_ID` resolves it from that same child.
-- The child's `dispose()` releases only that request's scoped instances; the shared pool stays open until `root.dispose()` runs on `onClose`.
-
 ## Dependency injection vs service location
 
 di-craft is built for **dependency injection**: dependencies are declared up front
 and handed to your code. The opposite is **service location**, where code reaches
-into a container at runtime to pull what it needs — which hides dependencies and
-couples your domain to the container.
+into a container at runtime to pull what it needs, hiding its real dependencies.
 
-Two habits keep usage canonical:
-
-1. Call `container.get()` only at the **composition root** — the entrypoint,
-   framework hooks, or route handlers. Never inside domain logic.
-2. Never pass the container into your classes or functions.
-
-di-craft enforces the most important half of this for you: **a factory only ever
-receives its declared `deps`, never the container**, so a provider physically
-cannot reach in and locate arbitrary services.
+Two habits keep usage canonical: call `container.get()` only at the **composition
+root** (entrypoint, framework hooks, route handlers), and never pass the container
+into your classes or functions. di-craft enforces the key half for you — **a
+factory only ever receives its declared `deps`, never the container** — so a
+provider physically cannot locate arbitrary services.
 
 ```ts
 // Dependency injection — deps are explicit, the class never sees the container.
@@ -441,11 +354,10 @@ class UserService {
 }
 ```
 
-The second form compiles, but it conceals dependencies and defeats the purpose of
-DI. There is no runtime flag that can forbid it — `get()` is the same call the
-composition root relies on — so keep resolution at the edges by convention. If you
-want hard enforcement, restrict where `.get()` may be called with a lint rule
-(e.g. allow it only in your composition-root files).
+The second form compiles, but it hides dependencies and defeats DI. No runtime flag
+can forbid it — `get()` is the same call the composition root relies on — so keep
+resolution at the edges by convention, or enforce it with a lint rule that allows
+`.get()` only in your composition-root files.
 
 ## Error handling
 
