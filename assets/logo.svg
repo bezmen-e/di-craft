@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" role="img" aria-label="di-craft">
+  <path
+    d="M100 18 L168 57 L168 143 L100 182 L32 143 L32 57 Z"
+    stroke="#f59e0b"
+    stroke-width="8"
+    stroke-linejoin="round"
+  />
+  <circle cx="62" cy="78" r="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3" />
+  <circle cx="138" cy="112" r="12" fill="#3b82f6" />
+  <circle cx="88" cy="138" r="12" fill="#f59e0b" />
+  <path
+    d="M74 78 H112 L112 98"
+    stroke="#f59e0b"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M126 112 L102 126"
+    stroke="#64748b"
+    stroke-width="6"
+    stroke-linecap="round"
+  />
+  <path
+    d="M76 138 L62 96"
+    stroke="#f59e0b"
+    stroke-width="6"
+    stroke-linecap="round"
+  />
+</svg>

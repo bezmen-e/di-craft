@@ -1,7 +1,7 @@
 <h1 align="center">di-craft</h1>
 
 <p align="center">
-  <img src="./assets/logo.png" alt="di-craft" width="200" />
+  <img src="./assets/logo.svg" alt="di-craft" width="160" />
 </p>
 
 <p align="center">
@@ -9,11 +9,9 @@
 </p>
 
 <p align="center">
-<p align="center">
   <img alt="NPM Version" src="https://img.shields.io/npm/v/di-craft?style=flat-square&color=%2364d4c1&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fdi-craft">
   <img alt="NPM package gzipped size" src="https://img.shields.io/bundlejs/size/di-craft?style=flat-square&label=gzip&color=%2364d4c1">
   <img alt="Codecov" src="https://img.shields.io/codecov/c/github/bezmen-e/di-craft?style=flat-square&color=%2364d4c1">
-</p>
 </p>
 
 ## Contents
