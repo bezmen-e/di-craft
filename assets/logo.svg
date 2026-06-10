@@ -1,30 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" role="img" aria-label="di-craft">
+  <defs>
+    <marker
+      id="arrow"
+      viewBox="0 0 8 8"
+      refX="7"
+      refY="4"
+      markerWidth="6"
+      markerHeight="6"
+      orient="auto"
+    >
+      <path d="M0 0 L8 4 L0 8 Z" fill="#f59e0b" />
+    </marker>
+  </defs>
+
   <path
-    d="M100 18 L168 57 L168 143 L100 182 L32 143 L32 57 Z"
+    d="M100 22 L168 58 L168 142 L100 178 L32 142 L32 58 Z"
     stroke="#f59e0b"
-    stroke-width="8"
+    stroke-width="7"
     stroke-linejoin="round"
   />
-  <circle cx="62" cy="78" r="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3" />
-  <circle cx="138" cy="112" r="12" fill="#3b82f6" />
-  <circle cx="88" cy="138" r="12" fill="#f59e0b" />
-  <path
-    d="M74 78 H112 L112 98"
+
+  <circle cx="100" cy="62" r="11" fill="#ffffff" stroke="#94a3b8" stroke-width="3" />
+  <circle cx="100" cy="100" r="11" fill="#f59e0b" />
+  <circle cx="100" cy="138" r="11" fill="#3b82f6" />
+
+  <line
+    x1="100"
+    y1="73"
+    x2="100"
+    y2="86"
     stroke="#f59e0b"
-    stroke-width="6"
+    stroke-width="5"
     stroke-linecap="round"
-    stroke-linejoin="round"
+    marker-end="url(#arrow)"
   />
-  <path
-    d="M126 112 L102 126"
-    stroke="#64748b"
-    stroke-width="6"
-    stroke-linecap="round"
-  />
-  <path
-    d="M76 138 L62 96"
+  <line
+    x1="100"
+    y1="111"
+    x2="100"
+    y2="124"
     stroke="#f59e0b"
-    stroke-width="6"
+    stroke-width="5"
     stroke-linecap="round"
+    marker-end="url(#arrow)"
   />
 </svg>
