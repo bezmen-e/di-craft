@@ -10,10 +10,7 @@ export type Dependency<T> = Token<T> | OptionalDependency<T>;
 
 export type DepsMap = Record<string, Dependency<unknown>>;
 
-export type TokenValue<TToken> =
-	TToken extends Token<infer TValue> ? TValue : never;
-
-export type DependencyValue<TDep> =
+type DependencyValue<TDep> =
 	TDep extends OptionalDependency<infer T>
 		? T | undefined
 		: TDep extends Token<infer T>

@@ -1,2 +1,2 @@
 export { createStore } from "./store";
-export type { InstanceRecord, Store } from "./types";
+export type { Store } from "./types";
