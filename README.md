@@ -75,7 +75,7 @@ framework coupling. You work with just **tokens**, **providers**, a **container*
 - Deterministic disposal with `onDispose` hooks
 - Circular dependency detection
 - Tree-shakable, tiny bundle size
-- Ships both ESM and CommonJS builds
+- ESM-only, ships with TypeScript declarations
 
 ## Install
 
@@ -86,7 +86,8 @@ pnpm add di-craft
 yarn add di-craft
 ```
 
-Requires Node.js `>= 20`.
+Requires Node.js `>= 20`. This package is ESM-only — import it with `import`;
+CommonJS code can load it with a dynamic `import()`.
 
 ## Core concepts
 
