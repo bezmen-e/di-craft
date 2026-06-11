@@ -12,7 +12,7 @@
   <a href="https://www.npmjs.com/package/di-craft">
     <img
       alt="di-craft package status"
-      src="https://shieldcn.dev/group/npm/di-craft+github/ci/bezmen-e/di-craft+bundlephobia/minzip/di-craft.svg?variant=secondary"
+      src="https://shieldcn.dev/group/npm/di-craft+github/ci/bezmen-e/di-craft/checks+bundlephobia/minzip/di-craft.svg?variant=secondary"
     />
   </a>
 </p>
