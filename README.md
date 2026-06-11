@@ -11,8 +11,8 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/di-craft">
     <img
-      alt="di-craft package status"
-      src="https://shieldcn.dev/group/npm/di-craft+github/ci/bezmen-e/di-craft/checks+bundlephobia/minzip/di-craft.svg?variant=secondary"
+      alt="npm version and bundle size"
+      src="https://shieldcn.dev/group/npm/di-craft+bundlephobia/minzip/di-craft.svg?variant=secondary"
     />
   </a>
 </p>
