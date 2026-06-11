@@ -12,18 +12,18 @@
   <a href="https://www.npmjs.com/package/di-craft">
     <img
       alt="npm version"
-      src="https://shieldcn.dev/npm/di-craft.svg?variant=outline&theme=neutral"
+      src="https://shieldcn.dev/npm/di-craft.svg?variant=secondary&theme=neutral"
     />
   </a>
   <a href="https://bundlephobia.com/package/di-craft">
     <img
       alt="bundle size"
-      src="https://shieldcn.dev/bundlephobia/minzip/di-craft.svg?variant=outline&theme=neutral"
+      src="https://shieldcn.dev/bundlephobia/minzip/di-craft.svg?variant=secondary&theme=neutral"
     />
   </a>
   <img
     alt="zero dependencies"
-    src="https://shieldcn.dev/badge/deps-zero.svg?variant=outline&theme=neutral"
+    src="https://shieldcn.dev/badge/deps-zero.svg?variant=secondary&theme=neutral"
   />
 </p>
 
