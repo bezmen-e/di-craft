@@ -9,8 +9,22 @@
 </p>
 
 <p align="center">
-  <img alt="NPM Version" src="https://img.shields.io/npm/v/di-craft?style=flat-square&color=%2364d4c1&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fdi-craft">
-  <img alt="NPM package gzipped size" src="https://img.shields.io/bundlejs/size/di-craft?style=flat-square&label=gzip&color=%2364d4c1">
+  <a href="https://www.npmjs.com/package/di-craft">
+    <img
+      alt="npm version"
+      src="https://shieldcn.dev/npm/di-craft.svg?variant=outline&theme=neutral"
+    />
+  </a>
+  <a href="https://bundlephobia.com/package/di-craft">
+    <img
+      alt="bundle size"
+      src="https://shieldcn.dev/bundlephobia/minzip/di-craft.svg?variant=outline&theme=neutral"
+    />
+  </a>
+  <img
+    alt="zero dependencies"
+    src="https://shieldcn.dev/badge/deps-zero.svg?variant=outline&theme=neutral"
+  />
 </p>
 
 > [!NOTE]
