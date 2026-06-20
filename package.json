@@ -41,14 +41,18 @@
 		"pre-commit": "bun run lint && bun run typecheck"
 	},
 	"keywords": [
-		"dependency-injection",
 		"di",
+		"di container",
+		"dependency-injection",
+		"dependency injection",
 		"ioc",
-		"inversion-of-control",
+		"inversion of control",
+		"ioc container",
 		"typescript",
-		"type-safe",
 		"container",
-		"scoped",
+		"zero dependencies",
+		"lightweight",
+		"tiny",
 		"tree-shakable"
 	],
 	"homepage": "https://github.com/bezmen-e/di-craft",
