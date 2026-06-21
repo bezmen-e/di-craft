@@ -1,3 +1,9 @@
+/**
+ * A tiny, type-safe dependency injection container for TypeScript.
+ *
+ * @module
+ */
+
 export type { Container } from "./container";
 export { createChildContainer, createContainer } from "./container";
 export { DiError } from "./error";

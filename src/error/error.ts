@@ -1,3 +1,6 @@
+/**
+ * Base class for all di-craft runtime errors.
+ */
 export class DiError extends Error {
 	constructor(message: string) {
 		super(message);

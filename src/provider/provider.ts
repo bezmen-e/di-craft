@@ -13,6 +13,16 @@ import type {
 	ValueProvider,
 } from "./types";
 
+/**
+ * Creates a provider for an already constructed value.
+ *
+ * The value must match the token type.
+ *
+ * @example
+ * ```ts
+ * provideValue(PORT, 3000);
+ * ```
+ */
 export const provideValue = <T>(
 	token: Token<T>,
 	useValue: T,
@@ -21,6 +31,20 @@ export const provideValue = <T>(
 	useValue,
 });
 
+/**
+ * Creates a provider that lazily builds a value.
+ *
+ * Dependencies declared in `deps` become the object passed to `useFactory`.
+ * The factory return type must match the token type.
+ *
+ * @example
+ * ```ts
+ * provideFactory(HTTP, {
+ *   deps: { config: CONFIG },
+ *   useFactory: ({ config }) => new HttpClient(config.apiUrl),
+ * });
+ * ```
+ */
 export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 	token: Token<T>,
 	options: {
@@ -46,7 +70,18 @@ export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 	};
 };
 
-// Marks a dependency optional: resolves to undefined when no provider exists.
+/**
+ * Marks a token as optional.
+ *
+ * Optional dependencies resolve to `undefined` instead of throwing when no
+ * provider exists in the container chain. They can be used in factory `deps`
+ * or passed directly to `container.get`.
+ *
+ * @example
+ * ```ts
+ * const logger = container.get(optional(LOGGER));
+ * ```
+ */
 export const optional = <T>(token: Token<T>): OptionalDependency<T> => ({
 	token,
 	optional: true,
