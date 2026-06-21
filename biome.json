@@ -31,5 +31,17 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["src/**/*.ts", "!src/**/*.test.ts"],
+			"linter": {
+				"rules": {
+					"nursery": {
+						"useExplicitType": "error"
+					}
+				}
+			}
+		}
+	]
 }
