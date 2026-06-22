@@ -30,6 +30,7 @@
 - [Core concepts](#core-concepts)
   - [Tokens](#tokens)
   - [Providers](#providers)
+  - [Annotation-based class providers](#annotation-based-class-providers)
   - [Optional dependencies](#optional-dependencies)
   - [Container](#container)
   - [Scopes](#scopes)
@@ -80,14 +81,17 @@ const users = container.get(USERS); // UserService, fully typed
 
 ## Philosophy
 
-Dependency injection without the magic — no decorators, no `reflect-metadata`, no
-framework coupling. You work with just **tokens**, **providers**, a **container**,
-**scopes**, and **cycle detection**.
+Dependency injection without hidden magic — no `reflect-metadata`, no runtime
+type guessing, and no framework coupling. You work with just **tokens**,
+**providers**, a **container**, **scopes**, and **cycle detection**. Standard
+JavaScript decorators are available as optional sugar for class providers, but
+they still use explicit tokens.
 
 ## Features
 
 - Zero runtime dependencies
 - Type-safe tokens and factories
+- Optional `@Injectable` annotation for class providers
 - Optional dependencies via `optional()`
 - Singleton, transient, and scoped lifetimes
 - Hierarchical child containers
@@ -146,6 +150,63 @@ provideFactory(HTTP, {
 
 The keys in `deps` become the keys of the object passed to `useFactory`, each
 resolved to its token's type.
+
+### Annotation-based class providers
+
+If you write services as classes, you can attach provider metadata to the class
+with standard JavaScript decorators, then turn the class into a normal provider
+with `provideInjectable`.
+
+`@Injectable(options)` marks a class as a provider for `options.token`.
+`deps` is an ordered list of constructor dependencies. `scope` and
+`onDispose` behave exactly like they do in `provideFactory`.
+
+```ts
+import {
+  Injectable,
+  Scopes,
+  createContainer,
+  createToken,
+  optional,
+  provideInjectable,
+  provideValue,
+} from "di-craft";
+
+const CONFIG = createToken<Config>("config");
+const LOGGER = createToken<Logger>("logger");
+const USERS = createToken<UserService>("users");
+
+@Injectable({
+  token: USERS,
+  deps: [LOGGER, optional(CONFIG)],
+  scope: Scopes.Scoped,
+})
+class UserService {
+  private readonly logger: Logger;
+  private readonly config: Config | undefined;
+
+  constructor(logger: Logger, config: Config | undefined) {
+    this.logger = logger;
+    this.config = config;
+  }
+}
+
+const container = createContainer([
+  provideValue(LOGGER, new Logger()),
+  provideInjectable(UserService),
+]);
+
+const users = container.get(USERS); // UserService
+```
+
+`@Injectable` is the only annotation needed for class injection. It produces a
+regular factory provider internally, so all existing container behavior still
+applies: optional dependencies, scopes, child containers, disposal hooks,
+overrides, and cycle detection.
+
+di-craft does not use `reflect-metadata` or parameter decorators. Constructor
+types are erased by JavaScript at runtime, so dependency tokens stay explicit
+instead of being guessed from TypeScript types.
 
 ### Optional dependencies
 
@@ -451,6 +512,8 @@ try {
 | `createToken<T>(name)`                     | Create a unique, typed token.                                                |
 | `provideValue(token, value)`               | Provider that returns an existing value.                                     |
 | `provideFactory(token, options)`           | Provider that builds a value via a factory.                                  |
+| `@Injectable(options)`                     | Mark a class as a token-backed injectable provider.                          |
+| `provideInjectable(class)`                 | Create a factory provider from an injectable class.                           |
 | `optional(token)`                          | Mark a dependency as optional (resolves to `undefined` when absent).         |
 | `createContainer(providers?)`              | Create a container, optionally seeded with providers.                        |
 | `createChildContainer(parent, providers?)` | Create a child container that inherits from `parent`.                        |

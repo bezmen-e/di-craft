@@ -4,6 +4,7 @@
  * @module
  */
 
+export { Injectable, provideInjectable } from "./annotation";
 export type { Container } from "./container";
 export { createChildContainer, createContainer } from "./container";
 export { DiError } from "./error";
