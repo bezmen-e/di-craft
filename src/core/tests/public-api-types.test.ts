@@ -10,7 +10,7 @@ import {
 	provideValue,
 	type Token,
 	type ValueProvider,
-} from "../index";
+} from "../../index";
 
 type Equal<TActual, TExpected> =
 	(<T>() => T extends TActual ? 1 : 2) extends <T>() => T extends TExpected
