@@ -120,6 +120,82 @@ describe("next/server", () => {
 		expect(second.get(REQUEST_STATE)).toEqual({ id: 2 });
 	});
 
+	test("registers request providers in manual request containers", () => {
+		const REQUEST_ID = createToken<number>("REQUEST_ID");
+
+		let calls = 0;
+
+		const di = createNextDi({
+			cache: requestCache,
+			requestProviders: () => {
+				calls += 1;
+
+				return [provideValue(REQUEST_ID, calls)];
+			},
+		});
+
+		const first = di.createRequestContainer();
+		const second = di.createRequestContainer();
+
+		expect(first.get(REQUEST_ID)).toBe(1);
+		expect(second.get(REQUEST_ID)).toBe(2);
+		expect(calls).toBe(2);
+	});
+
+	test("runs work with a disposable request container", async () => {
+		const RESOURCE = createToken<{ readonly id: number }>("RESOURCE");
+
+		const disposed: number[] = [];
+		const di = createNextDi({
+			cache: requestCache,
+			providers: [
+				provideFactory(RESOURCE, {
+					scope: Scopes.Scoped,
+					useFactory: () => ({ id: 1 }),
+					onDispose: (resource) => {
+						disposed.push(resource.id);
+					},
+				}),
+			],
+		});
+
+		const result = await di.runWithRequestContainer({
+			run: (container) => container.get(RESOURCE).id,
+		});
+
+		expect(result).toBe(1);
+		expect(disposed).toEqual([1]);
+	});
+
+	test("disposes a request container when work throws", async () => {
+		const RESOURCE = createToken<{ readonly id: number }>("RESOURCE");
+
+		const disposed: number[] = [];
+		const di = createNextDi({
+			cache: requestCache,
+			providers: [
+				provideFactory(RESOURCE, {
+					scope: Scopes.Scoped,
+					useFactory: () => ({ id: 1 }),
+					onDispose: (resource) => {
+						disposed.push(resource.id);
+					},
+				}),
+			],
+		});
+
+		await expect(
+			di.runWithRequestContainer({
+				run: (container) => {
+					container.get(RESOURCE);
+
+					throw new Error("Route handler failed.");
+				},
+			}),
+		).rejects.toThrow("Route handler failed.");
+		expect(disposed).toEqual([1]);
+	});
+
 	test("dehydrates serializable state from the server container", () => {
 		const USER_STATE = createToken<Hydratable<UserSnapshot>>("USER_STATE");
 		const hydration = {

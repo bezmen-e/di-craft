@@ -4,8 +4,14 @@
  * @module
  */
 
+import type { Container } from "../../core/container";
 import { createChildContainer, createContainer } from "../../core/container";
-import type { CreateNextDiOptions, NextDiAdapter } from "./types";
+import type { Provider } from "../../core/provider";
+import type {
+	CreateNextDiOptions,
+	NextDiAdapter,
+	RunWithRequestContainerOptions,
+} from "./types";
 
 export { dehydrate } from "./hydration";
 export type {
@@ -16,6 +22,7 @@ export type {
 	HydrationSnapshot,
 	NextDiAdapter,
 	RequestCache,
+	RunWithRequestContainerOptions,
 	Serializable,
 	SerializablePrimitive,
 } from "./types";
@@ -60,15 +67,31 @@ export const createNextDi = ({
 	assertServerRuntime();
 
 	const rootContainer = createContainer(providers);
-	const getRequestContainer = cache(() =>
-		createChildContainer(rootContainer, requestProviders?.() ?? []),
-	);
+	const createRequestContainer = (
+		providers: readonly Provider[] = [],
+	): Container =>
+		createChildContainer(rootContainer, [
+			...(requestProviders?.() ?? []),
+			...providers,
+		]);
+	const getRequestContainer = cache(() => createRequestContainer());
 
 	return {
 		getRootContainer: () => rootContainer,
 		getRequestContainer,
-		createRequestContainer: (providers = []) =>
-			createChildContainer(rootContainer, providers),
+		createRequestContainer,
+		runWithRequestContainer: async <TResult>({
+			providers = [],
+			run,
+		}: RunWithRequestContainerOptions<TResult>): Promise<Awaited<TResult>> => {
+			const container = createRequestContainer(providers);
+
+			try {
+				return await run(container);
+			} finally {
+				await container.dispose();
+			}
+		},
 		disposeRootContainer: () => rootContainer.dispose(),
 	};
 };

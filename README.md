@@ -464,7 +464,11 @@ import { cache } from "react";
 import { provideValue } from "di-craft";
 import { createNextDi } from "di-craft/next/server";
 
-export const { getRequestContainer, getRootContainer } = createNextDi({
+export const {
+  getRequestContainer,
+  getRootContainer,
+  runWithRequestContainer,
+} = createNextDi({
   cache,
   providers,
   requestProviders: () => [
@@ -473,8 +477,7 @@ export const { getRequestContainer, getRootContainer } = createNextDi({
 });
 ```
 
-Then resolve dependencies in Server Components, route handlers, or server
-actions at the composition edge:
+Then resolve dependencies in Server Components at the composition edge:
 
 ```ts
 import { getRequestContainer } from "./di.server";
@@ -483,6 +486,26 @@ export default async function Page() {
   const users = getRequestContainer().get(USERS_SERVICE);
 
   return <UsersView users={await users.list()} />;
+}
+```
+
+Next.js does not expose a general "RSC render is finished" hook, so the adapter
+does not pretend it can automatically dispose a cached Server Component request
+container. If you own the lifecycle, for example in a Route Handler, Server
+Action, test, or job, use `runWithRequestContainer`. It creates a fresh child
+container and disposes it in a `finally` block:
+
+```ts
+import { runWithRequestContainer } from "./di.server";
+
+export async function GET() {
+  return runWithRequestContainer({
+    run: async (container) => {
+      const users = await container.get(USERS_SERVICE).list();
+
+      return Response.json(users);
+    },
+  });
 }
 ```
 

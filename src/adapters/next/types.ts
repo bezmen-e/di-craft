@@ -36,6 +36,21 @@ export type CreateNextDiOptions = {
 };
 
 /**
+ * Options for running work inside a fresh request-scoped child container.
+ */
+export type RunWithRequestContainerOptions<TResult> = {
+	/**
+	 * Extra providers registered only for this manual request container.
+	 */
+	readonly providers?: readonly Provider[];
+	/**
+	 * Work that owns the request lifecycle. The container is disposed after this
+	 * callback settles.
+	 */
+	readonly run: (container: Container) => TResult | Promise<TResult>;
+};
+
+/**
  * Next.js server adapter instance created by `createNextDi`.
  */
 export type NextDiAdapter = {
@@ -53,6 +68,14 @@ export type NextDiAdapter = {
 	readonly createRequestContainer: (
 		providers?: readonly Provider[],
 	) => Container;
+	/**
+	 * Runs work inside a fresh child container and disposes it in a `finally`
+	 * block. Use this in Route Handlers, Server Actions, or tests where the
+	 * request lifecycle is explicit.
+	 */
+	readonly runWithRequestContainer: <TResult>(
+		options: RunWithRequestContainerOptions<TResult>,
+	) => Promise<Awaited<TResult>>;
 	/**
 	 * Disposes cached instances owned by the root container.
 	 */
