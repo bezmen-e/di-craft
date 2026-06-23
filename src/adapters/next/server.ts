@@ -27,6 +27,14 @@ export type {
 	SerializablePrimitive,
 } from "./types";
 
+const assertServerRuntime = (): void => {
+	if ("window" in globalThis) {
+		throw new Error(
+			"di-craft/next/server can only be used in a server runtime.",
+		);
+	}
+};
+
 /**
  * Creates a server adapter for Next.js App Router and React Server Components.
  *
@@ -50,15 +58,6 @@ export type {
  * });
  * ```
  */
-
-const assertServerRuntime = (): void => {
-	if ("window" in globalThis) {
-		throw new Error(
-			"di-craft/next/server can only be used in a server runtime.",
-		);
-	}
-};
-
 export const createNextDi = ({
 	cache,
 	providers = [],

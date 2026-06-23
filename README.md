@@ -17,10 +17,6 @@
   </a>
 </p>
 
-> [!NOTE]
-> This README was generated with a bit of AI help — don't believe everything you see 🙂
-
-
 ## Contents
 
 - [Quick start](#quick-start)
