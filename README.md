@@ -38,6 +38,8 @@
   - [Child containers](#child-containers)
   - [Cycle detection](#cycle-detection)
   - [Async dependencies](#async-dependencies)
+- [Adapters](#adapters)
+  - [Next.js App Router](#nextjs-app-router)
 - [Dependency injection vs service location](#dependency-injection-vs-service-location)
 - [Error handling](#error-handling)
 - [API reference](#api-reference)
@@ -437,6 +439,102 @@ provideFactory(POOL, {
 });
 ```
 
+## Adapters
+
+Adapters are optional framework integrations built around the core container.
+They live behind subpath exports, so the root import stays framework-agnostic:
+
+```ts
+import { createContainer } from "di-craft"; // core only
+```
+
+### Next.js App Router
+
+The Next adapter helps connect di-craft to the App Router request lifecycle
+without making React or Next.js part of the core import.
+
+Use `di-craft/next/server` from a server-only composition file. Pass React's
+`cache` function so React/Next owns request memoization while di-craft owns only
+the dependency graph:
+
+```ts
+// app/di.server.ts
+import "server-only";
+import { cache } from "react";
+import { provideValue } from "di-craft";
+import { createNextDi } from "di-craft/next/server";
+
+export const { getRequestContainer, getRootContainer } = createNextDi({
+  cache,
+  providers,
+  requestProviders: () => [
+    provideValue(REQUEST_ID, crypto.randomUUID()),
+  ],
+});
+```
+
+Then resolve dependencies in Server Components, route handlers, or server
+actions at the composition edge:
+
+```ts
+import { getRequestContainer } from "./di.server";
+
+export default async function Page() {
+  const users = getRequestContainer().get(USERS_SERVICE);
+
+  return <UsersView users={await users.list()} />;
+}
+```
+
+State hydration is explicit. The server reads serializable snapshots with
+`di-craft/next/server`; the client restores them with `di-craft/next/client`.
+The DI container itself is never hydrated.
+
+Import boundary-specific runtime helpers from their own subpath:
+
+- `di-craft/next/server` — `createNextDi`, `dehydrate`, server-only adapter types.
+- `di-craft/next/client` — `hydrate`, client-boundary hydration types.
+- Shared hydration contracts like `Hydratable`, `HydrationSchema`, and
+  `HydrationSnapshot` are exported from both subpaths for convenience.
+
+```ts
+import {
+  dehydrate,
+  type Hydratable,
+  type HydrationSchema,
+} from "di-craft/next/server";
+
+class UserState implements Hydratable<UserSnapshot> {
+  dehydrate(): UserSnapshot {
+    return { users: this.users };
+  }
+
+  hydrate(snapshot: UserSnapshot): void {
+    this.users = snapshot.users;
+  }
+}
+
+const hydration = {
+  user: USER_STATE,
+} satisfies HydrationSchema;
+const snapshot = dehydrate({
+  container: getRequestContainer(),
+  schema: hydration,
+});
+```
+
+```ts
+"use client";
+
+import { hydrate } from "di-craft/next/client";
+
+hydrate({
+  container: clientContainer,
+  schema: hydration,
+  snapshot,
+});
+```
+
 ## Dependency injection vs service location
 
 di-craft is built for **dependency injection**: dependencies are declared up
@@ -525,6 +623,13 @@ Exported types: `Container`, `Token`, `Provider`, `ValueProvider`,
 
 Exported errors: `DiError`, `MissingProviderError`, `DuplicateProviderError`,
 `CircularDependencyError`, `InvalidDependencyError`, `InvalidProviderError`.
+
+Subpath exports:
+
+| Export                      | Description                                             |
+| --------------------------- | ------------------------------------------------------- |
+| `di-craft/next/server`      | Next.js server adapter for request-scoped containers.   |
+| `di-craft/next/client`      | Client-boundary helpers for restoring state snapshots.  |
 
 ## License
 
