@@ -1,24 +1,11 @@
 {
-	"compilerOptions": {
-		"target": "ES2022",
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"strict": true,
-		"noUncheckedIndexedAccess": true,
-		"exactOptionalPropertyTypes": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noImplicitReturns": true,
-		"noImplicitOverride": true,
-		"noFallthroughCasesInSwitch": true,
-		"verbatimModuleSyntax": true,
-		"erasableSyntaxOnly": true,
-		"declaration": true,
-		"isolatedDeclarations": true,
-		"declarationMap": false,
-		"sourceMap": false,
-		"skipLibCheck": true,
-		"types": ["@types/bun"]
-	},
-	"include": ["src"]
+	"files": [],
+	"references": [
+		{
+			"path": "./tsconfig.src.json"
+		},
+		{
+			"path": "./tsconfig.test.json"
+		}
+	]
 }

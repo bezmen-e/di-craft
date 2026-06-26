@@ -1,7 +1,7 @@
 {
 	"name": "di-craft",
 	"version": "0.0.20",
-	"description": "A tiny, type-safe dependency injection container for TypeScript",
+	"description": "A tiny, type-safe dependency injection container for TypeScript with an optional Next.js App Router adapter",
 	"license": "MIT",
 	"author": {
 		"name": "Egor Bezmen",
@@ -38,7 +38,7 @@
 	"scripts": {
 		"build": "tsdown",
 		"test": "bun test",
-		"typecheck": "tsc --noEmit",
+		"typecheck": "tsc --noEmit -p tsconfig.src.json && tsc --noEmit -p tsconfig.test.json",
 		"lint": "biome check .",
 		"format": "biome check --write .",
 		"publint": "publint",
@@ -61,7 +61,17 @@
 		"zero dependencies",
 		"lightweight",
 		"tiny",
-		"tree-shakable"
+		"tree-shakable",
+		"nextjs",
+		"next.js",
+		"app router",
+		"react server components",
+		"rsc",
+		"server components",
+		"request scope",
+		"ssr",
+		"state hydration",
+		"next adapter"
 	],
 	"homepage": "https://github.com/bezmen-e/di-craft",
 	"repository": {
@@ -72,11 +82,11 @@
 		"url": "https://github.com/bezmen-e/di-craft/issues"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.16",
+		"@biomejs/biome": "2.5.1",
 		"@types/bun": "1.3.14",
 		"publint": "0.3.21",
 		"simple-git-hooks": "2.13.1",
-		"tsdown": "0.22.0",
+		"tsdown": "0.22.3",
 		"typescript": "6.0.3"
 	}
 }

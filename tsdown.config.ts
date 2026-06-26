@@ -8,9 +8,13 @@ export default defineConfig({
 	},
 	format: ["esm"],
 	dts: true,
+	tsconfig: "tsconfig.src.json",
+	deps: {
+		onlyBundle: [],
+	},
 	clean: true,
 	treeshake: true,
-	minify: true,
-	sourcemap: false,
+	minify: false,
+	sourcemap: true,
 	target: "es2022",
 });

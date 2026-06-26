@@ -6,6 +6,8 @@
 
 <p align="center">
   <b>A tiny, type-safe dependency injection container for TypeScript</b>
+  <br />
+  <span>Framework-agnostic core with an optional Next.js App Router / RSC adapter</span>
 </p>
 
 <p align="center">
@@ -90,6 +92,7 @@ they still use explicit tokens.
 - Zero runtime dependencies
 - Type-safe tokens and factories
 - Optional `@Injectable` annotation for class providers
+- Optional Next.js App Router / React Server Components adapter
 - Optional dependencies via `optional()`
 - Singleton, transient, and scoped lifetimes
 - Hierarchical child containers
