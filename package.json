@@ -54,6 +54,7 @@
 		"di container",
 		"dependency-injection",
 		"dependency injection",
+		"dependency injection container",
 		"ioc",
 		"inversion of control",
 		"ioc container",
@@ -70,6 +71,7 @@
 		"rsc",
 		"server components",
 		"request scope",
+		"request scoped",
 		"ssr",
 		"state hydration",
 		"next adapter"
