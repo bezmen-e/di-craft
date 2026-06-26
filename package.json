@@ -39,11 +39,12 @@
 		"build": "tsdown",
 		"test": "bun test",
 		"typecheck": "tsc --noEmit -p tsconfig.src.json && tsc --noEmit -p tsconfig.test.json",
+		"typecheck:examples": "tsc --noEmit -p tsconfig.examples.json",
 		"lint": "biome check .",
 		"format": "biome check --write .",
 		"publint": "publint",
 		"pre-commit-hooks": "simple-git-hooks",
-		"checks": "bun run lint && bun run typecheck && bun run test && bun run build && bun run publint"
+		"checks": "bun run lint && bun run typecheck && bun run typecheck:examples && bun run test && bun run build && bun run publint"
 	},
 	"simple-git-hooks": {
 		"pre-commit": "bun run lint && bun run typecheck"
