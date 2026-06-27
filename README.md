@@ -43,28 +43,29 @@ import {
   createToken,
   provideFactory,
   provideValue,
-  type Provider,
 } from "di-craft";
 
+type Config = {
+  readonly prefix: string;
+};
+
 const CONFIG = createToken<Config>("config");
-const LOGGER = createToken<Logger>("logger");
-const USERS = createToken<UserService>("users");
+const MESSAGE = createToken<string>("message");
+const GREETING = createToken<string>("greeting");
 
-const providers: Provider[] = [
-  provideValue(CONFIG, loadConfig()),
-  provideFactory(LOGGER, {
-    deps: { config: CONFIG },
-    useFactory: ({ config }) => new Logger(config.level),
+const container = createContainer([
+  provideValue(CONFIG, { prefix: "Hello" }),
+  provideValue(MESSAGE, "di-craft"),
+  provideFactory(GREETING, {
+    deps: {
+      config: CONFIG,
+      message: MESSAGE,
+    },
+    useFactory: ({ config, message }) => `${config.prefix}, ${message}!`,
   }),
-  provideFactory(USERS, {
-    deps: { logger: LOGGER },
-    useFactory: ({ logger }) => new UserService(logger),
-  }),
-];
+]);
 
-const container = createContainer(providers);
-
-const users = container.get(USERS); // UserService, fully typed
+const greeting = container.get(GREETING); // string
 ```
 
 ## Philosophy
@@ -86,7 +87,7 @@ they still use explicit tokens.
 - Hierarchical child containers
 - Deterministic disposal with `onDispose` hooks
 - Circular dependency detection
-- Tree-shakable, tiny bundle size
+- Tree-shakable, tiny bundle size, marked with `sideEffects: false`
 - ESM-only, ships with TypeScript declarations
 
 ## Install
@@ -168,7 +169,8 @@ container.
 ## Next.js App Router
 
 The Next adapter lives behind subpath exports, so React and Next.js are not part
-of the core import.
+of the core import. Pass React's `cache` function to memoize the request
+container within the current App Router render.
 
 ```ts
 // app/di.server.ts
