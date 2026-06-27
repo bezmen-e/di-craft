@@ -26,6 +26,7 @@
 - [Features](#features)
 - [Install](#install)
 - [Core API](#core-api)
+- [Guides and examples](#guides-and-examples)
 - [Annotation-based providers](#annotation-based-providers)
 - [Next.js App Router](#nextjs-app-router)
 - [API reference](#api-reference)
@@ -117,10 +118,19 @@ import {
 
 Core concepts are documented in [docs/core.md](./docs/core.md).
 
-Typed examples are available in [examples/typed-docs](./examples/typed-docs):
+## Guides and Examples
+
+Guides:
+
+- [Core concepts](./docs/core.md)
+- [Next.js App Router adapter](./docs/next.md)
+
+Typed examples:
 
 - [basic container](./examples/typed-docs/core/basic.ts)
 - [scopes and child containers](./examples/typed-docs/core/scopes.ts)
+- [optional dependencies](./examples/typed-docs/core/optional.ts)
+- [disposal hooks](./examples/typed-docs/core/disposal.ts)
 - [annotation-based providers](./examples/typed-docs/annotations/injectable.ts)
 - [Next.js request scope](./examples/typed-docs/next/request-scope.ts)
 - [Next.js state hydration](./examples/typed-docs/next/hydration.ts)
@@ -223,6 +233,8 @@ server DI container -> serializable snapshot -> client state
 ```
 
 The DI container itself is never hydrated.
+
+See [docs/next.md](./docs/next.md) for the request scope and hydration model.
 
 Runtime subpaths:
 
