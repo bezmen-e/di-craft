@@ -54,22 +54,11 @@ If you write services as classes, `@Injectable` can attach provider metadata to
 the class. `provideInjectable` then converts the class into a normal factory
 provider.
 
-```ts
-@Injectable({
-  token: USERS,
-  deps: [LOGGER],
-  scope: Scopes.Scoped,
-})
-class UserService {
-  constructor(private readonly logger: Logger) {}
-}
-
-const provider = provideInjectable(UserService);
-```
-
 This is only syntax sugar over the same provider model. It does not use
 `reflect-metadata`, parameter decorators, runtime type guessing, or a global
 container.
+
+See [Annotation-based providers](./annotations.md) for the full guide.
 
 ## Optional Dependencies
 

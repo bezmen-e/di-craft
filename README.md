@@ -123,6 +123,7 @@ Core concepts are documented in [docs/core.md](./docs/core.md).
 Guides:
 
 - [Core concepts](./docs/core.md)
+- [Annotation-based providers](./docs/annotations.md)
 - [Next.js App Router adapter](./docs/next.md)
 
 Typed examples:
@@ -137,44 +138,15 @@ Typed examples:
 
 ## Annotation-Based Providers
 
-`@Injectable` lets class-based services describe their token, constructor
-dependencies, scope, and disposal hook next to the class.
-
-```ts
-import {
-  Injectable,
-  Scopes,
-  createContainer,
-  createToken,
-  provideInjectable,
-  provideValue,
-} from "di-craft";
-
-const LOGGER = createToken<Logger>("LOGGER");
-const USERS = createToken<UserService>("USERS");
-
-@Injectable({
-  token: USERS,
-  deps: [LOGGER],
-  scope: Scopes.Scoped,
-})
-class UserService {
-  private readonly logger: Logger;
-
-  constructor(logger: Logger) {
-    this.logger = logger;
-  }
-}
-
-const container = createContainer([
-  provideValue(LOGGER, new Logger()),
-  provideInjectable(UserService),
-]);
-```
+`@Injectable` is optional syntax sugar for class-based providers. It keeps the
+token, constructor dependencies, scope, and disposal hook next to the class, then
+`provideInjectable` turns that metadata into a normal factory provider.
 
 Annotations are only syntax sugar over normal providers. There is no
 `reflect-metadata`, parameter decorators, runtime type guessing, or global
 container.
+
+See [docs/annotations.md](./docs/annotations.md) for the full guide.
 
 ## Next.js App Router
 
