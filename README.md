@@ -116,8 +116,6 @@ import {
 } from "di-craft";
 ```
 
-Core concepts are documented in [docs/core.md](./docs/core.md).
-
 ## Guides and Examples
 
 Guides:
@@ -126,7 +124,7 @@ Guides:
 - [Annotation-based providers](./docs/annotations.md)
 - [Next.js App Router adapter](./docs/next.md)
 
-Typed examples:
+Typed examples checked by `bun run typecheck:examples`:
 
 - [basic container](./examples/typed-docs/core/basic.ts)
 - [scopes and child containers](./examples/typed-docs/core/scopes.ts)
@@ -154,62 +152,12 @@ See [docs/annotations.md](./docs/annotations.md) for the full guide.
 ## Next.js App Router
 
 The Next adapter lives behind subpath exports, so React and Next.js are not part
-of the core import. Pass React's `cache` function to memoize the request
-container within the current App Router render.
-
-```ts
-// app/di.server.ts
-import "server-only";
-import { cache } from "react";
-import { provideValue } from "di-craft";
-import { createNextDi } from "di-craft/next/server";
-
-export const { getRequestContainer, runWithRequestContainer } = createNextDi({
-  cache,
-  providers,
-  requestProviders: () => [
-    provideValue(REQUEST_ID, crypto.randomUUID()),
-  ],
-});
-```
-
-Resolve dependencies in Server Components at the composition edge:
-
-```ts
-import { getRequestContainer } from "./di.server";
-
-export default async function Page() {
-  const users = getRequestContainer().get(USERS_SERVICE);
-
-  return <UsersView users={await users.list()} />;
-}
-```
-
-For Route Handlers, Server Actions, tests, or jobs where you own the lifecycle,
-use `runWithRequestContainer`. It creates a fresh child container and disposes it
-in a `finally` block.
-
-```ts
-export async function GET() {
-  return runWithRequestContainer({
-    run: async (container) => {
-      const users = await container.get(USERS_SERVICE).list();
-
-      return Response.json(users);
-    },
-  });
-}
-```
-
-State hydration is explicit:
+of the core import. It provides request-scoped containers for App Router/RSC and
+explicit serializable state snapshots for client boundaries.
 
 ```txt
 server DI container -> serializable snapshot -> client state
 ```
-
-The DI container itself is never hydrated.
-
-See [docs/next.md](./docs/next.md) for the request scope and hydration model.
 
 Runtime subpaths:
 
@@ -217,6 +165,9 @@ Runtime subpaths:
 | ---------------------- | ------------------------------------------------------ |
 | `di-craft/next/server` | `createNextDi`, `dehydrate`, server-side adapter types |
 | `di-craft/next/client` | `hydrate`, client-boundary hydration types             |
+
+See [docs/next.md](./docs/next.md) for request scope, Route Handlers, Server
+Actions, nested Server Components, and hydration examples.
 
 ## API Reference
 

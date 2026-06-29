@@ -83,6 +83,9 @@ Next.js does not expose a general "RSC render is finished" hook. For places
 where you own the lifecycle, use `runWithRequestContainer`. It creates a fresh
 request container and disposes it in a `finally` block.
 
+Unlike `getRequestContainer()`, this helper does not rely on React request
+memoization. Use it when the request/action boundary is explicit.
+
 ```ts
 import { runWithRequestContainer } from "./di.server";
 
