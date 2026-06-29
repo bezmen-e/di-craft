@@ -72,6 +72,11 @@ export default async function Page() {
 Do not pass the container into domain classes or Client Components. Resolve at
 the edge, then pass plain values down.
 
+For nested Server Components, repeated calls to `getRequestContainer()` should
+resolve through the same request container during the current render. See the
+typed example:
+[nested-server-components.ts](../examples/typed-docs/next/nested-server-components.ts).
+
 ## Route Handlers and Server Actions
 
 Next.js does not expose a general "RSC render is finished" hook. For places
@@ -93,6 +98,11 @@ export async function GET() {
 ```
 
 The same helper fits Server Actions, tests, jobs, and custom server entrypoints.
+
+Typed examples:
+
+- [route-handler.ts](../examples/typed-docs/next/route-handler.ts)
+- [server-action.ts](../examples/typed-docs/next/server-action.ts)
 
 ## State Hydration
 

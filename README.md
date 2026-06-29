@@ -134,6 +134,9 @@ Typed examples:
 - [disposal hooks](./examples/typed-docs/core/disposal.ts)
 - [annotation-based providers](./examples/typed-docs/annotations/injectable.ts)
 - [Next.js request scope](./examples/typed-docs/next/request-scope.ts)
+- [Next.js nested Server Components](./examples/typed-docs/next/nested-server-components.ts)
+- [Next.js Route Handler](./examples/typed-docs/next/route-handler.ts)
+- [Next.js Server Action](./examples/typed-docs/next/server-action.ts)
 - [Next.js state hydration](./examples/typed-docs/next/hydration.ts)
 
 ## Annotation-Based Providers
