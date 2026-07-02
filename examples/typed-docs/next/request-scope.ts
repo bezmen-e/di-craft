@@ -3,6 +3,8 @@ import { createNextDi } from "di-craft/next/server";
 
 type RequestCache = <T>(factory: () => T) => () => T;
 
+// Typed docs use a tiny cache stand-in so this file can be checked without
+// installing React. In a real Next app, pass `cache` from "react".
 const requestCache: RequestCache = (factory) => {
 	let cached: unknown;
 	let hasCachedValue = false;

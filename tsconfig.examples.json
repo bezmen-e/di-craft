@@ -4,9 +4,10 @@
 		"paths": {
 			"di-craft": ["./src/index.ts"],
 			"di-craft/next/client": ["./src/adapters/next/client.ts"],
-			"di-craft/next/server": ["./src/adapters/next/server.ts"]
+			"di-craft/next/server": ["./src/adapters/next/server.ts"],
+			"di-craft/node": ["./src/adapters/node/server.ts"]
 		}
 	},
 	"include": ["examples/typed-docs/**/*.ts"],
-	"exclude": []
+	"exclude": ["examples/typed-docs/node/**/*.ts"]
 }

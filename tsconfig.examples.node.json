@@ -1,0 +1,8 @@
+{
+	"extends": "./tsconfig.examples.json",
+	"compilerOptions": {
+		"types": ["node"]
+	},
+	"include": ["examples/typed-docs/node/**/*.ts"],
+	"exclude": []
+}

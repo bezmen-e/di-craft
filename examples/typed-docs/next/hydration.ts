@@ -45,6 +45,8 @@ const snapshot = dehydrate({
 	schema: hydration,
 });
 
+// The client owns a separate client-safe container. Only the serializable
+// snapshot crosses the server/client boundary.
 const clientContainer = createContainer([
 	provideFactory(USER_STATE, {
 		useFactory: () => new UserState(),

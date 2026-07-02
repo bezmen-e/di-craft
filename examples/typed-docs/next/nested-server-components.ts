@@ -3,6 +3,8 @@ import { createNextDi } from "di-craft/next/server";
 
 type RequestCache = <T>(factory: () => T) => () => T;
 
+// Typed docs use a tiny cache stand-in so this file can be checked without
+// installing React. In a real Next app, pass `cache` from "react".
 const createRequestCache = (): RequestCache => {
 	let cached: unknown;
 	let hasCachedValue = false;
@@ -69,8 +71,7 @@ const UsersCount = async (): Promise<number> => {
 };
 
 const Page = async (): Promise<ViewModel> => {
-	const users = await UsersList();
-	const count = await UsersCount();
+	const [users, count] = await Promise.all([UsersList(), UsersCount()]);
 
 	return {
 		title: "Users",

@@ -3,6 +3,8 @@ import { createNextDi } from "di-craft/next/server";
 
 type RequestCache = <T>(factory: () => T) => () => T;
 
+// Server Actions use `runWithRequestContainer`, so this example does not rely
+// on React request memoization. In a real Next app, pass `cache` from "react".
 const requestCache: RequestCache = (factory) => factory;
 
 type Actor = {
@@ -38,6 +40,8 @@ const { runWithRequestContainer } = createNextDi({
 export const saveUserAction = async (formData: FormData): Promise<string> => {
 	"use server";
 
+	// This is a fresh explicit scope for the Server Action. It is not the same
+	// container created during a Page/RSC render.
 	return runWithRequestContainer({
 		providers: [
 			provideValue(ACTOR, {
