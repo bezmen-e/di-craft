@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { createToken, provideFactory, provideValue, Scopes } from "../../index";
+import { NodeRequestScopeError } from "./errors";
 import { createNodeDi } from "./server";
 
 describe("node/server", () => {
@@ -18,9 +19,7 @@ describe("node/server", () => {
 	test("throws when request container is read outside async scope", () => {
 		const di = createNodeDi();
 
-		expect(() => di.getRequestContainer()).toThrow(
-			"di-craft/node getRequestContainer() was called outside runWithRequestContainer().",
-		);
+		expect(() => di.getRequestContainer()).toThrow(NodeRequestScopeError);
 	});
 
 	test("returns current request container inside async scope", async () => {
@@ -34,6 +33,18 @@ describe("node/server", () => {
 				expect(di.getRequestContainer().get(REQUEST_ID)).toBe(1);
 			},
 		});
+	});
+
+	test("clears current request container after async scope settles", async () => {
+		const di = createNodeDi();
+
+		await di.runWithRequestContainer({
+			run: async () => {
+				di.getRequestContainer();
+			},
+		});
+
+		expect(() => di.getRequestContainer()).toThrow(NodeRequestScopeError);
 	});
 
 	test("keeps async request scopes isolated", async () => {
@@ -110,6 +121,33 @@ describe("node/server", () => {
 		});
 
 		expect(disposed).toEqual([1]);
+	});
+
+	test("keeps async scope active while disposing request container", async () => {
+		const REQUEST_ID = createToken<number>("REQUEST_ID");
+		const RESOURCE = createToken<{ readonly id: number }>("RESOURCE");
+
+		const disposedRequestIds: number[] = [];
+		const di = createNodeDi({
+			providers: [
+				provideFactory(RESOURCE, {
+					scope: Scopes.Scoped,
+					useFactory: () => ({ id: 1 }),
+					onDispose: () => {
+						disposedRequestIds.push(di.getRequestContainer().get(REQUEST_ID));
+					},
+				}),
+			],
+		});
+
+		await di.runWithRequestContainer({
+			providers: [provideValue(REQUEST_ID, 1)],
+			run: async (container) => {
+				container.get(RESOURCE);
+			},
+		});
+
+		expect(disposedRequestIds).toEqual([1]);
 	});
 
 	test("disposes request container after failure", async () => {

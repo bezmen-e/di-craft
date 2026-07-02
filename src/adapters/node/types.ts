@@ -45,7 +45,7 @@ export type NodeDiAdapter = {
 	 * Creates a fresh child container without binding it to async context.
 	 */
 	readonly createRequestContainer: (
-		providers?: readonly Provider[],
+		extraProviders?: readonly Provider[],
 	) => Container;
 	/**
 	 * Runs work inside a fresh child container, binds it to AsyncLocalStorage,

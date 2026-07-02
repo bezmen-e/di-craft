@@ -8,12 +8,14 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import type { Container } from "../../core/container";
 import { createChildContainer, createContainer } from "../../core/container";
 import type { Provider } from "../../core/provider";
+import { NodeRequestScopeError } from "./errors";
 import type {
 	CreateNodeDiOptions,
 	NodeDiAdapter,
 	RunWithRequestContainerOptions,
 } from "./types";
 
+export { NodeRequestScopeError } from "./errors";
 export type {
 	CreateNodeDiOptions,
 	NodeDiAdapter,
@@ -28,46 +30,54 @@ export type {
  * Next adapter with React's `cache` primitive.
  */
 export const createNodeDi = ({
-	providers = [],
+	providers: rootProviders = [],
 	requestProviders,
 }: CreateNodeDiOptions = {}): NodeDiAdapter => {
 	const storage = new AsyncLocalStorage<Container>();
-	const rootContainer = createContainer(providers);
+	const rootContainer = createContainer(rootProviders);
 	const createRequestContainer = (
-		providers: readonly Provider[] = [],
+		extraProviders: readonly Provider[] = [],
 	): Container =>
 		createChildContainer(rootContainer, [
 			...(requestProviders?.() ?? []),
-			...providers,
+			...extraProviders,
 		]);
 
-	return {
-		getRootContainer: () => rootContainer,
-		getRequestContainer: () => {
-			const container = storage.getStore();
-			const isMissingRequestContainer = container === undefined;
+	const getRootContainer = (): Container => rootContainer;
 
-			if (isMissingRequestContainer) {
-				throw new Error(
-					"di-craft/node getRequestContainer() was called outside runWithRequestContainer().",
-				);
-			}
+	const getRequestContainer = (): Container => {
+		const container = storage.getStore();
+		const isMissingRequestContainer = container === undefined;
 
-			return container;
-		},
-		createRequestContainer,
-		runWithRequestContainer: async <TResult>({
-			providers = [],
-			run,
-		}: RunWithRequestContainerOptions<TResult>): Promise<Awaited<TResult>> => {
-			const container = createRequestContainer(providers);
+		if (isMissingRequestContainer) {
+			throw new NodeRequestScopeError();
+		}
 
+		return container;
+	};
+
+	const runWithRequestContainer = async <TResult>({
+		providers: extraProviders = [],
+		run,
+	}: RunWithRequestContainerOptions<TResult>): Promise<Awaited<TResult>> => {
+		const container = createRequestContainer(extraProviders);
+
+		return await storage.run(container, async () => {
 			try {
-				return await storage.run(container, () => run(container));
+				return await run(container);
 			} finally {
 				await container.dispose();
 			}
-		},
-		disposeRootContainer: () => rootContainer.dispose(),
+		});
+	};
+
+	const disposeRootContainer = (): Promise<void> => rootContainer.dispose();
+
+	return {
+		getRootContainer,
+		getRequestContainer,
+		createRequestContainer,
+		runWithRequestContainer,
+		disposeRootContainer,
 	};
 };

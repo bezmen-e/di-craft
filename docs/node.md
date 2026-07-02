@@ -7,13 +7,22 @@ Use it when you want request-local DI in Node code outside the React Server
 Components render tree:
 
 - Route Handlers;
-- Server Actions;
+- Server Actions with nested async code that should read request context without
+  passing the container through every function;
 - middleware-like server code;
 - jobs and custom server entrypoints;
 - code where passing the container through every function would be noisy.
 
 For React Server Components in Next.js, keep using `di-craft/next/server` with
 React's `cache` primitive.
+
+## Runtime
+
+This adapter is Node.js-only because it imports `node:async_hooks`. It is not
+intended for Edge runtimes.
+
+For Edge or other runtimes without `AsyncLocalStorage`, pass the container
+explicitly or use a callback helper that owns the request lifecycle.
 
 ## Imports
 
@@ -61,12 +70,17 @@ outside an active async scope throws a clear error.
 | -------------------------------- | ------------------------ | ------------------- |
 | Server Components / nested RSC   | `di-craft/next/server`   | React `cache`       |
 | Explicit Node async scopes       | `di-craft/node`          | `AsyncLocalStorage` |
-| Route Handlers / Server Actions  | Either explicit helper   | Depends on setup    |
+| Simple Route Handlers / Actions  | Either explicit helper   | Callback scope      |
 | Browser / Client Components      | Neither server container | Serializable state  |
 
 `AsyncLocalStorage` does not magically make a Page/RSC render container equal to
 a later Server Action container. It gives you a request container inside an
 explicit async scope that you create with `runWithRequestContainer()`.
+
+For simple Next.js Route Handlers and Server Actions, `runWithRequestContainer`
+from `di-craft/next/server` is usually enough. Reach for `di-craft/node` when
+nested Node async calls need to read the current request container with
+`getRequestContainer()`.
 
 ## Disposal
 
