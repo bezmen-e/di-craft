@@ -60,9 +60,9 @@ render, and a different child container for another render.
 primitive for React Server Components because it memoizes work for the lifetime
 of one server render/request and is cleared between requests.
 
-That scope is limited to the RSC render tree. Server Actions, Route Handlers,
-Middleware, and plain server code do not share the same `cache()` memoized value
-that was created during a page render.
+That scope is limited to the RSC render tree. Code outside that tree, such as
+Server Actions, Route Handlers, middleware, and plain server code, does not share
+the same `cache()` memoized value that was created during a page render.
 
 Do not expect this to be the same container:
 
