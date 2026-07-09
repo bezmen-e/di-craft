@@ -62,6 +62,11 @@ await runWithRequestContainer({
 `getRequestContainer()` works only inside `runWithRequestContainer()`. Calling it
 outside an active async scope throws a clear error.
 
+Await every async operation that reads the request container before the callback
+returns. Async work started inside the scope can keep the `AsyncLocalStorage`
+store, but `runWithRequestContainer()` disposes the request container as soon as
+the callback settles.
+
 ## Relationship With Next.js
 
 `di-craft/node` and `di-craft/next/server` solve different scope boundaries:
@@ -96,3 +101,7 @@ await runWithRequestContainer({
 ```
 
 Use `onDispose` on cached providers to release resources.
+
+Do not start detached async work that later calls `getRequestContainer()` from
+inside the callback. Pass the plain data it needs, or await that work before the
+callback returns, so it does not read from a disposed request container.

@@ -77,7 +77,7 @@ Use the primitives by boundary:
 | -------------------------------- | ---------------------------------------------------------------- |
 | Server Components / nested RSC   | `getRequestContainer()`                                          |
 | Route Handlers / Server Actions  | `runWithRequestContainer()`                                      |
-| Middleware / broader Node scopes | `di-craft/node` or app-level `AsyncLocalStorage` integration     |
+| Node middleware-like code        | `di-craft/node` or app-level `AsyncLocalStorage` integration     |
 
 `AsyncLocalStorage` is a complement, not a replacement, for `cache()`. It is the
 Node request-scoped primitive to reach for when code outside the RSC render tree

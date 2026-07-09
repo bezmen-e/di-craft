@@ -28,6 +28,10 @@ export type {
  * Use this for explicit async scopes such as route handlers, server actions,
  * jobs, and plain server code. React Server Components should keep using the
  * Next adapter with React's `cache` primitive.
+ *
+ * Await all async work that reads the request container before the callback
+ * passed to `runWithRequestContainer` settles. The request container is disposed
+ * immediately after that callback settles.
  */
 export const createNodeDi = ({
 	providers: rootProviders = [],
