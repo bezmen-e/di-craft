@@ -54,6 +54,37 @@ export const { getRequestContainer, runWithRequestContainer } = createNextDi({
 `getRequestContainer()` returns the same child container within one App Router
 render, and a different child container for another render.
 
+## Request Boundaries
+
+`getRequestContainer()` is backed by React's `cache` function. This is the right
+primitive for React Server Components because it memoizes work for the lifetime
+of one server render/request and is cleared between requests.
+
+That scope is limited to the RSC render tree. Code outside that tree, such as
+Server Actions, Route Handlers, middleware, and plain server code, does not share
+the same `cache()` memoized value that was created during a page render.
+
+Do not expect this to be the same container:
+
+```txt
+Page/RSC render container !== Server Action container
+Page/RSC render container !== Route Handler container
+```
+
+Use the primitives by boundary:
+
+| Boundary                         | Use                                                              |
+| -------------------------------- | ---------------------------------------------------------------- |
+| Server Components / nested RSC   | `getRequestContainer()`                                          |
+| Route Handlers / Server Actions  | `runWithRequestContainer()`                                      |
+| Node middleware-like code        | `di-craft/node` or app-level `AsyncLocalStorage` integration     |
+
+`AsyncLocalStorage` is a complement, not a replacement, for `cache()`. It is the
+Node request-scoped primitive to reach for when code outside the RSC render tree
+must share one request context. Use `di-craft/node` for explicit Node async
+scopes. `di-craft/next` does not use it internally because the adapter keeps RSC
+render scope explicit.
+
 ## Server Components
 
 Resolve dependencies at the composition edge of a Server Component:

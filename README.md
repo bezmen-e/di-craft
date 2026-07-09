@@ -28,7 +28,9 @@
 - [Core API](#core-api)
 - [Guides and examples](#guides-and-examples)
 - [Annotation-based providers](#annotation-based-providers)
+- [Adapters](#adapters)
 - [Next.js App Router](#nextjs-app-router)
+- [Node.js Async Context](#nodejs-async-context)
 - [API reference](#api-reference)
 - [License](#license)
 
@@ -83,6 +85,7 @@ they still use explicit tokens.
 - Type-safe tokens and factories
 - Optional `@Injectable` annotation for class providers
 - Optional Next.js App Router / React Server Components adapter
+- Optional Node.js AsyncLocalStorage adapter
 - Optional dependencies via `optional()`
 - Singleton, transient, and scoped lifetimes
 - Hierarchical child containers
@@ -123,6 +126,7 @@ Guides:
 - [Core concepts](./docs/core.md)
 - [Annotation-based providers](./docs/annotations.md)
 - [Next.js App Router adapter](./docs/next.md)
+- [Node.js async context adapter](./docs/node.md)
 
 Typed examples checked by `bun run typecheck:examples`:
 
@@ -136,6 +140,7 @@ Typed examples checked by `bun run typecheck:examples`:
 - [Next.js Route Handler](./examples/typed-docs/next/route-handler.ts)
 - [Next.js Server Action](./examples/typed-docs/next/server-action.ts)
 - [Next.js state hydration](./examples/typed-docs/next/hydration.ts)
+- [Node.js async context](./examples/typed-docs/node/async-context.ts)
 
 ## Annotation-Based Providers
 
@@ -149,6 +154,17 @@ container.
 
 See [docs/annotations.md](./docs/annotations.md) for the full guide.
 
+## Adapters
+
+Adapters live behind subpath exports, so React, Next.js, and Node.js
+request-context APIs stay out of the core import.
+
+| Export                 | Description                                            |
+| ---------------------- | ------------------------------------------------------ |
+| `di-craft/next/server` | `createNextDi`, `dehydrate`, server-side adapter types |
+| `di-craft/next/client` | `hydrate`, client-boundary hydration types             |
+| `di-craft/node`        | `createNodeDi`, Node.js async context adapter types    |
+
 ## Next.js App Router
 
 The Next adapter lives behind subpath exports, so React and Next.js are not part
@@ -159,15 +175,22 @@ explicit serializable state snapshots for client boundaries.
 server DI container -> serializable snapshot -> client state
 ```
 
-Runtime subpaths:
+See [docs/next.md](./docs/next.md) for request boundaries, Route Handlers,
+Server Actions, nested Server Components, and hydration examples.
 
-| Export                 | Description                                            |
-| ---------------------- | ------------------------------------------------------ |
-| `di-craft/next/server` | `createNextDi`, `dehydrate`, server-side adapter types |
-| `di-craft/next/client` | `hydrate`, client-boundary hydration types             |
+## Node.js Async Context
 
-See [docs/next.md](./docs/next.md) for request scope, Route Handlers, Server
-Actions, nested Server Components, and hydration examples.
+The Node adapter uses `AsyncLocalStorage` for explicit async request scopes
+outside the React Server Components render tree.
+
+```ts
+import { createNodeDi } from "di-craft/node";
+```
+
+Use it when you own the async boundary and want `getRequestContainer()` to work
+in nested async calls created inside `runWithRequestContainer()`.
+
+See [docs/node.md](./docs/node.md) for the AsyncLocalStorage model and examples.
 
 ## API Reference
 

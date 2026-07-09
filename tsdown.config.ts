@@ -5,10 +5,11 @@ export default defineConfig({
 		index: "src/index.ts",
 		"next/client": "src/adapters/next/client.ts",
 		"next/server": "src/adapters/next/server.ts",
+		node: "src/adapters/node/server.ts",
 	},
 	format: ["esm"],
 	dts: true,
-	tsconfig: "tsconfig.src.json",
+	tsconfig: "tsconfig.build.json",
 	deps: {
 		onlyBundle: [],
 	},

@@ -3,6 +3,8 @@ import { createNextDi } from "di-craft/next/server";
 
 type RequestCache = <T>(factory: () => T) => () => T;
 
+// Route Handlers use `runWithRequestContainer`, so this example does not rely
+// on React request memoization. In a real Next app, pass `cache` from "react".
 const requestCache: RequestCache = (factory) => factory;
 
 type RequestContext = {
@@ -36,6 +38,8 @@ const { runWithRequestContainer } = createNextDi({
 });
 
 export const GET = async (request: Request): Promise<Response> => {
+	// This is a fresh explicit scope for the Route Handler. It is not the same
+	// container created during a Page/RSC render.
 	return runWithRequestContainer({
 		providers: [
 			provideValue(REQUEST_CONTEXT, {
