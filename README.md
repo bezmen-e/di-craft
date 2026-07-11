@@ -42,14 +42,14 @@ a container and resolve from it. Dependencies are wired explicitly through the
 
 ```ts
 import {
-	createContainer,
-	createToken,
-	provideFactory,
-	provideValue,
+  createContainer,
+  createToken,
+  provideFactory,
+  provideValue,
 } from "di-craft";
 
 type Config = {
-	readonly prefix: string;
+  readonly prefix: string;
 };
 
 const CONFIG = createToken<Config>("config");
@@ -57,15 +57,15 @@ const MESSAGE = createToken<string>("message");
 const GREETING = createToken<string>("greeting");
 
 const container = createContainer([
-	provideValue(CONFIG, { prefix: "Hello" }),
-	provideValue(MESSAGE, "di-craft"),
-	provideFactory(GREETING, {
-		deps: {
-			config: CONFIG,
-			message: MESSAGE,
-		},
-		useFactory: ({ config, message }) => `${config.prefix}, ${message}!`,
-	}),
+  provideValue(CONFIG, { prefix: "Hello" }),
+  provideValue(MESSAGE, "di-craft"),
+  provideFactory(GREETING, {
+    deps: {
+      config: CONFIG,
+      message: MESSAGE,
+    },
+    useFactory: ({ config, message }) => `${config.prefix}, ${message}!`,
+  }),
 ]);
 
 const greeting = container.get(GREETING); // string
@@ -109,13 +109,13 @@ Requires Node.js `>= 20`. This package is ESM-only.
 
 ```ts
 import {
-	Scopes,
-	createChildContainer,
-	createContainer,
-	createToken,
-	optional,
-	provideFactory,
-	provideValue,
+  Scopes,
+  createChildContainer,
+  createContainer,
+  createToken,
+  optional,
+  provideFactory,
+  provideValue,
 } from "di-craft";
 ```
 
