@@ -1,5 +1,5 @@
 /**
- * Server-side Next.js App Router adapter for request-scoped containers.
+ * Server-side Next.js App Router adapter for RSC render-scoped containers.
  *
  * @module
  */
@@ -40,10 +40,10 @@ const assertServerRuntime = (): void => {
  *
  * The root container is created once. `getRequestContainer` creates a child
  * container through the provided React request cache, so repeated calls inside
- * one RSC request resolve through the same scoped dependency graph.
+ * one RSC render pass resolve through the same scoped dependency graph.
  *
  * Import this helper from a server-only composition file. The adapter does not
- * import React itself; pass `cache` from `react` so React/Next owns request
+ * import React itself; pass `cache` from `react` so React/Next owns render
  * memoization.
  *
  * @example

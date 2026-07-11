@@ -7,7 +7,7 @@
 <p align="center">
   <b>A tiny, type-safe dependency injection container for TypeScript</b>
   <br />
-  <span>Framework-agnostic core with an optional Next.js App Router / RSC adapter</span>
+  <span>Framework-agnostic core with optional Next.js App Router / RSC and Node.js async-context adapters</span>
 </p>
 
 <p align="center">
@@ -42,14 +42,14 @@ a container and resolve from it. Dependencies are wired explicitly through the
 
 ```ts
 import {
-  createContainer,
-  createToken,
-  provideFactory,
-  provideValue,
+	createContainer,
+	createToken,
+	provideFactory,
+	provideValue,
 } from "di-craft";
 
 type Config = {
-  readonly prefix: string;
+	readonly prefix: string;
 };
 
 const CONFIG = createToken<Config>("config");
@@ -57,15 +57,15 @@ const MESSAGE = createToken<string>("message");
 const GREETING = createToken<string>("greeting");
 
 const container = createContainer([
-  provideValue(CONFIG, { prefix: "Hello" }),
-  provideValue(MESSAGE, "di-craft"),
-  provideFactory(GREETING, {
-    deps: {
-      config: CONFIG,
-      message: MESSAGE,
-    },
-    useFactory: ({ config, message }) => `${config.prefix}, ${message}!`,
-  }),
+	provideValue(CONFIG, { prefix: "Hello" }),
+	provideValue(MESSAGE, "di-craft"),
+	provideFactory(GREETING, {
+		deps: {
+			config: CONFIG,
+			message: MESSAGE,
+		},
+		useFactory: ({ config, message }) => `${config.prefix}, ${message}!`,
+	}),
 ]);
 
 const greeting = container.get(GREETING); // string
@@ -109,13 +109,13 @@ Requires Node.js `>= 20`. This package is ESM-only.
 
 ```ts
 import {
-  Scopes,
-  createChildContainer,
-  createContainer,
-  createToken,
-  optional,
-  provideFactory,
-  provideValue,
+	Scopes,
+	createChildContainer,
+	createContainer,
+	createToken,
+	optional,
+	provideFactory,
+	provideValue,
 } from "di-craft";
 ```
 
@@ -141,6 +141,7 @@ Typed examples checked by `bun run typecheck:examples`:
 - [Next.js Server Action](./examples/typed-docs/next/server-action.ts)
 - [Next.js state hydration](./examples/typed-docs/next/hydration.ts)
 - [Node.js async context](./examples/typed-docs/node/async-context.ts)
+- [Next.js Node runtime ALS context](./examples/typed-docs/node/next-runtime-als.ts)
 
 ## Annotation-Based Providers
 
@@ -168,15 +169,16 @@ request-context APIs stay out of the core import.
 ## Next.js App Router
 
 The Next adapter lives behind subpath exports, so React and Next.js are not part
-of the core import. It provides request-scoped containers for App Router/RSC and
+of the core import. It provides RSC render-scoped containers for App Router and
 explicit serializable state snapshots for client boundaries.
 
 ```txt
 server DI container -> serializable snapshot -> client state
 ```
 
-See [docs/next.md](./docs/next.md) for request boundaries, Route Handlers,
-Server Actions, nested Server Components, and hydration examples.
+See [docs/next.md](./docs/next.md) for render/request boundaries, Route
+Handlers, Server Actions, nested Server Components, Node runtime ALS entrypoints,
+and hydration examples.
 
 ## Node.js Async Context
 
@@ -189,6 +191,10 @@ import { createNodeDi } from "di-craft/node";
 
 Use it when you own the async boundary and want `getRequestContainer()` to work
 in nested async calls created inside `runWithRequestContainer()`.
+
+For Node runtime Next.js Route Handlers and Server Actions, this is the adapter
+to use when you want to wrap an entrypoint once and let deep async code resolve
+from the current request container.
 
 See [docs/node.md](./docs/node.md) for the AsyncLocalStorage model and examples.
 

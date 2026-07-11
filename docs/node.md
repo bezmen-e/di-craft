@@ -14,7 +14,9 @@ Components render tree:
 - code where passing the container through every function would be noisy.
 
 For React Server Components in Next.js, keep using `di-craft/next/server` with
-React's `cache` primitive.
+React's `cache` primitive when you only need RSC render scope. Use this adapter
+for Node runtime entrypoints when nested async code should read the current
+request container without receiving it as an argument.
 
 ## Runtime
 
@@ -87,6 +89,34 @@ from `di-craft/next/server` is usually enough. Reach for `di-craft/node` when
 nested Node async calls need to read the current request container with
 `getRequestContainer()`.
 
+That distinction matters in multi-tenant or resource-heavy entrypoints:
+
+```ts
+export async function POST(request: Request) {
+  const tenantId = request.headers.get("x-tenant-id") ?? "public";
+
+  return runWithRequestContainer({
+    providers: [provideValue(TENANT_ID, tenantId)],
+    run: async () => {
+      return createPostFromDeepCode();
+    },
+  });
+}
+
+const createPostFromDeepCode = async () => {
+  const posts = getRequestContainer().get(POSTS_SERVICE);
+
+  return posts.create();
+};
+```
+
+The typed Next Node runtime example shows the entrypoint wrapper and deep
+`getRequestContainer()` pattern:
+[next-runtime-als.ts](../examples/typed-docs/node/next-runtime-als.ts).
+
+Use `React.cache()` separately for RSC-only dedupe while `AsyncLocalStorage`
+owns request/tenant context and disposal.
+
 ## Disposal
 
 `runWithRequestContainer()` disposes the request container after the callback
@@ -105,3 +135,8 @@ Use `onDispose` on cached providers to release resources.
 Do not start detached async work that later calls `getRequestContainer()` from
 inside the callback. Pass the plain data it needs, or await that work before the
 callback returns, so it does not read from a disposed request container.
+
+Next.js post-action work, such as callbacks scheduled after a Server Action,
+may run outside the async scope that created the request container. Re-enter a
+new scope or pass plain values to that work instead of calling
+`getRequestContainer()` after disposal.
