@@ -36,8 +36,6 @@
 	},
 	"files": [
 		"dist",
-		"docs",
-		"examples/typed-docs",
 		"README.md",
 		"LICENSE"
 	],
