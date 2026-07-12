@@ -41,3 +41,5 @@ Thumbs.db
 examples/*
 !examples/typed-docs/
 !examples/typed-docs/**
+
+.tmp
