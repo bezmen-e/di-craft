@@ -23,8 +23,12 @@ request container without receiving it as an argument.
 This adapter is Node.js-only because it imports `node:async_hooks`. It is not
 intended for Edge runtimes.
 
-For Edge or other runtimes without `AsyncLocalStorage`, pass the container
-explicitly or use a callback helper that owns the request lifecycle.
+For the ALS path, prefer the Node runtime for Next.js entrypoints. Some Edge
+runtimes polyfill `node:async_hooks`, but the semantics can differ from Node and
+context may be lost across worker awaits. For Edge or other runtimes without
+reliable `AsyncLocalStorage`, pass the container explicitly, use a callback
+helper that owns the request lifecycle, or use an equivalent Edge-native context
+primitive.
 
 ## Imports
 
@@ -92,6 +96,8 @@ nested Node async calls need to read the current request container with
 That distinction matters in multi-tenant or resource-heavy entrypoints:
 
 ```ts
+import { getRequestContainer, runWithRequestContainer } from "@/lib/di.node";
+
 export async function POST(request: Request) {
   const tenantId = request.headers.get("x-tenant-id") ?? "public";
 
@@ -109,6 +115,10 @@ const createPostFromDeepCode = async () => {
   return posts.create();
 };
 ```
+
+`@/lib/di.node` is your app-local composition module. It imports
+`createNodeDi()` from `di-craft/node`, calls it with your providers, and exports
+the returned `getRequestContainer()` and `runWithRequestContainer()` helpers.
 
 The typed Next Node runtime example shows the entrypoint wrapper and deep
 `getRequestContainer()` pattern:
@@ -140,3 +150,21 @@ Next.js post-action work, such as callbacks scheduled after a Server Action,
 may run outside the async scope that created the request container. Re-enter a
 new scope or pass plain values to that work instead of calling
 `getRequestContainer()` after disposal.
+
+## Testing
+
+The Node adapter composes with per-test request containers. In tests, wrap the
+code under test with `runWithRequestContainer()` and register test-only
+providers there instead of mocking modules:
+
+```ts
+await runWithRequestContainer({
+  providers: [provideValue(DB, fakeDb)],
+  run: async () => {
+    await serviceUnderTest();
+  },
+});
+```
+
+Nested calls to `getRequestContainer()` resolve from that test scope, and the
+container is disposed when the callback settles.

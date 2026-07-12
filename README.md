@@ -196,6 +196,9 @@ For Node runtime Next.js Route Handlers and Server Actions, this is the adapter
 to use when you want to wrap an entrypoint once and let deep async code resolve
 from the current request container.
 
+In tests, use the same wrapper with test-only providers instead of reaching for
+module mocks.
+
 See [docs/node.md](./docs/node.md) for the AsyncLocalStorage model and examples.
 
 ## API Reference

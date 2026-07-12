@@ -145,10 +145,14 @@ The same helper fits Server Actions, tests, jobs, and custom server entrypoints.
 
 For Node runtime Next.js entrypoints where deep async code should call
 `getRequestContainer()` without threading a container argument through every
-function, use the Node adapter:
+function, use the Node adapter.
+
+First create an app-local composition module. `createNodeDi()` comes from
+`di-craft/node`; the returned helpers are configured with your app providers
+and are exported from your own file:
 
 ```ts
-// app/di.node.ts
+// app/di.node.ts or lib/di.node.ts
 import "server-only";
 import { createNodeDi } from "di-craft/node";
 
@@ -157,11 +161,12 @@ export const { getRequestContainer, runWithRequestContainer } = createNodeDi({
 });
 ```
 
-Wrap each entrypoint once:
+Then import those configured helpers from the app-local module and wrap each
+entrypoint once:
 
 ```ts
 import { provideValue } from "di-craft";
-import { getRequestContainer, runWithRequestContainer } from "./di.node";
+import { getRequestContainer, runWithRequestContainer } from "@/lib/di.node";
 
 export async function POST(request: Request) {
   const tenantId = request.headers.get("x-tenant-id") ?? "public";
@@ -185,7 +190,7 @@ The same shape works for Server Actions:
 
 import { revalidateTag } from "next/cache";
 import { provideValue } from "di-craft";
-import { getRequestContainer, runWithRequestContainer } from "./di.node";
+import { getRequestContainer, runWithRequestContainer } from "@/lib/di.node";
 
 export async function createPost(input: FormData) {
   const tenantId = String(input.get("tenantId") ?? "public");
@@ -206,7 +211,7 @@ active async scope:
 
 ```ts
 import { cache } from "react";
-import { getRequestContainer } from "./di.node";
+import { getRequestContainer } from "@/lib/di.node";
 
 export const listPosts = cache(async () => {
   return getRequestContainer().get(POSTS_SERVICE).list();
@@ -223,6 +228,49 @@ React.cache()     -> dedupe within one RSC render pass
 Be careful with detached work and post-action hooks. Anything that runs after
 `runWithRequestContainer()` has settled must receive plain data or enter a new
 async scope before calling `getRequestContainer()`.
+
+For APIs such as `unstable_after`, capture the primitive values the deferred
+callback needs before scheduling it, then create a fresh minimal scope inside
+the callback:
+
+```ts
+"use server";
+
+import { revalidateTag } from "next/cache";
+import { provideValue } from "di-craft";
+import { getRequestContainer, runWithRequestContainer } from "@/lib/di.node";
+
+export async function publishPost(input: FormData) {
+  const tenantId = String(input.get("tenantId") ?? "public");
+
+  return runWithRequestContainer({
+    providers: [provideValue(TENANT_ID, tenantId)],
+    run: async () => {
+      const posts = getRequestContainer().get(POSTS_SERVICE);
+      const post = await posts.publish(input);
+
+      const capturedTenantId = tenantId;
+      const capturedPostId = post.id;
+
+      unstable_after(async () => {
+        await runWithRequestContainer({
+          providers: [provideValue(TENANT_ID, capturedTenantId)],
+          run: async () => {
+            const search = getRequestContainer().get(SEARCH_SERVICE);
+            await search.index(capturedPostId);
+          },
+        });
+      });
+
+      revalidateTag(`tenant:${tenantId}:posts`);
+    },
+  });
+}
+```
+
+The deferred callback should not rely on the original async scope still being
+active. Re-enter a new scope, or hoist the work to a queue/background job that
+receives plain values.
 
 Typed examples:
 
