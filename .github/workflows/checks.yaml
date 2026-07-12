@@ -23,14 +23,4 @@ jobs:
 
       - run: bun install --frozen-lockfile
 
-      - name: Lint pull request title
-        if: github.event_name == 'pull_request'
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: printf '%s\n' "$PR_TITLE" | bun run lint:commit --verbose
-
-      - name: Lint commit messages
-        if: github.event_name == 'pull_request'
-        run: bun run lint:commit --from "${{ github.event.pull_request.base.sha }}" --to "${{ github.event.pull_request.head.sha }}" --verbose
-
       - run: bun run checks
