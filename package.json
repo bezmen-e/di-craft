@@ -1,6 +1,6 @@
 {
 	"name": "di-craft",
-	"version": "0.0.26",
+	"version": "0.0.27",
 	"description": "A tiny, type-safe dependency injection container for TypeScript with optional Next.js App Router and Node.js adapters",
 	"license": "MIT",
 	"author": {
