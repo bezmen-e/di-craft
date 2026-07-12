@@ -1,0 +1,8 @@
+{
+	"extends": "./src.json",
+	"compilerOptions": {
+		"types": ["node"]
+	},
+	"include": ["../src/adapters/node/**/*.ts"],
+	"exclude": ["../src/**/*.test.ts"]
+}
