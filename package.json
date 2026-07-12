@@ -42,8 +42,8 @@
 	"scripts": {
 		"build": "tsdown",
 		"test": "bun test",
-		"typecheck": "tsc --noEmit -p tsconfig.src.json && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.test.json",
-		"typecheck:examples": "tsc --noEmit -p tsconfig.examples.json && tsc --noEmit -p tsconfig.examples.node.json",
+		"typecheck": "tsc --noEmit -p tsconfig/src.json && tsc --noEmit -p tsconfig/node.json && tsc --noEmit -p tsconfig/test.json",
+		"typecheck:examples": "tsc --noEmit -p tsconfig/examples.json && tsc --noEmit -p tsconfig/examples.node.json",
 		"lint": "biome check .",
 		"format": "biome check --write .",
 		"publint": "publint",

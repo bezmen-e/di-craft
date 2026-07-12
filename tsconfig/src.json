@@ -5,6 +5,7 @@
 		"moduleResolution": "Bundler",
 		"strict": true,
 		"noUncheckedIndexedAccess": true,
+		"noUncheckedSideEffectImports": true,
 		"exactOptionalPropertyTypes": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
@@ -20,6 +21,6 @@
 		"skipLibCheck": true,
 		"types": []
 	},
-	"include": ["src/**/*.ts"],
-	"exclude": ["src/**/*.test.ts", "src/adapters/node/**/*.ts"]
+	"include": ["../src/**/*.ts"],
+	"exclude": ["../src/**/*.test.ts", "../src/adapters/node/**/*.ts"]
 }
