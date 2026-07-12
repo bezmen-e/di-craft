@@ -26,17 +26,17 @@ export type CreateNextDiOptions = {
 	 */
 	readonly providers?: readonly Provider[];
 	/**
-	 * React request cache, imported from `react` in a Next server file.
+	 * React render cache, imported from `react` in a Next server file.
 	 */
 	readonly cache: RequestCache;
 	/**
-	 * Providers registered in each request-scoped child container.
+	 * Providers registered in each RSC render-scoped child container.
 	 */
 	readonly requestProviders?: () => readonly Provider[];
 };
 
 /**
- * Options for running work inside a fresh request-scoped child container.
+ * Options for running work inside a fresh explicit child container.
  */
 export type RunWithRequestContainerOptions<TResult> = {
 	/**
@@ -59,7 +59,7 @@ export type NextDiAdapter = {
 	 */
 	readonly getRootContainer: () => Container;
 	/**
-	 * Returns the current request-scoped child container.
+	 * Returns the current RSC render-scoped child container.
 	 */
 	readonly getRequestContainer: () => Container;
 	/**
@@ -70,8 +70,9 @@ export type NextDiAdapter = {
 	) => Container;
 	/**
 	 * Runs work inside a fresh child container and disposes it in a `finally`
-	 * block. Use this in Route Handlers, Server Actions, or tests where the
-	 * request lifecycle is explicit.
+	 * block. This does not bind the container to async context; use the callback
+	 * argument, or `di-craft/node` when nested async code should call
+	 * `getRequestContainer()`.
 	 */
 	readonly runWithRequestContainer: <TResult>(
 		options: RunWithRequestContainerOptions<TResult>,

@@ -14,15 +14,21 @@ Components render tree:
 - code where passing the container through every function would be noisy.
 
 For React Server Components in Next.js, keep using `di-craft/next/server` with
-React's `cache` primitive.
+React's `cache` primitive when you only need RSC render scope. Use this adapter
+for Node runtime entrypoints when nested async code should read the current
+request container without receiving it as an argument.
 
 ## Runtime
 
 This adapter is Node.js-only because it imports `node:async_hooks`. It is not
 intended for Edge runtimes.
 
-For Edge or other runtimes without `AsyncLocalStorage`, pass the container
-explicitly or use a callback helper that owns the request lifecycle.
+For the ALS path, prefer the Node runtime for Next.js entrypoints. Some Edge
+runtimes polyfill `node:async_hooks`, but the semantics can differ from Node and
+context may be lost across worker awaits. For Edge or other runtimes without
+reliable `AsyncLocalStorage`, pass the container explicitly, use a callback
+helper that owns the request lifecycle, or use an equivalent Edge-native context
+primitive.
 
 ## Imports
 
@@ -87,6 +93,40 @@ from `di-craft/next/server` is usually enough. Reach for `di-craft/node` when
 nested Node async calls need to read the current request container with
 `getRequestContainer()`.
 
+That distinction matters in multi-tenant or resource-heavy entrypoints:
+
+```ts
+import { getRequestContainer, runWithRequestContainer } from "@/lib/di.node";
+
+export async function POST(request: Request) {
+  const tenantId = request.headers.get("x-tenant-id") ?? "public";
+
+  return runWithRequestContainer({
+    providers: [provideValue(TENANT_ID, tenantId)],
+    run: async () => {
+      return createPostFromDeepCode();
+    },
+  });
+}
+
+const createPostFromDeepCode = async () => {
+  const posts = getRequestContainer().get(POSTS_SERVICE);
+
+  return posts.create();
+};
+```
+
+`@/lib/di.node` is your app-local composition module. It imports
+`createNodeDi()` from `di-craft/node`, calls it with your providers, and exports
+the returned `getRequestContainer()` and `runWithRequestContainer()` helpers.
+
+The typed Next Node runtime example shows the entrypoint wrapper and deep
+`getRequestContainer()` pattern:
+[next-runtime-als.ts](../examples/typed-docs/node/next-runtime-als.ts).
+
+Use `React.cache()` separately for RSC-only dedupe while `AsyncLocalStorage`
+owns request/tenant context and disposal.
+
 ## Disposal
 
 `runWithRequestContainer()` disposes the request container after the callback
@@ -105,3 +145,26 @@ Use `onDispose` on cached providers to release resources.
 Do not start detached async work that later calls `getRequestContainer()` from
 inside the callback. Pass the plain data it needs, or await that work before the
 callback returns, so it does not read from a disposed request container.
+
+Next.js post-action work, such as callbacks scheduled after a Server Action,
+may run outside the async scope that created the request container. Re-enter a
+new scope or pass plain values to that work instead of calling
+`getRequestContainer()` after disposal.
+
+## Testing
+
+The Node adapter composes with per-test request containers. In tests, wrap the
+code under test with `runWithRequestContainer()` and register test-only
+providers there instead of mocking modules:
+
+```ts
+await runWithRequestContainer({
+  providers: [provideValue(DB, fakeDb)],
+  run: async () => {
+    await serviceUnderTest();
+  },
+});
+```
+
+Nested calls to `getRequestContainer()` resolve from that test scope, and the
+container is disposed when the callback settles.
