@@ -46,10 +46,8 @@
 		"typecheck:examples": "tsc --noEmit -p tsconfig/examples.json && tsc --noEmit -p tsconfig/examples.node.json",
 		"lint": "biome check .",
 		"format": "biome check --write .",
-		"publint": "publint",
-		"attw": "bun pm pack --filename /tmp/di-craft-attw.tgz --quiet && attw /tmp/di-craft-attw.tgz --profile esm-only",
 		"pre-commit-hooks": "simple-git-hooks",
-		"checks": "bun run lint && bun run typecheck && bun run typecheck:examples && bun run test && bun run build && bun run publint && bun run attw"
+		"checks": "bun run lint && bun run typecheck && bun run typecheck:examples && bun run test && bun run build"
 	},
 	"simple-git-hooks": {
 		"pre-commit": "bun run lint && bun run typecheck && bun run typecheck:examples"
@@ -95,13 +93,13 @@
 		"url": "https://github.com/bezmen-e/di-craft/issues"
 	},
 	"devDependencies": {
-		"@arethetypeswrong/cli": "0.18.5",
-		"@biomejs/biome": "2.5.3",
+		"@arethetypeswrong/core": "0.18.5",
+		"@biomejs/biome": "2.5.8",
 		"@types/bun": "1.3.14",
 		"@types/node": "26.0.1",
-		"publint": "0.3.21",
+		"publint": "0.3.23",
 		"simple-git-hooks": "2.13.1",
-		"tsdown": "0.22.5",
+		"tsdown": "0.22.14",
 		"typescript": "7.0.2"
 	}
 }

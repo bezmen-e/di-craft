@@ -18,4 +18,12 @@ export default defineConfig({
 	minify: false,
 	sourcemap: true,
 	target: "es2022",
+	failOnWarn: true,
+	publint: {
+		strict: true,
+	},
+	attw: {
+		profile: "esm-only",
+		level: "error",
+	},
 });
