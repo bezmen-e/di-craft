@@ -1,18 +1,14 @@
+<h1 align="center">di-craft</h1>
+
 <p align="center">
   <img src="./assets/logo.png" alt="di-craft" width="200" />
 </p>
 
-<h1 align="center">di-craft</h1>
-
 <p align="center">
-  Tiny, type-safe dependency injection for TypeScript with explicit tokens and
-  optional request scopes.
+  <b>A tiny, type-safe dependency injection container for TypeScript</b>
+  <br />
+  <span>Framework-agnostic core with optional Next.js App Router / RSC and Node.js async-context adapters</span>
 </p>
-
-Define typed tokens, connect them to values or factories, and resolve services
-at the edges of your app. You get a visible, type-checked dependency graph for
-plain TypeScript, Next.js App Router, or Node.js, without `reflect-metadata`, a
-global container, or framework lock-in.
 
 - **Small.** 2,155 bytes minified + gzipped for the core entry. Zero runtime
   dependencies.
