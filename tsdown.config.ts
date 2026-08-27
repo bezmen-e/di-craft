@@ -8,11 +8,10 @@ export default defineConfig({
 		node: "src/adapters/node/server.ts",
 	},
 	format: ["esm"],
-	dts: true,
-	tsconfig: "tsconfig/build.json",
-	deps: {
-		onlyBundle: [],
+	dts: {
+		sourcemap: true,
 	},
+	tsconfig: "tsconfig/build.json",
 	clean: true,
 	treeshake: true,
 	minify: false,

@@ -1,17 +1,19 @@
-<p align="center">
+<h1 align="center">
   <img
     src="https://raw.githubusercontent.com/bezmen-e/di-craft/main/assets/logo.png"
-    alt="di-craft"
-    width="200"
+    alt=""
+    width="40"
+    height="40"
   />
-</p>
+  di-craft
+</h1>
 
-<h1 align="center">di-craft</h1>
-
-A tiny TypeScript dependency injection container built around explicit tokens.
-You wire services in plain TypeScript, keep dependencies type-checked, and get
-request scopes for Next.js or Node.js without `reflect-metadata`, runtime type
-guessing, or a framework.
+A tiny TypeScript dependency injection container for apps that want explicit
+wiring instead of runtime magic. Define typed tokens, connect them to values or
+factories, and resolve services at the edges of your app. You get a visible,
+type-checked dependency graph with optional request scopes for Next.js App
+Router and Node.js, without `reflect-metadata`, a global container, or framework
+lock-in.
 
 - **Small.** 2,155 bytes minified + gzipped for the core entry. Zero runtime
   dependencies.
@@ -22,18 +24,16 @@ guessing, or a framework.
   subpath imports, so the core stays framework-agnostic.
 
 ```ts
-import { createContainer, createToken, provideFactory, provideValue } from "di-craft";
-
 const NAME = createToken<string>("NAME");
 const GREETING = createToken<string>("GREETING");
-const container = createContainer([
+
+createContainer([
   provideValue(NAME, "di-craft"),
   provideFactory(GREETING, {
     deps: { name: NAME },
     useFactory: ({ name }) => `Hello, ${name}!`,
   }),
-]);
-container.get(GREETING); //=> "Hello, di-craft!"
+]).get(GREETING); //=> "Hello, di-craft!"
 ```
 
 > Dependencies are tokens you pass in. The container never inspects TypeScript types at runtime.
@@ -109,6 +109,9 @@ console.log(container.get(GREETING));
 ```bash
 npx --yes tsx greeting.ts
 ```
+
+This runs the file with `tsx` through `npx`; `npx` may download `tsx`
+temporarily if it is not already available.
 
 You should see:
 
