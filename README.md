@@ -1,26 +1,39 @@
 <p align="center">
-  <img src="./assets/logo.png" alt="di-craft" width="200" />
+  <img
+    src="https://raw.githubusercontent.com/bezmen-e/di-craft/main/assets/logo.png"
+    alt="di-craft"
+    width="200"
+  />
 </p>
 
 <h1 align="center">di-craft</h1>
 
-A tiny TypeScript library that wires your services from tokens you declare, so types stay checked and you never need `reflect-metadata` or a framework.
+A tiny TypeScript dependency injection container built around explicit tokens.
+You wire services in plain TypeScript, keep dependencies type-checked, and get
+request scopes for Next.js or Node.js without `reflect-metadata`, runtime type
+guessing, or a framework.
 
-- **Small.** 2,143 bytes minified + gzipped for `import "di-craft"`. Zero runtime dependencies.
-- **Typed.** Token types flow into factories and `container.get()`.
-- **Explicit.** You list every dependency. Optional `@Injectable` is sugar over the same providers — no runtime type guessing, no global container.
-- **Adapters.** Next.js App Router and Node.js request scopes are optional subpath imports, not part of core.
+- **Small.** 2,155 bytes minified + gzipped for the core entry. Zero runtime
+  dependencies.
+- **Typed.** Token types flow into factory dependencies and `container.get()` results.
+- **Explicit.** Every dependency is listed in code. Optional `@Injectable` is
+  sugar over the same providers: no global container, no runtime type guessing.
+- **Adapters.** Next.js App Router and Node.js request scopes live in optional
+  subpath imports, so the core stays framework-agnostic.
 
 ```ts
 import { createContainer, createToken, provideFactory, provideValue } from "di-craft";
 
-const NAME = createToken<string>("name");
-const HI = createToken<string>("hi");
-const di = createContainer([
+const NAME = createToken<string>("NAME");
+const GREETING = createToken<string>("GREETING");
+const container = createContainer([
   provideValue(NAME, "di-craft"),
-  provideFactory(HI, { deps: { name: NAME }, useFactory: ({ name }) => `Hello, ${name}!` }),
+  provideFactory(GREETING, {
+    deps: { name: NAME },
+    useFactory: ({ name }) => `Hello, ${name}!`,
+  }),
 ]);
-di.get(HI); //=> "Hello, di-craft!"
+container.get(GREETING); //=> "Hello, di-craft!"
 ```
 
 > Dependencies are tokens you pass in. The container never inspects TypeScript types at runtime.
@@ -46,15 +59,29 @@ di.get(HI); //=> "Hello, di-craft!"
 
 Needs **Node.js 20+**. The package is **ESM-only**.
 
-**1. Add it to an existing project**
+**1. Add it to a project**
+
+npm:
 
 ```bash
 npm install di-craft
 ```
 
+pnpm:
+
+```bash
+pnpm add di-craft
+```
+
+Bun:
+
 ```bash
 bun add di-craft
-pnpm add di-craft
+```
+
+Yarn:
+
+```bash
 yarn add di-craft
 ```
 
@@ -63,14 +90,18 @@ yarn add di-craft
 ```ts
 import { createContainer, createToken, provideFactory, provideValue } from "di-craft";
 
-const NAME = createToken<string>("name");
-const HI = createToken<string>("hi");
-const di = createContainer([
+const NAME = createToken<string>("NAME");
+const GREETING = createToken<string>("GREETING");
+
+const container = createContainer([
   provideValue(NAME, "di-craft"),
-  provideFactory(HI, { deps: { name: NAME }, useFactory: ({ name }) => `Hello, ${name}!` }),
+  provideFactory(GREETING, {
+    deps: { name: NAME },
+    useFactory: ({ name }) => `Hello, ${name}!`,
+  }),
 ]);
 
-console.log(di.get(HI));
+console.log(container.get(GREETING));
 ```
 
 **3. Run it**
@@ -85,31 +116,41 @@ You should see:
 Hello, di-craft!
 ```
 
-Call `container.get()` at composition roots (entrypoints, route handlers, tests). Pass constructed services into domain classes — do not pass the container itself.
+Call `container.get()` at composition roots: entrypoints, route handlers, tests.
+Pass constructed services into domain classes instead of passing the container
+itself.
 
 ---
 
 ## When di-craft is a good fit
 
-- You want the dependency graph visible in TypeScript, not reconstructed from decorator metadata.
-- You need request-scoped values in Next.js App Router / RSC or in Node.js async work, without a full framework DI.
+- You want the dependency graph visible in TypeScript, not reconstructed from
+  decorator metadata.
+- You need request-scoped values in Next.js App Router / RSC or Node.js async
+  work, without a full framework DI system.
 - Tests should swap providers via child containers, not by mocking modules.
 
-**Skip it** when you already live in Nest and want its modules, when you specifically want decorator-only injection backed by `reflect-metadata`, or when a handful of constructor arguments would do the job.
+**Skip it** when you already live in Nest and want its modules, when you
+specifically want decorator-only injection backed by `reflect-metadata`, or
+when a handful of constructor arguments would do the job.
 
 ---
 
 ## Tokens and providers
 
-A **token** is a unique typed key. A **provider** tells the container how to build that value. Factory `deps` keys become the object passed to `useFactory`.
+A **token** is a unique typed key. A **provider** tells the container how to
+build that value. Factory `deps` keys become the object passed to `useFactory`.
 
-- **`createToken<T>(name)`** — identity is an internal symbol; the name is diagnostics only. Two tokens with the same name are still different.
-- **`provideValue(token, value)`** — register a value that already exists.
-- **`provideFactory(token, options)`** — build lazily (`deps`, `scope`, `onDispose`).
-- **`createContainer(providers?)`** — store providers and resolve on demand.
-- **`container.register(provider)`** — add later. Duplicate tokens throw unless `{ allowOverride: true }`.
+- **`createToken<T>(name)`**: identity is an internal symbol; the name is
+  diagnostics only. Two tokens with the same name are still different.
+- **`provideValue(token, value)`**: register a value that already exists.
+- **`provideFactory(token, options)`**: build lazily (`deps`, `scope`, `onDispose`).
+- **`createContainer(providers?)`**: store providers and resolve on demand.
+- **`container.register(provider)`**: add later. Duplicate tokens throw unless
+  `{ allowOverride: true }`.
 
-Resolution is **synchronous**. For async setup, await first and `provideValue` the ready instance, or register a `Promise` and `await container.get(token)`.
+Resolution is **synchronous**. For async setup, await first and `provideValue`
+the ready instance, or register a `Promise` and `await container.get(token)`.
 
 Full rules: [Core concepts](./docs/core.md).
 
@@ -123,9 +164,10 @@ Full rules: [Core concepts](./docs/core.md).
 | `transient` | A new instance on every `get` |
 | `scoped` | One cached instance per resolving container |
 
-A provider may only depend on dependencies that live at least as long as itself.
+A provider may only depend on values that live at least as long as itself.
 
-**Child containers** inherit parent providers and can add or override locals — the pattern for per-request data:
+**Child containers** inherit parent providers and can add or override locals.
+This is the pattern for per-request data:
 
 ```ts
 const child = createChildContainer(root, [provideValue(REQUEST, request)]);
@@ -140,7 +182,8 @@ const child = createChildContainer(root, [provideValue(REQUEST, request)]);
 
 ## Optional dependencies
 
-Wrap a token with `optional()` when it may be missing. The type becomes `T | undefined`.
+Wrap a token with `optional()` when it may be missing. The type becomes
+`T | undefined`.
 
 ```ts
 provideFactory(USERS, {
@@ -153,7 +196,8 @@ provideFactory(USERS, {
 
 ## Class providers
 
-`@Injectable` keeps token, constructor deps, scope, and disposal next to the class. `provideInjectable` turns that into a normal factory provider.
+`@Injectable` keeps token, constructor deps, scope, and disposal next to the
+class. `provideInjectable` turns that into a normal factory provider.
 
 ```ts
 @Injectable({ token: USERS, deps: [LOGGER] })
@@ -173,7 +217,8 @@ Walkthrough: [Annotation-based providers](./docs/annotations.md).
 
 ## Next.js and Node adapters
 
-React, Next.js, and `AsyncLocalStorage` stay out of `import "di-craft"`. Import a subpath only when you need it.
+React, Next.js, and `AsyncLocalStorage` stay out of `import "di-craft"`. Import
+a subpath only when you need it.
 
 | Import | Use it for |
 | --- | --- |
@@ -182,12 +227,14 @@ React, Next.js, and `AsyncLocalStorage` stay out of `import "di-craft"`. Import 
 | `di-craft/node` | Node.js request scopes via `AsyncLocalStorage` (`createNodeDi`) |
 
 ```txt
-server DI container → serializable snapshot → client state
+server DI container -> serializable snapshot -> client state
 ```
 
-The Node adapter is for code **outside** the RSC render tree. It imports `node:async_hooks` and is not intended for Edge.
+The Node adapter is for code **outside** the RSC render tree. It imports
+`node:async_hooks` and is not intended for Edge.
 
-Do not mix RSC render scope (`di-craft/next/server`) with Node `AsyncLocalStorage` scope (`di-craft/node`).
+Do not mix RSC render scope (`di-craft/next/server`) with Node
+`AsyncLocalStorage` scope (`di-craft/node`).
 
 - [Next.js App Router adapter](./docs/next.md)
 - [Node.js async context adapter](./docs/node.md)
@@ -232,7 +279,8 @@ Typed examples checked by `bun run typecheck:examples`:
 | `createChildContainer(parent, providers?)` | Child that inherits from `parent` |
 | `Scopes` | `Singleton`, `Transient`, `Scoped` |
 
-Errors (all extend `DiError`): `MissingProviderError`, `DuplicateProviderError`, `CircularDependencyError`, `InvalidDependencyError`, `InvalidProviderError`.
+Errors all extend `DiError`: `MissingProviderError`, `DuplicateProviderError`,
+`CircularDependencyError`, `InvalidDependencyError`, `InvalidProviderError`.
 
 ---
 
