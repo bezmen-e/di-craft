@@ -8,7 +8,7 @@
 		"email": "egor1911@gmail.com"
 	},
 	"type": "module",
-	"packageManager": "bun@1.3.14",
+	"packageManager": "bun@1.4.2",
 	"sideEffects": false,
 	"engines": {
 		"node": ">=20"
@@ -40,12 +40,14 @@
 		"LICENSE"
 	],
 	"scripts": {
+		"bench": "bun run bench/core.bench.ts",
 		"build": "tsdown",
 		"test": "bun test",
 		"typecheck": "tsc --noEmit -p tsconfig/src.json && tsc --noEmit -p tsconfig/node.json && tsc --noEmit -p tsconfig/test.json",
 		"typecheck:examples": "tsc --noEmit -p tsconfig/examples.json && tsc --noEmit -p tsconfig/examples.node.json",
 		"lint": "biome check .",
 		"format": "biome check --write .",
+		"profile": "bun --cpu-prof --cpu-prof-md --cpu-prof-dir ./.tmp/profiles bench/profile-resolve.ts",
 		"pre-commit-hooks": "simple-git-hooks",
 		"checks": "bun run lint && bun run typecheck && bun run typecheck:examples && bun run test && bun run build"
 	},
@@ -94,12 +96,13 @@
 	},
 	"devDependencies": {
 		"@arethetypeswrong/core": "0.18.5",
-		"@biomejs/biome": "2.5.8",
-		"@types/bun": "1.3.14",
+		"@biomejs/biome": "2.5.12",
+		"@types/bun": "1.4.2",
 		"@types/node": "26.0.1",
-		"publint": "0.3.23",
-		"simple-git-hooks": "2.13.1",
-		"tsdown": "0.22.14",
+		"mitata": "1.0.34",
+		"publint": "0.3.24",
+		"simple-git-hooks": "2.14.0",
+		"tsdown": "0.23.0",
 		"typescript": "7.0.2"
 	}
 }
