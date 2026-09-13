@@ -1,0 +1,56 @@
+[task_config]
+dir = "{{ config_root }}"
+
+[vars]
+repo_root = "{{ config_root }}/../.."
+
+[env]
+'_'.path = [
+	"{{ config_root }}/node_modules/.bin",
+	"{{ vars.repo_root }}/node_modules/.bin",
+]
+
+[tasks.lint]
+description = "Lint di-craft package files"
+run = "biome check ."
+
+[tasks.format]
+description = "Format and fix di-craft package files"
+run = "biome check --write ."
+
+[tasks.typecheck]
+description = "Type check di-craft source and tests"
+run = "tsc --noEmit -p tsconfig/src.json && tsc --noEmit -p tsconfig/node.json && tsc --noEmit -p tsconfig/test.json"
+
+[tasks."typecheck:examples"]
+description = "Type check typed documentation examples"
+run = "tsc --noEmit -p tsconfig/examples.json && tsc --noEmit -p tsconfig/examples.node.json"
+
+[tasks.test]
+description = "Run di-craft tests"
+run = "bun test"
+
+[tasks.build]
+description = "Build di-craft with tsdown"
+run = "tsdown"
+sources = ["src/**/*.ts", "tsconfig/**/*.json", "tsconfig.json", "tsdown.config.ts", "package.json"]
+outputs = ["dist/**/*"]
+
+[tasks.bench]
+description = "Run di-craft benchmarks"
+run = "bun run bench/core.bench.ts"
+
+[tasks.profile]
+description = "Capture a CPU profile for dependency resolution"
+run = "bun --cpu-prof --cpu-prof-md --cpu-prof-dir ./.tmp/profiles bench/profile-resolve.ts"
+outputs = [".tmp/profiles/**/*"]
+
+[tasks.checks]
+description = "Run the full di-craft package quality pipeline"
+run = [
+	{ task = "lint" },
+	{ task = "typecheck" },
+	{ task = "typecheck:examples" },
+	{ task = "test" },
+	{ task = "build" },
+]

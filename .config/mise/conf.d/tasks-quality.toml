@@ -1,0 +1,47 @@
+[tasks.lint]
+description = "Lint the whole workspace"
+run = "biome check ."
+
+[tasks.format]
+description = "Format and fix the whole workspace"
+run = "biome check --write ."
+
+[tasks."format:check"]
+description = "Check formatting and linting in the whole workspace"
+alias = "fmt:check"
+run = "biome check ."
+
+[tasks.typecheck]
+description = "Type check the di-craft package"
+run = "mise run //packages/di-craft:typecheck"
+
+[tasks."typecheck:examples"]
+description = "Type check package documentation examples"
+run = "mise run //packages/di-craft:typecheck:examples"
+
+[tasks.check]
+description = "Run quality checks without building artifacts"
+run = [
+	{ task = "lint" },
+	{ task = "typecheck" },
+	{ task = "typecheck:examples" },
+	{ task = "test" },
+]
+
+[tasks.ci]
+description = "Run all CI checks"
+run = [
+	{ task = "check" },
+	{ task = "build" },
+]
+
+[tasks.checks]
+description = "Run the full local quality pipeline"
+run = [{ task = "ci" }]
+
+[tasks.validate]
+description = "Run auto-fixes followed by the full quality pipeline"
+run = [
+	{ task = "format" },
+	{ task = "ci" },
+]

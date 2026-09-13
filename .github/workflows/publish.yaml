@@ -23,19 +23,19 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Install Bun
-        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - name: Install mise
+        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         with:
-          bun-version: 1.4.2
-          no-cache: true
+          install: true
+          cache: true
+
+      - name: Enable mise experimental features
+        run: mise settings experimental=true
+
       - name: Install dependencies
         run: bun install --frozen-lockfile --ignore-scripts
       - name: Run checks
-        run: |
-          bun run lint
-          bun run typecheck
-          bun run typecheck:examples
-          bun run test
+        run: mise run check
 
   build:
     name: Build package
@@ -47,20 +47,24 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Install Bun
-        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - name: Install mise
+        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         with:
-          bun-version: 1.4.2
-          no-cache: true
+          install: true
+          cache: true
+
+      - name: Enable mise experimental features
+        run: mise settings experimental=true
+
       - name: Install dependencies
         run: bun install --frozen-lockfile --ignore-scripts
       - name: Build package
-        run: bun run build
+        run: mise run build
       - name: Upload build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: build-artifacts
-          path: dist/
+          path: packages/di-craft/dist/
           retention-days: 1
 
   publish:
@@ -81,7 +85,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: build-artifacts
-          path: dist/
+          path: packages/di-craft/dist/
       - name: Install Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -91,11 +95,12 @@ jobs:
         env:
           TAG_NAME: ${{ github.ref_name }}
         run: |
-          PKG_VERSION="$(node -p "require('./package.json').version")"
+          PKG_VERSION="$(node -p "require('./packages/di-craft/package.json').version")"
           TAG_VERSION="${TAG_NAME#v}"
           if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
             echo "::error::Release tag '$TAG_NAME' does not match package.json version '$PKG_VERSION'"
             exit 1
           fi
       - name: Publish npm package
+        working-directory: packages/di-craft
         run: npm stage publish --ignore-scripts

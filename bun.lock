@@ -3,15 +3,21 @@
   "configVersion": 1,
   "workspaces": {
     "": {
+      "name": "di-craft-monorepo",
+      "devDependencies": {
+        "@biomejs/biome": "2.5.12",
+        "simple-git-hooks": "2.14.0",
+      },
+    },
+    "packages/di-craft": {
       "name": "di-craft",
+      "version": "0.0.32",
       "devDependencies": {
         "@arethetypeswrong/core": "0.18.5",
-        "@biomejs/biome": "2.5.12",
         "@types/bun": "1.4.2",
         "@types/node": "26.0.1",
         "mitata": "1.0.34",
         "publint": "0.3.24",
-        "simple-git-hooks": "2.14.0",
         "tsdown": "0.23.0",
         "typescript": "7.0.2",
       },
@@ -183,6 +189,8 @@
     "cjs-module-lexer": ["cjs-module-lexer@1.4.3", "", {}, "sha512-9z8TZaGM1pfswYeXrUpzPrkx8UnWYdhJclsiYMm6x/w5+nN+8Tf/LnAgfLGQCm59qAOxU8WwHEq2vNwF6i4j+Q=="],
 
     "defu": ["defu@6.1.7", "", {}, "sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ=="],
+
+    "di-craft": ["di-craft@workspace:packages/di-craft"],
 
     "dts-resolver": ["dts-resolver@3.0.0", "", { "peerDependencies": { "oxc-resolver": ">=11.0.0" }, "optionalPeers": ["oxc-resolver"] }, "sha512-1T1f+z+4tl9XD+m+0HBgWoL/nm0bOIffyWaUuUSBlFg/86IWvfx+wjNaO/ybU0AJzG9/Mi5hBUgGV6zCmWEN7Q=="],
 

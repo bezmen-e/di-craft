@@ -34,7 +34,10 @@
 	},
 	"overrides": [
 		{
-			"includes": ["src/**/*.ts", "!src/**/*.test.ts"],
+			"includes": [
+				"packages/di-craft/src/**/*.ts",
+				"!packages/di-craft/src/**/*.test.ts"
+			],
 			"linter": {
 				"rules": {
 					"nursery": {
