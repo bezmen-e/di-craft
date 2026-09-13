@@ -16,6 +16,9 @@
 		"fix": "mise run fix",
 		"format": "mise run format",
 		"lint": "mise run lint",
+		"lint:fallow": "mise run lint:fallow",
+		"lint:fallow:fix": "mise run lint:fallow:fix",
+		"lint:fallow:fix:preview": "mise run lint:fallow:fix:preview",
 		"lint:fix": "mise run lint:fix",
 		"prepare": "mise run --no-deps prepare",
 		"profile": "mise run profile",
@@ -25,6 +28,7 @@
 		"validate": "mise run validate"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.12"
+		"@biomejs/biome": "2.5.12",
+		"fallow": "3.22.0"
 	}
 }

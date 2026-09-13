@@ -19,6 +19,10 @@ local typecheckExamples = new Step {
   check = "mise run typecheck:examples"
 }
 
+local fallow = new Step {
+  check = "fallow --config .config/fallow.toml --skip health --fail-on-issues --format json --quiet >/dev/null"
+}
+
 local hygieneSteps = new Mapping<String, Step> {
   ["check-added-large-files"] = Builtins.check_added_large_files
   ["check-case-conflict"] = Builtins.check_case_conflict
@@ -35,6 +39,11 @@ local fastSteps = new Mapping<String, Step> {
   ["typecheck:examples"] = typecheckExamples
 }
 
+local checkSteps = new Mapping<String, Step> {
+  ...fastSteps
+  ["fallow"] = fallow
+}
+
 hooks {
   ["pre-commit"] {
     fix = true
@@ -43,11 +52,11 @@ hooks {
   }
 
   ["pre-push"] {
-    steps = fastSteps
+    steps = checkSteps
   }
 
   ["check"] {
-    steps = fastSteps
+    steps = checkSteps
   }
 
   ["fix"] {
