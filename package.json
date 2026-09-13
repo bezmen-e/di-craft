@@ -13,9 +13,11 @@
 		"check": "mise run check",
 		"checks": "mise run checks",
 		"ci": "mise run ci",
+		"fix": "mise run fix",
 		"format": "mise run format",
 		"lint": "mise run lint",
-		"pre-commit-hooks": "simple-git-hooks",
+		"lint:fix": "mise run lint:fix",
+		"prepare": "mise run --no-deps prepare",
 		"profile": "mise run profile",
 		"test": "mise run test",
 		"typecheck": "mise run typecheck",
@@ -23,10 +25,6 @@
 		"validate": "mise run validate"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.12",
-		"simple-git-hooks": "2.14.0"
-	},
-	"simple-git-hooks": {
-		"pre-commit": "mise run lint && mise run typecheck && mise run typecheck:examples"
+		"@biomejs/biome": "2.5.12"
 	}
 }

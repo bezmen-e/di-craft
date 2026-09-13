@@ -1,6 +1,18 @@
+[tasks.check]
+description = "Run hk quality checks"
+run = "hk check"
+
+[tasks.fix]
+description = "Run hk auto-fixes"
+run = "hk fix"
+
 [tasks.lint]
 description = "Lint the whole workspace"
 run = "biome check ."
+
+[tasks."lint:fix"]
+description = "Lint and fix the whole workspace"
+run = "biome check --write ."
 
 [tasks.format]
 description = "Format and fix the whole workspace"
@@ -19,19 +31,15 @@ run = "mise run //packages/di-craft:typecheck"
 description = "Type check package documentation examples"
 run = "mise run //packages/di-craft:typecheck:examples"
 
-[tasks.check]
-description = "Run quality checks without building artifacts"
+[tasks.ci]
+description = "Run all CI checks"
 run = [
+	{ task = "prepare" },
+	{ task = "format:check" },
 	{ task = "lint" },
 	{ task = "typecheck" },
 	{ task = "typecheck:examples" },
 	{ task = "test" },
-]
-
-[tasks.ci]
-description = "Run all CI checks"
-run = [
-	{ task = "check" },
 	{ task = "build" },
 ]
 
@@ -42,6 +50,8 @@ run = [{ task = "ci" }]
 [tasks.validate]
 description = "Run auto-fixes followed by the full quality pipeline"
 run = [
+	{ task = "prepare" },
 	{ task = "format" },
+	{ task = "lint:fix" },
 	{ task = "ci" },
 ]
