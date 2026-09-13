@@ -1,0 +1,66 @@
+amends "package://github.com/jdx/hk/releases/download/v1.46.0/hk@1.46.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v1.46.0/hk@1.46.0#/Builtins.pkl"
+
+local format = new Step {
+  check = "mise run format:check"
+  fix = "mise run format"
+}
+
+local lint = new Step {
+  check = "mise run lint"
+  fix = "mise run lint:fix"
+}
+
+local typecheck = new Step {
+  check = "mise run typecheck"
+}
+
+local typecheckExamples = new Step {
+  check = "mise run typecheck:examples"
+}
+
+local fallow = new Step {
+  check = "fallow --config .config/fallow.toml --skip health --fail-on-issues --format json --quiet >/dev/null"
+}
+
+local hygieneSteps = new Mapping<String, Step> {
+  ["check-added-large-files"] = Builtins.check_added_large_files
+  ["check-case-conflict"] = Builtins.check_case_conflict
+  ["check-merge-conflict"] = Builtins.check_merge_conflict
+  ["check-symlinks"] = Builtins.check_symlinks
+  ["detect-private-key"] = Builtins.detect_private_key
+}
+
+local fastSteps = new Mapping<String, Step> {
+  ...hygieneSteps
+  ["format"] = format
+  ["lint"] = lint
+  ["typecheck"] = typecheck
+  ["typecheck:examples"] = typecheckExamples
+}
+
+local checkSteps = new Mapping<String, Step> {
+  ...fastSteps
+  ["fallow"] = fallow
+}
+
+hooks {
+  ["pre-commit"] {
+    fix = true
+    stash = "git"
+    steps = fastSteps
+  }
+
+  ["pre-push"] {
+    steps = checkSteps
+  }
+
+  ["check"] {
+    steps = checkSteps
+  }
+
+  ["fix"] {
+    fix = true
+    steps = fastSteps
+  }
+}

@@ -1,108 +1,34 @@
 {
-	"name": "di-craft",
-	"version": "0.0.32",
-	"description": "A tiny, type-safe dependency injection container for TypeScript with optional Next.js App Router and Node.js adapters",
-	"license": "MIT",
-	"author": {
-		"name": "Egor Bezmen",
-		"email": "egor1911@gmail.com"
-	},
+	"name": "di-craft-monorepo",
+	"private": true,
 	"type": "module",
 	"packageManager": "bun@1.4.2",
-	"sideEffects": false,
-	"engines": {
-		"node": ">=20"
-	},
-	"module": "./dist/index.mjs",
-	"types": "./dist/index.d.mts",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.mts",
-			"default": "./dist/index.mjs"
-		},
-		"./next/client": {
-			"types": "./dist/next/client.d.mts",
-			"default": "./dist/next/client.mjs"
-		},
-		"./next/server": {
-			"types": "./dist/next/server.d.mts",
-			"default": "./dist/next/server.mjs"
-		},
-		"./node": {
-			"types": "./dist/node.d.mts",
-			"default": "./dist/node.mjs"
-		},
-		"./package.json": "./package.json"
-	},
-	"files": [
-		"dist",
-		"README.md",
-		"LICENSE"
+	"workspaces": [
+		"packages/*",
+		"apps/*"
 	],
 	"scripts": {
-		"bench": "bun run bench/core.bench.ts",
-		"build": "tsdown",
-		"test": "bun test",
-		"typecheck": "tsc --noEmit -p tsconfig/src.json && tsc --noEmit -p tsconfig/node.json && tsc --noEmit -p tsconfig/test.json",
-		"typecheck:examples": "tsc --noEmit -p tsconfig/examples.json && tsc --noEmit -p tsconfig/examples.node.json",
-		"lint": "biome check .",
-		"format": "biome check --write .",
-		"profile": "bun --cpu-prof --cpu-prof-md --cpu-prof-dir ./.tmp/profiles bench/profile-resolve.ts",
-		"pre-commit-hooks": "simple-git-hooks",
-		"checks": "bun run lint && bun run typecheck && bun run typecheck:examples && bun run test && bun run build"
-	},
-	"simple-git-hooks": {
-		"pre-commit": "bun run lint && bun run typecheck && bun run typecheck:examples"
-	},
-	"keywords": [
-		"di",
-		"di container",
-		"dependency-injection",
-		"dependency injection",
-		"dependency injection container",
-		"ioc",
-		"inversion of control",
-		"ioc container",
-		"typescript",
-		"container",
-		"zero dependencies",
-		"lightweight",
-		"tiny",
-		"tree-shakable",
-		"nextjs",
-		"next.js",
-		"app router",
-		"react server components",
-		"rsc",
-		"server components",
-		"request scope",
-		"request scoped",
-		"ssr",
-		"state hydration",
-		"next adapter",
-		"nodejs",
-		"node adapter",
-		"async context",
-		"async local storage",
-		"asynclocalstorage"
-	],
-	"homepage": "https://github.com/bezmen-e/di-craft",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/bezmen-e/di-craft.git"
-	},
-	"bugs": {
-		"url": "https://github.com/bezmen-e/di-craft/issues"
+		"bench": "mise run bench",
+		"build": "mise run build",
+		"check": "mise run check",
+		"checks": "mise run checks",
+		"ci": "mise run ci",
+		"fix": "mise run fix",
+		"format": "mise run format",
+		"lint": "mise run lint",
+		"lint:fallow": "mise run lint:fallow",
+		"lint:fallow:fix": "mise run lint:fallow:fix",
+		"lint:fallow:fix:preview": "mise run lint:fallow:fix:preview",
+		"lint:fix": "mise run lint:fix",
+		"prepare": "mise run --no-deps prepare",
+		"profile": "mise run profile",
+		"test": "mise run test",
+		"typecheck": "mise run typecheck",
+		"typecheck:examples": "mise run typecheck:examples",
+		"validate": "mise run validate"
 	},
 	"devDependencies": {
-		"@arethetypeswrong/core": "0.18.5",
 		"@biomejs/biome": "2.5.12",
-		"@types/bun": "1.4.2",
-		"@types/node": "26.0.1",
-		"mitata": "1.0.34",
-		"publint": "0.3.24",
-		"simple-git-hooks": "2.14.0",
-		"tsdown": "0.23.0",
-		"typescript": "7.0.2"
+		"fallow": "3.22.0"
 	}
 }

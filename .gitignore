@@ -22,6 +22,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 .env
 .env.local
 .env.*.local
+mise.local.toml
+mise.*.local.toml
 
 # caches
 .cache
@@ -38,8 +40,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 .DS_Store
 Thumbs.db
 
-examples/*
-!examples/typed-docs/
-!examples/typed-docs/**
+packages/*/examples/*
+!packages/*/examples/typed-docs/
+!packages/*/examples/typed-docs/**
 
 .tmp

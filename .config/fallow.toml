@@ -1,0 +1,18 @@
+entry = ["packages/di-craft/src/**/*.ts"]
+
+ignoreDependencies = [
+	"@arethetypeswrong/core",
+	"mitata",
+	"publint",
+]
+
+ignorePatterns = [
+	"packages/di-craft/bench/**",
+	"packages/di-craft/dist/**",
+	"packages/di-craft/examples/**",
+	"packages/di-craft/src/**/*.test.ts",
+]
+
+[duplicates]
+ignore = ["packages/di-craft/src/**/*.test.ts"]
+ignoreImports = true

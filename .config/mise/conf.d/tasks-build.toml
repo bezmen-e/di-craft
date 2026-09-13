@@ -1,0 +1,11 @@
+[tasks.build]
+description = "Build the npm package"
+run = "mise run //packages/di-craft:build"
+sources = [
+	"packages/di-craft/src/**/*.ts",
+	"packages/di-craft/tsconfig/**/*.json",
+	"packages/di-craft/tsconfig.json",
+	"packages/di-craft/tsdown.config.ts",
+	"packages/di-craft/package.json",
+]
+outputs = ["packages/di-craft/dist/**/*"]
