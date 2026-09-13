@@ -36,6 +36,8 @@ jobs:
         run: bun install --frozen-lockfile --ignore-scripts
       - name: Run checks
         run: mise run check
+      - name: Run tests
+        run: mise run test
 
   build:
     name: Build package
