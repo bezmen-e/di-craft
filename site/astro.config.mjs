@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import starlightTypeDoc from "starlight-typedoc";
 
 export default defineConfig({
+	site: "https://di-craft.pages.dev",
 	integrations: [
 		starlight({
 			title: "di-craft",
