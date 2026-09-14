@@ -8,7 +8,10 @@ run = "hk fix"
 
 [tasks.lint]
 description = "Lint the whole workspace"
-run = "biome check ."
+run = [
+	"mise run //packages/di-craft:lint",
+	"mise run //site:lint",
+]
 
 [tasks."lint:fallow"]
 description = "Check dead code and duplication with Fallow"
@@ -35,22 +38,31 @@ run = "fallow fix --config .config/fallow.toml --yes"
 
 [tasks."lint:fix"]
 description = "Lint and fix the whole workspace"
-run = "biome check --write ."
+run = [
+	"mise run //packages/di-craft:lint:fix",
+	"mise run //site:lint:fix",
+]
 
 [tasks.format]
 description = "Format and fix the whole workspace"
-run = "biome check --write ."
+run = [
+	"mise run //packages/di-craft:format",
+	"mise run //site:format",
+]
 
 [tasks."format:check"]
 description = "Check formatting and linting in the whole workspace"
 alias = "fmt:check"
-run = "biome check ."
+run = [
+	"mise run //packages/di-craft:format:check",
+	"mise run //site:format:check",
+]
 
-[tasks.typecheck]
+[tasks."typecheck:lib"]
 description = "Type check the di-craft package"
 run = "mise run //packages/di-craft:typecheck"
 
-[tasks."typecheck:examples"]
+[tasks."typecheck:lib:examples"]
 description = "Type check package documentation examples"
 run = "mise run //packages/di-craft:typecheck:examples"
 
@@ -60,11 +72,12 @@ run = [
 	{ task = "prepare" },
 	{ task = "format:check" },
 	{ task = "lint" },
-	{ task = "typecheck" },
-	{ task = "typecheck:examples" },
-	{ task = "test" },
+	{ task = "typecheck:lib" },
+	{ task = "typecheck:lib:examples" },
+	{ task = "test:lib" },
 	{ task = "lint:fallow" },
-	{ task = "build" },
+	{ task = "build:lib" },
+	{ task = "build:site" },
 ]
 
 [tasks.checks]

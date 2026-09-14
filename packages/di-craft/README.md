@@ -1,7 +1,7 @@
 <h1 align="center">di-craft</h1>
 
 <p align="center">
-  <img src="./assets/logo.png" alt="di-craft" width="200" />
+  <img src="https://raw.githubusercontent.com/bezmen-e/di-craft/main/assets/logo.png" alt="di-craft" width="200" />
 </p>
 
 <p align="center">

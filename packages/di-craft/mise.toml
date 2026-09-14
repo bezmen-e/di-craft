@@ -14,9 +14,17 @@ repo_root = "{{ config_root }}/../.."
 description = "Lint di-craft package files"
 run = "biome check ."
 
+[tasks."lint:fix"]
+description = "Lint and fix di-craft package files"
+run = "biome check --write ."
+
 [tasks.format]
 description = "Format and fix di-craft package files"
 run = "biome check --write ."
+
+[tasks."format:check"]
+description = "Check di-craft package formatting and linting"
+run = "biome check ."
 
 [tasks.typecheck]
 description = "Type check di-craft source and tests"
@@ -48,6 +56,7 @@ outputs = [".tmp/profiles/**/*"]
 [tasks.checks]
 description = "Run the full di-craft package quality pipeline"
 run = [
+	{ task = "format:check" },
 	{ task = "lint" },
 	{ task = "typecheck" },
 	{ task = "typecheck:examples" },
