@@ -2,6 +2,9 @@ entry = ["packages/di-craft/src/**/*.ts"]
 
 ignoreDependencies = [
 	"@arethetypeswrong/core",
+	# The docs site depends on the workspace package for release alignment while
+	# TypeDoc reads the source entrypoint directly.
+	"di-craft",
 	"mitata",
 	"publint",
 ]

@@ -1,11 +1,11 @@
-[tasks.test]
+[tasks."test:lib"]
 description = "Run package tests"
 run = "mise run //packages/di-craft:test"
 
-[tasks.bench]
+[tasks."bench:lib"]
 description = "Run package benchmarks"
 run = "mise run //packages/di-craft:bench"
 
-[tasks.profile]
+[tasks."profile:lib"]
 description = "Capture a CPU profile for package resolution"
 run = "mise run //packages/di-craft:profile"

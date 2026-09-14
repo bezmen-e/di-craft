@@ -5,27 +5,24 @@
 	"packageManager": "bun@1.4.2",
 	"workspaces": [
 		"packages/*",
-		"apps/*"
+		"site"
 	],
 	"scripts": {
-		"bench": "mise run bench",
-		"build": "mise run build",
-		"check": "mise run check",
-		"checks": "mise run checks",
+		"build:lib": "mise run build:lib",
+		"build:site": "mise run build:site",
 		"ci": "mise run ci",
+		"dev:site": "mise run dev:site",
 		"fix": "mise run fix",
 		"format": "mise run format",
+		"format:lib": "mise run //packages/di-craft:format",
+		"format:site": "mise run //site:format",
 		"lint": "mise run lint",
-		"lint:fallow": "mise run lint:fallow",
-		"lint:fallow:fix": "mise run lint:fallow:fix",
-		"lint:fallow:fix:preview": "mise run lint:fallow:fix:preview",
-		"lint:fix": "mise run lint:fix",
+		"lint:lib": "mise run //packages/di-craft:lint",
+		"lint:site": "mise run //site:lint",
 		"prepare": "mise run --no-deps prepare",
-		"profile": "mise run profile",
-		"test": "mise run test",
-		"typecheck": "mise run typecheck",
-		"typecheck:examples": "mise run typecheck:examples",
-		"validate": "mise run validate"
+		"preview:site": "mise run preview:site",
+		"test:lib": "mise run test:lib",
+		"typecheck:lib": "mise run typecheck:lib"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.12",

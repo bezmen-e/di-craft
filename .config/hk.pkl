@@ -12,11 +12,11 @@ local lint = new Step {
 }
 
 local typecheck = new Step {
-  check = "mise run typecheck"
+  check = "mise run typecheck:lib"
 }
 
 local typecheckExamples = new Step {
-  check = "mise run typecheck:examples"
+  check = "mise run typecheck:lib:examples"
 }
 
 local fallow = new Step {

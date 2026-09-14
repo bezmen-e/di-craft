@@ -1,12 +1,14 @@
-name: Lint CI workflows
+name: checks / workflows
 
 on:
   push:
     branches:
       - main
+    paths:
+      - '.github/workflows/**'
   pull_request:
-    branches:
-      - '**'
+    paths:
+      - '.github/workflows/**'
 
 permissions:
   contents: read
@@ -19,6 +21,7 @@ jobs:
   zizmor:
     name: Lint workflows
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       actions: read # Required by zizmor to inspect workflow metadata.
       contents: read
