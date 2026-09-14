@@ -5,7 +5,7 @@ experimental = true
 
 [tools]
 bun = "1.4.2"
-hk = "latest"
+hk = "1.58.1"
 
 [task_config]
 dir = "{{ config_root }}"

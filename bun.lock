@@ -28,6 +28,7 @@
       "dependencies": {
         "@astrojs/starlight": "0.42.0",
         "astro": "7.2.10",
+        "di-craft": "workspace:*",
       },
       "devDependencies": {
         "starlight-typedoc": "0.23.1",

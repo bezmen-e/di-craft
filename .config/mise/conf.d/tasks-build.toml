@@ -8,7 +8,7 @@ CF_PAGES_OUT_DIR = "{{ vars.cf_pages_out_dir }}"
 
 [tasks."build:lib"]
 description = "Build the npm package"
-run = "mise run //packages/di-craft:build"
+run = "mise run --no-deps //packages/di-craft:build"
 sources = [
 	"packages/di-craft/src/**/*.ts",
 	"packages/di-craft/tsconfig/**/*.json",
@@ -20,12 +20,12 @@ outputs = ["packages/di-craft/dist/**/*"]
 
 [tasks."build:site"]
 description = "Build the documentation site"
-run = "mise run //site:build"
+run = "mise run --no-deps //site:build"
 outputs = ["{{ vars.site_out_dir }}/**/*"]
 
 [tasks."build:cf-pages"]
 description = "Prepare deployment artifacts for Cloudflare Pages"
-run = "mise run //site:build:base {{ vars.cf_pages_out_dir }}"
+run = "mise run --no-deps //site:build:base {{ vars.cf_pages_out_dir }}"
 sources = [
 	"assets/**/*",
 	"packages/di-craft/src/**/*.ts",

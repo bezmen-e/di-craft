@@ -17,7 +17,7 @@ run = "astro dev"
 
 [tasks.build]
 description = "Build the documentation site"
-run = "mise run build:base"
+run = "mise run --no-deps build:base"
 outputs = ["{{ vars.site_out_dir }}/**/*"]
 
 [tasks."build:base"]

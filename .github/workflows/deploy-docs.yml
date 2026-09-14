@@ -1,20 +1,34 @@
-name: Deploy to Cloudflare Pages
+name: deploy / docs
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'assets/**'
+      - 'site/**'
+      - 'packages/di-craft/src/**'
+      - '!packages/di-craft/src/**/*.test.ts'
+      - 'packages/di-craft/README.md'
+      - 'bun.lock'
+      - 'bunfig.toml'
+      - 'package.json'
+      - 'mise.toml'
+      - 'biome.json'
+      - '.config/**'
+      - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
 concurrency:
-  group: deploy-cloudflare-pages
-  cancel-in-progress: false
+  group: deploy-docs-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
   deploy:
+    name: Deploy docs
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -39,7 +53,9 @@ jobs:
         run: bun install --frozen-lockfile --ignore-scripts
 
       - name: Build Cloudflare Pages artifact
-        run: mise run build:cf-pages
+        run: mise run --no-deps build:cf-pages
+        env:
+          CI: true
 
       - name: Deploy to Cloudflare Pages
         run: npx --yes wrangler@4 pages deploy .var/dist/cf-pages --project-name=di-craft --branch=main

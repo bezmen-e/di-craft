@@ -69,7 +69,6 @@ run = "mise run //packages/di-craft:typecheck:examples"
 [tasks.ci]
 description = "Run all CI checks"
 run = [
-	{ task = "prepare" },
 	{ task = "format:check" },
 	{ task = "lint" },
 	{ task = "typecheck:lib" },
