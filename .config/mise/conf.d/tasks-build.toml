@@ -10,11 +10,18 @@ CF_PAGES_OUT_DIR = "{{ vars.cf_pages_out_dir }}"
 description = "Build the npm package"
 run = "mise run --no-deps //packages/di-craft:build"
 sources = [
+	".config/mise/conf.d/_config.toml",
+	".config/mise/conf.d/tasks-build.toml",
+	"bun.lock",
+	"bunfig.toml",
+	"mise.toml",
+	"package.json",
+	"packages/di-craft/mise.toml",
+	"packages/di-craft/package.json",
 	"packages/di-craft/src/**/*.ts",
 	"packages/di-craft/tsconfig/**/*.json",
 	"packages/di-craft/tsconfig.json",
 	"packages/di-craft/tsdown.config.ts",
-	"packages/di-craft/package.json",
 ]
 outputs = ["packages/di-craft/dist/**/*"]
 
@@ -27,14 +34,22 @@ outputs = ["{{ vars.docs_out_dir }}/**/*"]
 description = "Prepare deployment artifacts for Cloudflare Pages"
 run = "mise run --no-deps //docs:build:base {{ vars.cf_pages_out_dir }}"
 sources = [
+	".config/mise/conf.d/_config.toml",
+	".config/mise/conf.d/tasks-build.toml",
 	"assets/**/*",
+	"bun.lock",
+	"bunfig.toml",
 	"docs/examples/**/*.ts",
+	"docs/mise.toml",
 	"docs/scripts/**/*.mjs",
 	"docs/src/**/*.{md,mdx,ts,astro,css}",
 	"docs/astro.config.mjs",
 	"docs/package.json",
 	"docs/public/**/*",
 	"docs/tsconfig*.json",
+	"mise.toml",
+	"package.json",
+	"packages/di-craft/package.json",
 	"packages/di-craft/src/**/*.ts",
 	"packages/di-craft/README.md",
 ]

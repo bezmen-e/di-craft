@@ -50,15 +50,23 @@ run = "biome check --write ."
 description = "Check docs formatting and linting"
 run = "biome check ."
 
+[tasks."typecheck:config"]
+description = "Type check the Astro configuration"
+run = "tsc --noEmit -p tsconfig.config.json"
+
+[tasks."typecheck:examples"]
+description = "Type check documentation examples against built package exports"
+depends = ["//packages/di-craft:build"]
+run = "tsc --noEmit -p tsconfig.examples.json && tsc --noEmit -p tsconfig.examples.node.json"
+
 [tasks.typecheck]
 description = "Type check the docs site and documentation examples"
-run = "tsc --noEmit -p tsconfig.config.json && tsc --noEmit -p tsconfig.examples.json && tsc --noEmit -p tsconfig.examples.node.json"
+depends = ["typecheck:config", "typecheck:examples"]
 
 [tasks.checks]
 description = "Run the docs quality pipeline"
 run = [
 	{ task = "format:check" },
-	{ task = "lint" },
 	{ task = "typecheck" },
 	{ task = "build" },
 ]

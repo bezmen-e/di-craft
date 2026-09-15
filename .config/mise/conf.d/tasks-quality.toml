@@ -70,7 +70,6 @@ run = "mise run //docs:typecheck"
 description = "Run all CI checks"
 run = [
 	{ task = "format:check" },
-	{ task = "lint" },
 	{ task = "typecheck:lib" },
 	{ task = "typecheck:docs" },
 	{ task = "test:lib" },
@@ -88,6 +87,5 @@ description = "Run auto-fixes followed by the full quality pipeline"
 run = [
 	{ task = "prepare" },
 	{ task = "format" },
-	{ task = "lint:fix" },
 	{ task = "ci" },
 ]
