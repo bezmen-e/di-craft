@@ -72,7 +72,7 @@ const createDescription = (summary, title, apiName) => {
 	return `${truncate(summary, summaryLimit)} ${context}`;
 };
 
-const updateFrontmatter = (contents, title, description) => {
+const updateFrontmatter = (contents, title, description, sidebarLabel) => {
 	const match = contents.match(frontmatterPattern);
 	if (!match) return contents;
 
@@ -89,6 +89,10 @@ const updateFrontmatter = (contents, title, description) => {
 		);
 	} else {
 		frontmatter = `${frontmatter}\ndescription: ${JSON.stringify(description)}`;
+	}
+
+	if (!/^sidebar:/m.test(frontmatter)) {
+		frontmatter = `${frontmatter}\nsidebar:\n  label: ${JSON.stringify(sidebarLabel)}`;
 	}
 
 	return `---\n${frontmatter}\n---\n${contents.slice(match[0].length)}`;
@@ -113,7 +117,12 @@ export const load = (app) => {
 				apiName,
 			);
 
-			event.contents = updateFrontmatter(event.contents, title, description);
+			event.contents = updateFrontmatter(
+				event.contents,
+				title,
+				description,
+				rawTitle,
+			);
 		},
 		-100,
 	);

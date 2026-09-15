@@ -20,6 +20,7 @@ const [nextServerTypeDoc, nextServerTypeDocSidebar] =
 const [nextClientTypeDoc, nextClientTypeDocSidebar] =
 	createStarlightTypeDocPlugin();
 
+/** @type {NonNullable<import("starlight-typedoc").StarlightTypeDocOptions["typeDoc"]>} */
 const typeDoc = {
 	useCodeBlocks: true,
 	parametersFormat: "htmlTable",
@@ -68,6 +69,7 @@ const plugins = [
 	}),
 	starlightLlmsTxt({
 		projectName: "di-craft",
+		exclude: ["api/**"],
 		customSets: [
 			{
 				label: "Learn",

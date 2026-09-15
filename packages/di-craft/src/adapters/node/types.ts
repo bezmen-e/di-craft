@@ -24,7 +24,9 @@ export type RunWithRequestContainerOptions<TResult> = {
 	 */
 	readonly providers?: readonly Provider[];
 	/**
-	 * Work that runs inside the current async request scope.
+	 * Work that runs inside the current async request scope. Await all work that
+	 * reads the request container before this callback settles. Deferred work,
+	 * such as a Next.js `after` callback, must enter a fresh request scope.
 	 */
 	readonly run: (container: Container) => TResult | Promise<TResult>;
 };

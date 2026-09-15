@@ -45,3 +45,4 @@ packages/*/examples/*
 !packages/*/examples/typed-docs/**
 
 .tmp
+.superpowers/

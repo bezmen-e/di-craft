@@ -148,11 +148,11 @@ export async function GET() {
 }
 ```
 
-The same helper fits Server Actions, tests, jobs, and custom server entrypoints.
+The same helper fits Server Actions, tests, jobs, and custom server entry points.
 
 ## Node Runtime ALS-First Entry Points
 
-For Node runtime Next.js entrypoints where deep async code should call
+For Node runtime Next.js entry points where deep async code should call
 `getRequestContainer()` without threading a container argument through every
 function, use the Node adapter.
 
@@ -171,7 +171,7 @@ export const { getRequestContainer, runWithRequestContainer } = createNodeDi({
 ```
 
 Then import those configured helpers from the app-local module and wrap each
-entrypoint once:
+entry point once:
 
 ```ts
 import { provideValue } from "di-craft";
@@ -209,7 +209,7 @@ export async function createPost(input: FormData) {
     run: async () => {
       const posts = getRequestContainer().get(POSTS_SERVICE);
       await posts.create(input);
-      revalidateTag(`tenant:${tenantId}:posts`);
+      revalidateTag(`tenant:${tenantId}:posts`, "max");
     },
   });
 }
@@ -238,7 +238,7 @@ Be careful with detached work and post-action hooks. Anything that runs after
 `runWithRequestContainer()` has settled must receive plain data or enter a new
 async scope before calling `getRequestContainer()`.
 
-For APIs such as `unstable_after`, capture the primitive values the deferred
+For APIs such as `after`, capture the primitive values the deferred
 callback needs before scheduling it, then create a fresh minimal scope inside
 the callback:
 
@@ -246,6 +246,7 @@ the callback:
 "use server";
 
 import { revalidateTag } from "next/cache";
+import { after } from "next/server";
 import { provideValue } from "di-craft";
 import { getRequestContainer, runWithRequestContainer } from "@/lib/di.node";
 
@@ -261,7 +262,7 @@ export async function publishPost(input: FormData) {
       const capturedTenantId = tenantId;
       const capturedPostId = post.id;
 
-      unstable_after(async () => {
+      after(async () => {
         await runWithRequestContainer({
           providers: [provideValue(TENANT_ID, capturedTenantId)],
           run: async () => {
@@ -271,15 +272,15 @@ export async function publishPost(input: FormData) {
         });
       });
 
-      revalidateTag(`tenant:${tenantId}:posts`);
+      revalidateTag(`tenant:${tenantId}:posts`, "max");
     },
   });
 }
 ```
 
-The deferred callback should not rely on the original async scope still being
-active. Re-enter a new scope, or hoist the work to a queue/background job that
-receives plain values.
+The original async scope is inactive after disposal, and
+`getRequestContainer()` rejects access to it. Re-enter a new scope, or hoist the
+work to a queue/background job that receives plain values.
 
 The Route Handler and Server Action examples are compiled alongside the docs:
 
