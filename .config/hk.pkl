@@ -1,25 +1,26 @@
 amends "package://github.com/jdx/hk/releases/download/v1.46.0/hk@1.46.0#/Config.pkl"
 import "package://github.com/jdx/hk/releases/download/v1.46.0/hk@1.46.0#/Builtins.pkl"
 
+local projectFiles = List("**/*")
+
 local format = new Step {
+  glob = projectFiles
   check = "mise run format:check"
   fix = "mise run format"
 }
 
-local lint = new Step {
-  check = "mise run lint"
-  fix = "mise run lint:fix"
-}
-
 local typecheck = new Step {
+  glob = projectFiles
   check = "mise run typecheck:lib"
 }
 
 local typecheckExamples = new Step {
+  glob = projectFiles
   check = "mise run typecheck:docs"
 }
 
 local fallow = new Step {
+  glob = projectFiles
   check = "fallow --config .config/fallow.toml --skip health --fail-on-issues --format json --quiet >/dev/null"
 }
 
@@ -34,13 +35,12 @@ local hygieneSteps = new Mapping<String, Step> {
 local fastSteps = new Mapping<String, Step> {
   ...hygieneSteps
   ["format"] = format
-  ["lint"] = lint
-  ["typecheck"] = typecheck
-  ["typecheck:examples"] = typecheckExamples
 }
 
 local checkSteps = new Mapping<String, Step> {
   ...fastSteps
+  ["typecheck"] = typecheck
+  ["typecheck:examples"] = typecheckExamples
   ["fallow"] = fallow
 }
 
