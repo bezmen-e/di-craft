@@ -48,7 +48,6 @@ benchmarks/
   bun.lock
   bunfig.toml
   tsconfig.json
-  vitest.config.ts
   README.md
   scripts/
   src/
@@ -63,16 +62,27 @@ Bun supports arbitrary workspace paths, including a root-level `benchmarks`
 entry. This package will deliberately **not** be added to the root `workspaces`
 array, however. A Bun workspace member shares the monorepo lockfile and install,
 whereas benchmark reproducibility benefits from an independent dependency graph.
+This matches the InferDI reference: its root workspace includes only
+`packages/*` and `apps/*`, while `benchmarks/` has its own lockfile and a local
+workspace definition with no members.
 
 Commands will use `bun --cwd benchmarks ...` or `bun install --cwd benchmarks`.
 Because the root workspace patterns remain `packages/*` and `docs`, Bun treats
-`benchmarks/` as its own package root and writes `benchmarks/bun.lock`. A local
-Vitest alias will select either `packages/di-craft/src/index.ts` or the production
-`packages/di-craft/dist/index.mjs`; no workspace dependency is required.
+`benchmarks/` as its own package root and writes `benchmarks/bun.lock`. A small
+artifact loader will dynamically import either `packages/di-craft/src/index.ts`
+or the production `packages/di-craft/dist/index.mjs`; no workspace dependency or
+test-runner alias is required.
 
 The benchmark package will be private and use exact dependency versions plus a
 frozen lockfile for public runs. Benchmark dependencies will use an isolated
 `benchmarks/node_modules`, not the root install.
+
+All orchestration, tests, TypeScript execution, and benchmark child processes
+will run on Bun. The suite will not depend on Vitest, Vite, SWC, or a decorator
+transform. Adapters for decorator-oriented containers will use their explicit
+token and factory registration APIs, so fixture classes remain plain TypeScript.
+`reflect-metadata` will be loaded only where a compared package requires its
+runtime shim.
 
 ## Subjects
 
@@ -146,10 +156,10 @@ operations would make the comparison misleading.
 
 Quick mode is for adapter and scenario development:
 
-- source artifact selected through the Vitest alias;
+- source artifact selected through the dynamic artifact loader;
 - typecheck and all preconditions run first;
 - one short benchmark round;
-- one fresh Node process per subject;
+- one fresh Bun process per subject;
 - raw output stored as `results/quick-<timestamp>.json`;
 - output explicitly marked unsuitable for public claims.
 
@@ -169,7 +179,7 @@ requires `2N` rows to balance process positions and ordered predecessor effects,
 so one public block contains 14 rounds. The runner will derive the block size
 from the subject count instead of hard-coding InferDI's eight-round block.
 
-Each round launches every subject in its own fresh Node process. Subjects never
+Each round launches every subject in its own fresh Bun process. Subjects never
 share module caches, global DI state, garbage-collector history, or JIT history
 within a process.
 
@@ -180,7 +190,7 @@ Raw JSON will use an explicit schema version and contain:
 - generation time and execution mode;
 - source or production artifact selection;
 - Git commit and dirty-worktree flag;
-- Node, Bun, operating system, architecture, CPU, and available power-mode data;
+- Bun, operating system, architecture, CPU, and available power-mode data;
 - exact versions of every compared library and benchmark dependency;
 - warmup duration, measurement duration, round count, process-isolation level,
   and subject-order strategy;
@@ -220,6 +230,12 @@ A new `benchmarks/mise.toml` will own the implementation commands, and the root
 mise monorepo will include `benchmarks` as a config root. Mise configuration is
 independent of Bun workspace membership, so this does not merge dependency
 graphs. Root `package.json` scripts will remain thin delegates to mise.
+
+The benchmark package scripts will use Bun directly: `bun test` for adapter,
+merge, ordering, and report tests; `bun run` for TypeScript orchestration and
+subject runners; and Bun process/file APIs where they simplify isolation and
+result handling. Tinybench remains the measurement engine, executed inside the
+Bun runtime.
 
 The existing package-local `bench` and `profile` scripts, benchmark tasks,
 `mitata` dependency, `packages/di-craft/bench/` directory, and associated README
