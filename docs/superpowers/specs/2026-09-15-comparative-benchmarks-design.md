@@ -26,6 +26,8 @@ Reference: <https://github.com/inferdi/inferdi/tree/main/benchmarks>
 - Isolate every benchmark subject in a fresh process and balance launch-order
   effects across public rounds.
 - Store machine-readable raw results and generate deterministic Markdown tables.
+- Publish a concise, traceable benchmark summary on the documentation homepage
+  and the complete comparison on a dedicated documentation page.
 - Keep benchmark-only dependencies and their lockfile isolated from the library
   and documentation workspaces.
 
@@ -65,6 +67,12 @@ whereas benchmark reproducibility benefits from an independent dependency graph.
 This matches the InferDI reference: its root workspace includes only
 `packages/*` and `apps/*`, while `benchmarks/` has its own lockfile and a local
 workspace definition with no members.
+
+Keeping the package separate also prevents normal repository setup and CI from
+installing every compared DI container and the benchmark harness. These
+dependencies are needed only when a maintainer explicitly runs benchmark tasks.
+The documentation consumes a committed generated summary, so its build does not
+need the benchmark package installed.
 
 Commands will use `bun --cwd benchmarks ...` or `bun install --cwd benchmarks`.
 Because the root workspace patterns remain `packages/*` and `docs`, Bun treats
@@ -213,6 +221,42 @@ blocks with at least the default public warmup and measurement durations.
 Quick JSON files will be ignored. Selected public JSON files may be committed
 alongside the generated report so claims retain their raw evidence.
 
+## Documentation publishing
+
+The benchmark reporter will be the only producer of displayed benchmark values.
+For a publishable public result, its `--write` mode will generate both:
+
+- the marked results section in `benchmarks/README.md`;
+- an aggregated `docs/src/data/benchmarks.json` containing result metadata and
+  normalized median, MAD, rank, and relative values for every scenario and
+  subject.
+
+Both outputs will identify the same raw result path and Git commit. They will be
+generated from the validated in-memory aggregate so the repository README and
+documentation cannot calculate or round values differently. Documentation
+builds read only the committed aggregate and never execute benchmarks.
+
+The Starlight homepage will render a compact performance section after the
+existing feature grid and before the contact section. It will show three stable
+headline scenarios:
+
+1. Hot singleton resolve
+2. Transient resolve
+3. Deep graph, ten levels
+
+Each row will show the `di-craft` median, its rank among all subjects, and its
+ratio to the fastest subject in that scenario. The block will state that lower
+is better and show the benchmark date and Bun version. It must remain neutral
+when `di-craft` is not the fastest subject instead of changing or hiding
+scenarios based on the result.
+
+A dedicated `/benchmarks/` documentation page will render every scenario and
+subject from the same generated JSON, summarize the methodology and environment,
+and link to the committed raw result. The homepage section will link to this page
+for the full comparison. The page and component will render an explicit
+"No public benchmark published yet" state if the generated data contains no
+publishable result; placeholder performance numbers are forbidden.
+
 ## Commands and mise integration
 
 The repository root will expose commands equivalent to:
@@ -265,5 +309,9 @@ Implementation is complete when:
   results;
 - quick mode completes all supported scenarios and writes valid raw JSON;
 - report generation is byte-for-byte deterministic;
+- a public result generates identical aggregates for the benchmark README and
+  documentation data;
+- the documentation homepage summary and complete benchmark page render from
+  generated data without installing benchmark dependencies;
 - the normal library and documentation quality pipelines still pass after the
   old benchmark dependencies and tasks are removed.
