@@ -11,6 +11,7 @@ description = "Lint the whole workspace"
 run = [
 	"mise run //packages/di-craft:lint",
 	"mise run //docs:lint",
+	"mise run //benchmarks:format:check",
 ]
 
 [tasks."lint:fallow"]
@@ -41,6 +42,7 @@ description = "Lint and fix the whole workspace"
 run = [
 	"mise run //packages/di-craft:lint:fix",
 	"mise run //docs:lint:fix",
+	"mise run //benchmarks:format",
 ]
 
 [tasks.format]
@@ -48,6 +50,7 @@ description = "Format and fix the whole workspace"
 run = [
 	"mise run //packages/di-craft:format",
 	"mise run //docs:format",
+	"mise run //benchmarks:format",
 ]
 
 [tasks."format:check"]
@@ -56,6 +59,7 @@ alias = "fmt:check"
 run = [
 	"mise run //packages/di-craft:format:check",
 	"mise run //docs:format:check",
+	"mise run //benchmarks:format:check",
 ]
 
 [tasks."typecheck:lib"]
@@ -66,13 +70,19 @@ run = "mise run //packages/di-craft:typecheck"
 description = "Type check documentation examples"
 run = "mise run //docs:typecheck"
 
+[tasks."typecheck:benchmarks"]
+description = "Type check comparative benchmarks"
+run = "mise run //benchmarks:typecheck"
+
 [tasks.ci]
 description = "Run all CI checks"
 run = [
 	{ task = "format:check" },
 	{ task = "typecheck:lib" },
 	{ task = "typecheck:docs" },
+	{ task = "typecheck:benchmarks" },
 	{ task = "test:lib" },
+	{ task = "test:benchmarks" },
 	{ task = "lint:fallow" },
 	{ task = "build:lib" },
 	{ task = "build:docs" },

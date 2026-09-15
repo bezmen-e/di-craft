@@ -40,12 +40,10 @@
 		"LICENSE"
 	],
 	"scripts": {
-		"bench": "mise run bench",
 		"build": "mise run build",
 		"checks": "mise run checks",
 		"format": "mise run format",
 		"lint": "mise run lint",
-		"profile": "mise run profile",
 		"test": "mise run test",
 		"typecheck": "mise run typecheck"
 	},
@@ -94,7 +92,6 @@
 		"@arethetypeswrong/core": "0.18.5",
 		"@types/bun": "1.4.2",
 		"@types/node": "26.0.1",
-		"mitata": "1.0.34",
 		"publint": "0.3.24",
 		"tsdown": "0.23.0",
 		"typescript": "6.0.3"

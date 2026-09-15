@@ -160,6 +160,7 @@ export default defineConfig({
 			],
 			sidebar: [
 				{ label: "Overview", link: "/" },
+				{ label: "Benchmarks", link: "/benchmarks/" },
 				{
 					label: "Introduction",
 					collapsed: true,
