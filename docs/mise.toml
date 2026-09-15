@@ -52,7 +52,7 @@ run = "biome check ."
 
 [tasks.typecheck]
 description = "Type check the docs site and documentation examples"
-run = "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.examples.json && tsc --noEmit -p tsconfig.examples.node.json"
+run = "tsc --noEmit -p tsconfig.config.json && tsc --noEmit -p tsconfig.examples.json && tsc --noEmit -p tsconfig.examples.node.json"
 
 [tasks.checks]
 description = "Run the docs quality pipeline"
