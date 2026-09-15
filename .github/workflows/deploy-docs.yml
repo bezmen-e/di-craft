@@ -1,31 +1,17 @@
-name: deploy / docs
+name: Docs
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'assets/**'
-      - 'docs/**'
-      - 'packages/di-craft/src/**'
-      - '!packages/di-craft/src/**/*.test.ts'
-      - 'packages/di-craft/package.json'
-      - 'packages/di-craft/README.md'
-      - 'bun.lock'
-      - 'bunfig.toml'
-      - 'package.json'
-      - 'mise.toml'
-      - 'biome.json'
-      - '.config/**'
-      - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
-
-concurrency:
-  group: deploy-docs-${{ github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
+
+concurrency:
+  group: deploy-cloudflare-pages-production
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -34,7 +20,11 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-
+    environment:
+      name: production
+      url: https://di-craft.pages.dev
+    env:
+      CI: true
     steps:
       - name: Checkout the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -42,24 +32,20 @@ jobs:
           persist-credentials: false
 
       - name: Install mise
-        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+        uses: jdx/mise-action@9e7f7633ff6f6d6048a9418a68d48f288f50eb14 # v4.2.3
         with:
+          version: 2026.9.6
           install: true
           cache: true
-
-      - name: Enable mise experimental features
-        run: mise settings experimental=true
 
       - name: Install dependencies
         run: bun install --frozen-lockfile --ignore-scripts
 
       - name: Build Cloudflare Pages artifact
         run: mise run --no-deps build:cf-pages
-        env:
-          CI: true
 
       - name: Deploy to Cloudflare Pages
-        run: npx --yes wrangler@4 pages deploy .var/dist/cf-pages --project-name=di-craft --branch=main
+        run: bun run deploy:docs
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}

@@ -1,91 +1,55 @@
-name: publish / lib
+name: Publish
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: publish-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  test:
-    name: Test library
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Install mise
-        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
-        with:
-          install: true
-          cache: false
-
-      - name: Enable mise experimental features
-        run: mise settings experimental=true
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile --ignore-scripts
-      - name: Check library formatting and linting
-        run: mise run --no-deps //packages/di-craft:format:check
-        env:
-          CI: true
-      - name: Type check library
-        run: mise run --no-deps //packages/di-craft:typecheck
-        env:
-          CI: true
-      - name: Type check library examples
-        run: mise run //docs:typecheck:examples
-        env:
-          CI: true
-      - name: Test library
-        run: mise run --no-deps //packages/di-craft:test
-        env:
-          CI: true
-      - name: Run Fallow checks
-        run: mise run --no-deps lint:fallow
-        env:
-          CI: true
-
   build:
-    name: Build library
+    name: Validate and build package
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: read
+    env:
+      CI: true
     steps:
       - name: Checkout the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
       - name: Install mise
-        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+        uses: jdx/mise-action@9e7f7633ff6f6d6048a9418a68d48f288f50eb14 # v4.2.3
         with:
+          version: 2026.9.6
           install: true
           cache: false
 
-      - name: Enable mise experimental features
-        run: mise settings experimental=true
-
       - name: Install dependencies
         run: bun install --frozen-lockfile --ignore-scripts
-      - name: Build library
-        run: mise run --no-deps build:lib
-        env:
-          CI: true
-      - name: Upload build artifacts
+
+      - name: Check library
+        run: mise run --no-deps //packages/di-craft:checks
+
+      - name: Check documentation examples
+        run: mise run //docs:typecheck:examples
+
+      - name: Check workspace dependencies
+        run: mise run --no-deps lint:fallow
+
+      - name: Upload package artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: build-artifacts
+          name: package-dist
           path: packages/di-craft/dist/
           retention-days: 1
 
@@ -93,9 +57,7 @@ jobs:
     name: Stage npm package
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs:
-      - test
-      - build
+    needs: build
     permissions:
       contents: read
       id-token: write # Required for npm Trusted Publishing OIDC.
@@ -104,60 +66,30 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Download build artifacts
+
+      - name: Download package artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: build-artifacts
+          name: package-dist
           path: packages/di-craft/dist/
+
       - name: Install Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 26
           package-manager-cache: false
-      - name: Verify release tag matches package.json version
+
+      - name: Verify release tag matches package version
         env:
           TAG_NAME: ${{ github.ref_name }}
         run: |
           PKG_VERSION="$(node -p "require('./packages/di-craft/package.json').version")"
           TAG_VERSION="${TAG_NAME#v}"
           if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
-            echo "::error::Release tag '$TAG_NAME' does not match package.json version '$PKG_VERSION'"
+            echo "::error::Release tag '$TAG_NAME' does not match package version '$PKG_VERSION'"
             exit 1
           fi
-      - name: Publish npm package
+
+      - name: Stage npm package
         working-directory: packages/di-craft
         run: npm stage publish --ignore-scripts
-
-  deploy-docs:
-    name: Deploy release docs
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs:
-      - publish
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Install mise
-        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
-        with:
-          install: true
-          cache: false
-
-      - name: Enable mise experimental features
-        run: mise settings experimental=true
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile --ignore-scripts
-      - name: Build Cloudflare Pages artifact
-        run: mise run --no-deps build:cf-pages
-        env:
-          CI: true
-      - name: Deploy to Cloudflare Pages
-        run: npx --yes wrangler@4 pages deploy .var/dist/cf-pages --project-name=di-craft --branch=main
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}

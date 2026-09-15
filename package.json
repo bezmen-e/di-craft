@@ -11,6 +11,7 @@
 		"build:lib": "mise run build:lib",
 		"build:docs": "mise run build:docs",
 		"ci": "mise run ci",
+		"deploy:docs": "wrangler pages deploy .var/dist/cf-pages --project-name=di-craft --branch=main",
 		"dev:docs": "mise run dev:docs",
 		"fix": "mise run fix",
 		"format": "mise run format",
@@ -27,6 +28,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.12",
-		"fallow": "3.22.0"
+		"fallow": "3.22.0",
+		"wrangler": "4.131.1"
 	}
 }
