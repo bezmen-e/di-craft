@@ -8,7 +8,9 @@ import type { Token } from "../token";
  * in the container chain.
  */
 export type OptionalDependency<T> = {
+	/** Wrapped token whose provider may be absent. */
 	readonly token: Token<T>;
+	/** Marker used by the resolver to distinguish optional dependencies. */
 	readonly optional: true;
 };
 
@@ -44,7 +46,9 @@ export type DisposeHook<T> = (instance: T) => void | Promise<void>;
  * Provider that resolves a token to an existing value.
  */
 export type ValueProvider<T> = {
+	/** Token registered by this provider. */
 	readonly provide: Token<T>;
+	/** Existing value returned for the token. */
 	readonly useValue: T;
 };
 
@@ -55,10 +59,15 @@ export type ValueProvider<T> = {
  * caching lifetime, and `onDispose` runs for cached singleton/scoped instances.
  */
 export type FactoryProvider<T, TDeps extends DepsMap = Record<never, never>> = {
+	/** Token registered by this provider. */
 	readonly provide: Token<T>;
+	/** Named dependencies resolved before the factory is called. */
 	readonly deps?: TDeps;
+	/** Caching lifetime for the created value. */
 	readonly scope?: Scope;
+	/** Function that creates the token value. */
 	readonly useFactory: Factory<T, TDeps>;
+	/** Cleanup hook for cached values. */
 	readonly onDispose?: DisposeHook<T>;
 };
 

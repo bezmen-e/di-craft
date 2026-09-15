@@ -1,0 +1,142 @@
+---
+// biome-ignore lint/correctness/noUnusedImports: Astro renders this component in the template.
+import { Icon } from "@astrojs/starlight/components";
+---
+
+<starlight-theme-toggle>
+	<button type="button" role="switch" aria-checked="false">
+		<span class="track" aria-hidden="true">
+			<span class="thumb">
+				<Icon name="sun" class="sun" />
+				<Icon name="moon" class="moon" />
+			</span>
+		</span>
+	</button>
+</starlight-theme-toggle>
+
+<script>
+	type Theme = "dark" | "light";
+
+	const storageKey = "starlight-theme";
+	const systemTheme = window.matchMedia("(prefers-color-scheme: light)");
+
+	const currentTheme = (): Theme =>
+		document.documentElement.dataset.theme === "light" ? "light" : "dark";
+
+	const storedTheme = (): Theme | undefined => {
+		const value = localStorage.getItem(storageKey);
+		return value === "light" || value === "dark" ? value : undefined;
+	};
+
+	const syncToggles = () => {
+		const theme = currentTheme();
+		const nextTheme = theme === "light" ? "dark" : "light";
+
+		document.querySelectorAll("starlight-theme-toggle button").forEach((button) => {
+			button.setAttribute("aria-checked", String(theme === "dark"));
+			button.setAttribute("aria-label", `Switch to ${nextTheme} theme`);
+			button.setAttribute("title", `Switch to ${nextTheme} theme`);
+		});
+	};
+
+	const setTheme = (theme: Theme) => {
+		document.documentElement.dataset.theme = theme;
+		localStorage.setItem(storageKey, theme);
+		window.StarlightThemeProvider.updatePickers(theme);
+		syncToggles();
+	};
+
+	class StarlightThemeToggle extends HTMLElement {
+		constructor() {
+			super();
+			this.querySelector("button")?.addEventListener("click", () => {
+				setTheme(currentTheme() === "light" ? "dark" : "light");
+			});
+		}
+
+		connectedCallback() {
+			syncToggles();
+		}
+	}
+
+	customElements.define("starlight-theme-toggle", StarlightThemeToggle);
+
+	systemTheme.addEventListener("change", ({ matches }) => {
+		if (storedTheme()) return;
+		document.documentElement.dataset.theme = matches ? "light" : "dark";
+		syncToggles();
+	});
+</script>
+
+<style>
+	@layer starlight.components {
+		button {
+			display: grid;
+			place-items: center;
+			padding: 0;
+			border: 0;
+			background: transparent;
+			color: var(--sl-color-gray-2);
+			cursor: pointer;
+		}
+
+		.track {
+			display: flex;
+			align-items: center;
+			width: 2.8rem;
+			height: 1.55rem;
+			padding: 0.125rem;
+			border: 1px solid var(--sl-color-gray-4);
+			border-radius: 999px;
+			background: var(--sl-color-gray-6);
+			transition:
+				border-color 160ms ease,
+				background-color 160ms ease;
+		}
+
+		.thumb {
+			display: grid;
+			place-items: center;
+			width: 1.2rem;
+			height: 1.2rem;
+			border-radius: 50%;
+			background: var(--sl-color-black);
+			box-shadow: var(--sl-shadow-sm);
+			transition: transform 180ms ease;
+		}
+
+		.sun,
+		.moon {
+			grid-area: 1 / 1;
+			font-size: 0.85rem;
+			transition: opacity 120ms ease;
+		}
+
+		.moon {
+			opacity: 0;
+		}
+
+		button:hover .track,
+		button:focus-visible .track {
+			border-color: var(--sl-color-gray-2);
+		}
+
+		button:focus-visible {
+			outline: 2px solid var(--sl-color-accent);
+			outline-offset: 0.2rem;
+			border-radius: 999px;
+		}
+
+		:global(:root[data-theme="dark"]) .thumb {
+			transform: translateX(1.25rem);
+		}
+
+		:global(:root[data-theme="dark"]) .sun {
+			opacity: 0;
+		}
+
+		:global(:root[data-theme="dark"]) .moon {
+			opacity: 1;
+		}
+	}
+</style>

@@ -1,0 +1,5 @@
+{
+	"extends": "../packages/di-craft/tsconfig/src.json",
+	"include": ["examples/**/*.ts"],
+	"exclude": ["examples/node/**/*.ts"]
+}

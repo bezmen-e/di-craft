@@ -1,6 +1,6 @@
 [vars]
 build_dir = "{{ config_root }}/.var/dist"
-site_out_dir = "{{ vars.build_dir }}/site"
+docs_out_dir = "{{ vars.build_dir }}/docs"
 cf_pages_out_dir = "{{ vars.build_dir }}/cf-pages"
 
 [env]
@@ -10,38 +10,55 @@ CF_PAGES_OUT_DIR = "{{ vars.cf_pages_out_dir }}"
 description = "Build the npm package"
 run = "mise run --no-deps //packages/di-craft:build"
 sources = [
+	".config/mise/conf.d/_config.toml",
+	".config/mise/conf.d/tasks-build.toml",
+	"bun.lock",
+	"bunfig.toml",
+	"mise.toml",
+	"package.json",
+	"packages/di-craft/mise.toml",
+	"packages/di-craft/package.json",
 	"packages/di-craft/src/**/*.ts",
 	"packages/di-craft/tsconfig/**/*.json",
 	"packages/di-craft/tsconfig.json",
 	"packages/di-craft/tsdown.config.ts",
-	"packages/di-craft/package.json",
 ]
 outputs = ["packages/di-craft/dist/**/*"]
 
-[tasks."build:site"]
+[tasks."build:docs"]
 description = "Build the documentation site"
-run = "mise run --no-deps //site:build"
-outputs = ["{{ vars.site_out_dir }}/**/*"]
+run = "mise run --no-deps //docs:build"
+outputs = ["{{ vars.docs_out_dir }}/**/*"]
 
 [tasks."build:cf-pages"]
 description = "Prepare deployment artifacts for Cloudflare Pages"
-run = "mise run --no-deps //site:build:base {{ vars.cf_pages_out_dir }}"
+run = "mise run --no-deps //docs:build:base {{ vars.cf_pages_out_dir }}"
 sources = [
+	".config/mise/conf.d/_config.toml",
+	".config/mise/conf.d/tasks-build.toml",
 	"assets/**/*",
+	"bun.lock",
+	"bunfig.toml",
+	"docs/examples/**/*.ts",
+	"docs/mise.toml",
+	"docs/scripts/**/*.mjs",
+	"docs/src/**/*.{md,mdx,ts,astro,css}",
+	"docs/astro.config.mjs",
+	"docs/package.json",
+	"docs/public/**/*",
+	"docs/tsconfig*.json",
+	"mise.toml",
+	"package.json",
+	"packages/di-craft/package.json",
 	"packages/di-craft/src/**/*.ts",
 	"packages/di-craft/README.md",
-	"site/src/**/*.{md,mdx,ts,astro,css}",
-	"site/astro.config.mjs",
-	"site/package.json",
-	"site/public/**/*",
-	"site/tsconfig.json",
 ]
 outputs = ["{{ vars.cf_pages_out_dir }}/**/*"]
 
-[tasks."dev:site"]
+[tasks."dev:docs"]
 description = "Start the documentation dev server"
-run = "mise run //site:dev"
+run = "mise run //docs:dev"
 
-[tasks."preview:site"]
+[tasks."preview:docs"]
 description = "Preview the documentation production build"
-run = "mise run //site:preview"
+run = "mise run //docs:preview"

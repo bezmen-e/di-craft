@@ -1,0 +1,42 @@
+---
+title: Why di-craft?
+description: Explicit, type-safe dependency injection without reflection or a framework runtime.
+---
+
+`di-craft` is a small dependency injection container for TypeScript applications.
+It keeps object construction in one place while leaving dependencies visible in
+ordinary code.
+
+## The design
+
+- **Types flow from tokens.** A `Token<T>` makes providers and resolved values
+  agree at compile time.
+- **Composition stays explicit.** Dependencies are declared as data instead of
+  inferred from emitted metadata.
+- **Lifetimes are predictable.** Singleton, scoped, and transient providers have
+  clear ownership and disposal rules.
+- **The core is framework-neutral.** Optional adapters add request lifecycles for
+  Node.js and Next.js without coupling the container to either runtime.
+
+There is no global container, classpath scanning, `reflect-metadata`, or runtime
+type guessing. This makes the dependency graph easy to inspect, test, and move
+between environments.
+
+## When it fits
+
+Use `di-craft` when an application has enough services, infrastructure, or
+request-scoped state that manual constructor wiring has become repetitive—but
+you still want the wiring to remain explicit.
+
+For a very small module with two or three objects, direct construction may still
+be simpler. A container is most useful at application composition roots such as
+server entry points, route handlers, jobs, and tests.
+
+## What remains ordinary TypeScript
+
+Domain classes do not need to know about the container. Resolve them at a
+composition edge and pass normal values or services through your application.
+The optional annotation API is only concise provider metadata; it does not
+change the underlying resolution model.
+
+[Build your first container →](/introduction/getting-started)

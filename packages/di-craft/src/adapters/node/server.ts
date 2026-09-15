@@ -15,6 +15,11 @@ import type {
 	RunWithRequestContainerOptions,
 } from "./types";
 
+type RequestScope = {
+	readonly container: Container;
+	active: boolean;
+};
+
 export { NodeRequestScopeError } from "./errors";
 export type {
 	CreateNodeDiOptions,
@@ -31,13 +36,17 @@ export type {
  *
  * Await all async work that reads the request container before the callback
  * passed to `runWithRequestContainer` settles. The request container is disposed
- * immediately after that callback settles.
+ * immediately after that callback settles. Deferred work, including callbacks
+ * registered with Next.js `after`, must enter a fresh request scope.
+ *
+ * @param options - Root and per-request providers for this adapter instance.
+ * @returns Helpers for root access and AsyncLocalStorage-backed request scopes.
  */
 export const createNodeDi = ({
 	providers: rootProviders = [],
 	requestProviders,
 }: CreateNodeDiOptions = {}): NodeDiAdapter => {
-	const storage = new AsyncLocalStorage<Container>();
+	const storage = new AsyncLocalStorage<RequestScope>();
 	const rootContainer = createContainer(rootProviders);
 	const createRequestContainer = (
 		extraProviders: readonly Provider[] = [],
@@ -50,14 +59,15 @@ export const createNodeDi = ({
 	const getRootContainer = (): Container => rootContainer;
 
 	const getRequestContainer = (): Container => {
-		const container = storage.getStore();
-		const isMissingRequestContainer = container === undefined;
+		const requestScope = storage.getStore();
+		const isMissingRequestContainer =
+			requestScope === undefined || !requestScope.active;
 
 		if (isMissingRequestContainer) {
 			throw new NodeRequestScopeError();
 		}
 
-		return container;
+		return requestScope.container;
 	};
 
 	const runWithRequestContainer = async <TResult>({
@@ -65,12 +75,17 @@ export const createNodeDi = ({
 		run,
 	}: RunWithRequestContainerOptions<TResult>): Promise<Awaited<TResult>> => {
 		const container = createRequestContainer(extraProviders);
+		const requestScope: RequestScope = { active: true, container };
 
-		return await storage.run(container, async () => {
+		return await storage.run(requestScope, async () => {
 			try {
 				return await run(container);
 			} finally {
-				await container.dispose();
+				try {
+					await container.dispose();
+				} finally {
+					requestScope.active = false;
+				}
 			}
 		});
 	};

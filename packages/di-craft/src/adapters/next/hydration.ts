@@ -21,6 +21,9 @@ import type {
  *   schema: hydration,
  * });
  * ```
+ *
+ * @param options - Container and schema describing state to serialize.
+ * @returns A serializable snapshot inferred from the schema.
  */
 export const dehydrate = <const TSchema extends HydrationSchema>(
 	options: DehydrateOptions<TSchema>,
@@ -56,6 +59,8 @@ export const dehydrate = <const TSchema extends HydrationSchema>(
  *   snapshot,
  * });
  * ```
+ *
+ * @param options - Client container, matching schema, and server snapshot.
  */
 export const hydrate = <const TSchema extends HydrationSchema>(
 	options: HydrateOptions<TSchema>,

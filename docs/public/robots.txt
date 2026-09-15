@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://di-craft.pages.dev/sitemap-index.xml

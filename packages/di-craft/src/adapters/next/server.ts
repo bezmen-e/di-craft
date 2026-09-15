@@ -57,6 +57,9 @@ const assertServerRuntime = (): void => {
  *   providers,
  * });
  * ```
+ *
+ * @param options - React cache function and providers for the server adapter.
+ * @returns Helpers for root, render-scoped, and explicit request containers.
  */
 export const createNextDi = ({
 	cache,

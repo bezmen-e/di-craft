@@ -6,9 +6,10 @@ on:
       - main
     paths:
       - 'assets/**'
-      - 'site/**'
+      - 'docs/**'
       - 'packages/di-craft/src/**'
       - '!packages/di-craft/src/**/*.test.ts'
+      - 'packages/di-craft/package.json'
       - 'packages/di-craft/README.md'
       - 'bun.lock'
       - 'bunfig.toml'

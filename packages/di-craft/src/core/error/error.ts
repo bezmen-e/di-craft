@@ -1,6 +1,3 @@
-/**
- * Base class for all di-craft runtime errors.
- */
 type ErrorConstructorWithStackTrace = ErrorConstructor & {
 	readonly captureStackTrace?: (
 		error: Error,
@@ -8,6 +5,7 @@ type ErrorConstructorWithStackTrace = ErrorConstructor & {
 	) => void;
 };
 
+/** Base class for all errors thrown by di-craft. */
 export class DiError extends Error {
 	constructor(message: string) {
 		super(message);

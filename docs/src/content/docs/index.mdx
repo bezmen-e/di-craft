@@ -1,0 +1,59 @@
+---
+title: Type-safe dependency injection for TypeScript
+description: Type-safe dependency injection for TypeScript, with zero runtime magic.
+template: splash
+hero:
+  tagline: Type-safe dependency injection for TypeScript.
+head:
+  - tag: meta
+    attrs:
+      name: theme-color
+      content: '#646cff'
+---
+
+import { Icon } from '@astrojs/starlight/components';
+
+<section class="dc-home" aria-label="Highlights">
+	<div class="dc-feature-grid">
+		<a class="dc-feature" href="/core/tokens-and-providers">
+			<span>T→T</span>
+			<h2>End-to-end inference</h2>
+			<p>Tokens carry types through providers and resolution without casts.</p>
+			<strong>Learn about tokens →</strong>
+		</a>
+		<a class="dc-feature" href="/introduction/why-di-craft">
+			<span>{`{ }`}</span>
+			<h2>Explicit composition</h2>
+			<p>No global container, metadata reflection, or runtime type guessing.</p>
+			<strong>Why di-craft →</strong>
+		</a>
+		<a class="dc-feature" href="/core/containers-and-scopes">
+			<span>↻</span>
+			<h2>Predictable lifecycles</h2>
+			<p>Singleton, scoped, and transient services with deterministic disposal.</p>
+			<strong>Explore scopes →</strong>
+		</a>
+	</div>
+
+	<section class="dc-contact" aria-labelledby="contact-title">
+		<h2 id="contact-title">Contact</h2>
+		<nav aria-label="Contact Egor Bezmen">
+			<a href="https://github.com/bezmen-e" aria-label="Egor Bezmen on GitHub" title="GitHub">
+				<Icon name="github" />
+			</a>
+			<a href="mailto:egor1911@gmail.com" aria-label="Email Egor Bezmen" title="Email">
+				<Icon name="email" />
+			</a>
+			<a href="https://t.me/bezmen_e" aria-label="Egor Bezmen on Telegram" title="Telegram">
+				<Icon name="telegram" />
+			</a>
+			<a
+				href="https://bsky.app/profile/bezmen.bsky.social"
+				aria-label="Egor Bezmen on Bluesky"
+				title="Bluesky"
+			>
+				<Icon name="blueSky" />
+			</a>
+		</nav>
+	</section>
+</section>

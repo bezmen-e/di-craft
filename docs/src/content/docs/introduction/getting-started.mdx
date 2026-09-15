@@ -1,0 +1,66 @@
+---
+title: Getting started
+description: Create tokens, register providers, and resolve your first service.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import basicExample from '../../../../examples/core/basic.ts?raw';
+
+<Steps>
+
+1. Install the package
+
+   ```sh
+   npm install di-craft
+   ```
+
+2. Define typed tokens
+
+   A token is a unique runtime key that also carries the TypeScript type of its
+   value.
+
+   ```ts
+   const CONFIG = createToken<Config>("CONFIG");
+   const LOGGER = createToken<Logger>("LOGGER");
+   const USERS = createToken<UserService>("USERS");
+   ```
+
+3. Describe construction with providers
+
+   Use a value provider for existing values and a factory provider for services.
+   Dependency names are inferred in `useFactory`.
+
+   ```ts
+   provideValue(CONFIG, { logPrefix: "users" });
+
+   provideFactory(LOGGER, {
+     deps: { config: CONFIG },
+     useFactory: ({ config }) => new Logger(config.logPrefix),
+   });
+   ```
+
+4. Create a container and resolve at the edge
+
+   ```ts
+   const container = createContainer(providers);
+   const users = container.get(USERS);
+   ```
+
+</Steps>
+
+<Aside type="tip" title="Keep the container at the composition root">
+	Inject the resolved dependencies into domain code. Passing the container itself
+	through the application hides dependencies and turns injection into service
+	location.
+</Aside>
+
+## Complete example
+
+This source file is type-checked with the documentation workspace, so the
+published example stays aligned with the package API.
+
+<CodeBlock code={basicExample} title="examples/core/basic.ts" />
+
+Continue with [tokens and providers](/core/tokens-and-providers), or browse the
+[generated API reference](/api/di-craft/readme).

@@ -10,7 +10,7 @@ run = "hk fix"
 description = "Lint the whole workspace"
 run = [
 	"mise run //packages/di-craft:lint",
-	"mise run //site:lint",
+	"mise run //docs:lint",
 ]
 
 [tasks."lint:fallow"]
@@ -40,14 +40,14 @@ run = "fallow fix --config .config/fallow.toml --yes"
 description = "Lint and fix the whole workspace"
 run = [
 	"mise run //packages/di-craft:lint:fix",
-	"mise run //site:lint:fix",
+	"mise run //docs:lint:fix",
 ]
 
 [tasks.format]
 description = "Format and fix the whole workspace"
 run = [
 	"mise run //packages/di-craft:format",
-	"mise run //site:format",
+	"mise run //docs:format",
 ]
 
 [tasks."format:check"]
@@ -55,28 +55,27 @@ description = "Check formatting and linting in the whole workspace"
 alias = "fmt:check"
 run = [
 	"mise run //packages/di-craft:format:check",
-	"mise run //site:format:check",
+	"mise run //docs:format:check",
 ]
 
 [tasks."typecheck:lib"]
 description = "Type check the di-craft package"
 run = "mise run //packages/di-craft:typecheck"
 
-[tasks."typecheck:lib:examples"]
-description = "Type check package documentation examples"
-run = "mise run //packages/di-craft:typecheck:examples"
+[tasks."typecheck:docs"]
+description = "Type check documentation examples"
+run = "mise run //docs:typecheck"
 
 [tasks.ci]
 description = "Run all CI checks"
 run = [
 	{ task = "format:check" },
-	{ task = "lint" },
 	{ task = "typecheck:lib" },
-	{ task = "typecheck:lib:examples" },
+	{ task = "typecheck:docs" },
 	{ task = "test:lib" },
 	{ task = "lint:fallow" },
 	{ task = "build:lib" },
-	{ task = "build:site" },
+	{ task = "build:docs" },
 ]
 
 [tasks.checks]
@@ -88,6 +87,5 @@ description = "Run auto-fixes followed by the full quality pipeline"
 run = [
 	{ task = "prepare" },
 	{ task = "format" },
-	{ task = "lint:fix" },
 	{ task = "ci" },
 ]

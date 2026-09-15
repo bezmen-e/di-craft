@@ -47,8 +47,7 @@
 		"lint": "mise run lint",
 		"profile": "mise run profile",
 		"test": "mise run test",
-		"typecheck": "mise run typecheck",
-		"typecheck:examples": "mise run typecheck:examples"
+		"typecheck": "mise run typecheck"
 	},
 	"keywords": [
 		"di",
@@ -82,7 +81,7 @@
 		"async local storage",
 		"asynclocalstorage"
 	],
-	"homepage": "https://github.com/bezmen-e/di-craft",
+	"homepage": "https://di-craft.pages.dev",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bezmen-e/di-craft.git",

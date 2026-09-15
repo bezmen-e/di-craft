@@ -47,6 +47,25 @@ describe("node/server", () => {
 		expect(() => di.getRequestContainer()).toThrow(NodeRequestScopeError);
 	});
 
+	test("rejects detached work after async scope settles", async () => {
+		const di = createNodeDi();
+		let resumeDetachedWork: () => void = () => {};
+		const gate = new Promise<void>((resolve) => {
+			resumeDetachedWork = resolve;
+		});
+		let detachedWork: Promise<unknown> = Promise.resolve();
+
+		await di.runWithRequestContainer({
+			run: async () => {
+				detachedWork = gate.then(() => di.getRequestContainer());
+			},
+		});
+
+		resumeDetachedWork();
+
+		await expect(detachedWork).rejects.toThrow(NodeRequestScopeError);
+	});
+
 	test("keeps async request scopes isolated", async () => {
 		const REQUEST_ID = createToken<number>("REQUEST_ID");
 		const di = createNodeDi();

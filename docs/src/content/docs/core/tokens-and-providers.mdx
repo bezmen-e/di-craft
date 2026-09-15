@@ -1,0 +1,75 @@
+---
+title: Tokens and providers
+description: Model typed dependencies and describe how the container creates them.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import optionalExample from '../../../../examples/core/optional.ts?raw';
+
+## Tokens
+
+A token is a unique, type-carrying key. Identity is based on an internal symbol,
+not its diagnostic name, so two tokens named `CONFIG` are still different.
+
+```ts
+import { createToken } from "di-craft";
+
+type Config = { readonly apiUrl: string };
+const CONFIG = createToken<Config>("CONFIG");
+```
+
+The value type flows through providers and resolution:
+
+```ts
+const config = container.get(CONFIG); // Config
+```
+
+## Value providers
+
+Use `provideValue` when the dependency already exists or was initialized before
+the container:
+
+```ts
+const providers = [
+  provideValue(CONFIG, { apiUrl: "https://api.example.com" }),
+];
+```
+
+Values behave like singleton dependencies and do not have a disposal hook.
+
+## Factory providers
+
+Factories create a value lazily. The keys in `deps` become the keys passed to
+`useFactory`, and each value is inferred from its token.
+
+```ts
+const HTTP = createToken<HttpClient>("HTTP");
+
+provideFactory(HTTP, {
+  deps: { config: CONFIG },
+  useFactory: ({ config }) => new HttpClient(config.apiUrl),
+});
+```
+
+A factory defaults to singleton scope. Choose another lifetime with `scope`, and
+release cached resources with `onDispose`.
+
+## Optional dependencies
+
+Wrap a token with `optional` when its provider may be absent. Its inferred value
+becomes `T | undefined`, so the missing case stays explicit.
+
+<CodeBlock code={optionalExample} title="examples/core/optional.ts" />
+
+Optional resolution only handles a missing provider. If a registered provider
+throws while being created, the original error still surfaces.
+
+<Aside type="note" title="Classes are factories too">
+	The annotation API converts an annotated class to a normal factory provider.
+	It uses the same tokens, scopes, caching, and error handling. See the
+	[annotations guide](/guides/annotations).
+</Aside>
+
+Next, learn how [containers and scopes](/core/containers-and-scopes) control
+ownership and lifetime.

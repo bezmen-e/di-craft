@@ -71,6 +71,9 @@ class ContainerClass implements Container {
  * Creates a root container with optional initial providers.
  *
  * Root containers own singleton instances for providers registered in them.
+ *
+ * @param providers - Providers registered before the first resolution.
+ * @returns A new root container.
  */
 export const createContainer = (
 	providers: readonly Provider[] = [],
@@ -81,6 +84,10 @@ export const createContainer = (
  *
  * Child containers may register their own providers while still reusing parent
  * providers. Scoped providers create one cached instance per resolving child.
+ *
+ * @param parent - Container used as the fallback provider registry.
+ * @param providers - Providers registered locally in the child.
+ * @returns A new child container.
  */
 export const createChildContainer = (
 	parent: Container,

@@ -30,10 +30,6 @@ run = "biome check ."
 description = "Type check di-craft source and tests"
 run = "tsc --noEmit -p tsconfig/src.json && tsc --noEmit -p tsconfig/node.json && tsc --noEmit -p tsconfig/test.json"
 
-[tasks."typecheck:examples"]
-description = "Type check typed documentation examples"
-run = "tsc --noEmit -p tsconfig/examples.json && tsc --noEmit -p tsconfig/examples.node.json"
-
 [tasks.test]
 description = "Run di-craft tests"
 run = "bun test"
@@ -41,7 +37,18 @@ run = "bun test"
 [tasks.build]
 description = "Build di-craft with tsdown"
 run = "tsdown"
-sources = ["src/**/*.ts", "tsconfig/**/*.json", "tsconfig.json", "tsdown.config.ts", "package.json"]
+sources = [
+	"../../bun.lock",
+	"../../bunfig.toml",
+	"../../mise.toml",
+	"../../package.json",
+	"mise.toml",
+	"package.json",
+	"src/**/*.ts",
+	"tsconfig/**/*.json",
+	"tsconfig.json",
+	"tsdown.config.ts",
+]
 outputs = ["dist/**/*"]
 
 [tasks.bench]
@@ -57,9 +64,7 @@ outputs = [".tmp/profiles/**/*"]
 description = "Run the full di-craft package quality pipeline"
 run = [
 	{ task = "format:check" },
-	{ task = "lint" },
 	{ task = "typecheck" },
-	{ task = "typecheck:examples" },
 	{ task = "test" },
 	{ task = "build" },
 ]
