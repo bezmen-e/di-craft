@@ -122,7 +122,7 @@ try {
 		rounds: roundResults,
 	};
 
-	await Bun.write(outputPath, `${JSON.stringify(raw, null, 2)}\n`);
+	await Bun.write(outputPath, `${JSON.stringify(raw, null, "\t")}\n`);
 	process.stdout.write(`\nRaw benchmark result: ${displayPath(outputPath)}\n`);
 } finally {
 	rmSync(temporaryRoot, { recursive: true, force: true });

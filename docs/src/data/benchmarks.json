@@ -1,11 +1,951 @@
 {
 	"schemaVersion": 1,
-	"published": false,
-	"sourceResult": null,
-	"generatedAt": null,
-	"git": null,
-	"environment": null,
-	"configuration": null,
-	"subjects": [],
-	"scenarios": []
+	"published": true,
+	"sourceResult": "benchmarks/results/public-2026-09-15T20-17-34-154Z.json",
+	"generatedAt": "2026-09-15T20:24:29.462Z",
+	"git": {
+		"commit": "b0e9685185d15c5a4390b3cb315148d438cbac3d",
+		"dirty": false
+	},
+	"environment": {
+		"bun": "1.4.2",
+		"os": "darwin 25.4.0",
+		"architecture": "arm64",
+		"cpu": "Apple M5 Pro",
+		"powerMode": null
+	},
+	"configuration": {
+		"rounds": 14,
+		"balancedBlockSize": 14,
+		"timeMs": 100,
+		"warmupTimeMs": 50,
+		"frozenLockfile": true,
+		"processIsolation": true,
+		"processIsolationLevel": "subject",
+		"subjectOrder": "balanced-latin-square"
+	},
+	"subjects": [
+		"di-craft",
+		"InversifyJS",
+		"Awilix PROXY",
+		"Awilix CLASSIC",
+		"TSyringe",
+		"TypeDI",
+		"Typed Inject"
+	],
+	"scenarios": [
+		{
+			"id": "hot-singleton",
+			"name": "Hot singleton resolve",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 5.2080000000103155,
+					"madNs": 0.04150000000890941,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "5.208",
+					"madText": "0.042",
+					"relativeText": "1.00×",
+					"combinedText": "5.208 ± 0.042 (1.00×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": 9.666500000008682,
+					"madNs": 0.20850000001360058,
+					"relative": 1.8560867895525222,
+					"rank": 4,
+					"medianText": "9.667",
+					"madText": "0.209",
+					"relativeText": "1.86×",
+					"combinedText": "9.667 ± 0.209 (1.86×)"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 9.124999999997383,
+					"madNs": 0.1039999999932224,
+					"relative": 1.7521121351726785,
+					"rank": 2,
+					"medianText": "9.125",
+					"madText": "0.104",
+					"relativeText": "1.75×",
+					"combinedText": "9.125 ± 0.104 (1.75×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 9.166999999990821,
+					"madNs": 0.2294999999890024,
+					"relative": 1.7601766513004349,
+					"rank": 3,
+					"medianText": "9.167",
+					"madText": "0.229",
+					"relativeText": "1.76×",
+					"combinedText": "9.167 ± 0.229 (1.76×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 24.14575000000241,
+					"madNs": 0.6252499999988022,
+					"relative": 4.636280721957485,
+					"rank": 7,
+					"medianText": "24.146",
+					"madText": "0.625",
+					"relativeText": "4.64×",
+					"combinedText": "24.146 ± 0.625 (4.64×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": 16.083499999993478,
+					"madNs": 0.3120000000080836,
+					"relative": 3.0882296466900194,
+					"rank": 5,
+					"medianText": "16.083",
+					"madText": "0.312",
+					"relativeText": "3.09×",
+					"combinedText": "16.083 ± 0.312 (3.09×)"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 24.04199999998724,
+					"madNs": 2.1316282072803006e-11,
+					"relative": 4.616359446993014,
+					"rank": 6,
+					"medianText": "24.042",
+					"madText": "0.000",
+					"relativeText": "4.62×",
+					"combinedText": "24.042 ± 0.000 (4.62×)"
+				}
+			]
+		},
+		{
+			"id": "transient",
+			"name": "Transient resolve",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 47.001999999991995,
+					"madNs": 0.5839999999182055,
+					"relative": 1.5494824289553524,
+					"rank": 4,
+					"medianText": "47.002",
+					"madText": "0.584",
+					"relativeText": "1.55×",
+					"combinedText": "47.002 ± 0.584 (1.55×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": 30.33400000003894,
+					"madNs": 0.49999999998817657,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "30.334",
+					"madText": "0.500",
+					"relativeText": "1.00×",
+					"combinedText": "30.334 ± 0.500 (1.00×)"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 35.58400000002848,
+					"madNs": 0.5000000001018634,
+					"relative": 1.173073119271537,
+					"rank": 2,
+					"medianText": "35.584",
+					"madText": "0.500",
+					"relativeText": "1.17×",
+					"combinedText": "35.584 ± 0.500 (1.17×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 44.2480000000387,
+					"madNs": 0.4199999999627835,
+					"relative": 1.4586932155331278,
+					"rank": 3,
+					"medianText": "44.248",
+					"madText": "0.420",
+					"relativeText": "1.46×",
+					"combinedText": "44.248 ± 0.420 (1.46×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 90.41599999994787,
+					"madNs": 4.248000000075081,
+					"relative": 2.980681743252845,
+					"rank": 6,
+					"medianText": "90.416",
+					"madText": "4.248",
+					"relativeText": "2.98×",
+					"combinedText": "90.416 ± 4.248 (2.98×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": 142.41800000002058,
+					"madNs": 1.334000000042579,
+					"relative": 4.6949957143745555,
+					"rank": 7,
+					"medianText": "142.42",
+					"madText": "1.334",
+					"relativeText": "4.69×",
+					"combinedText": "142.42 ± 1.334 (4.69×)"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 53.08399999989888,
+					"madNs": 0.8339999999407155,
+					"relative": 1.7499835168402036,
+					"rank": 5,
+					"medianText": "53.084",
+					"madText": "0.834",
+					"relativeText": "1.75×",
+					"combinedText": "53.084 ± 0.834 (1.75×)"
+				}
+			]
+		},
+		{
+			"id": "deep-graph",
+			"name": "Deep graph (10 levels)",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 332.6074999998241,
+					"madNs": 3.954999999677966,
+					"relative": 2.4636680122959715,
+					"rank": 4,
+					"medianText": "332.61",
+					"madText": "3.955",
+					"relativeText": "2.46×",
+					"combinedText": "332.61 ± 3.955 (2.46×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": 135.00499999992144,
+					"madNs": 2.499999999940883,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "135.00",
+					"madText": "2.500",
+					"relativeText": "1.00×",
+					"combinedText": "135.00 ± 2.500 (1.00×)"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 198.12000000001717,
+					"madNs": 2.0799999998644125,
+					"relative": 1.467501203660105,
+					"rank": 2,
+					"medianText": "198.12",
+					"madText": "2.080",
+					"relativeText": "1.47×",
+					"combinedText": "198.12 ± 2.080 (1.47×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 550.0049999997714,
+					"madNs": 7.299999999474949,
+					"relative": 4.073960223696096,
+					"rank": 6,
+					"medianText": "550.00",
+					"madText": "7.300",
+					"relativeText": "4.07×",
+					"combinedText": "550.00 ± 7.300 (4.07×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 460.83499999994615,
+					"madNs": 11.250000000160298,
+					"relative": 3.4134661679212943,
+					"rank": 5,
+					"medianText": "460.83",
+					"madText": "11.250",
+					"relativeText": "3.41×",
+					"combinedText": "460.83 ± 11.250 (3.41×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": 1171.5624999997942,
+					"madNs": 21.25000000006594,
+					"relative": 8.677919336324402,
+					"rank": 7,
+					"medianText": "1171.6",
+					"madText": "21.250",
+					"relativeText": "8.68×",
+					"combinedText": "1171.6 ± 21.250 (8.68×)"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 292.0849999998154,
+					"madNs": 5.625000000293312,
+					"relative": 2.1635124625012807,
+					"rank": 3,
+					"medianText": "292.08",
+					"madText": "5.625",
+					"relativeText": "2.16×",
+					"combinedText": "292.08 ± 5.625 (2.16×)"
+				}
+			]
+		},
+		{
+			"id": "wide-4",
+			"name": "Wide graph (4 dependencies)",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 72.24999999993997,
+					"madNs": 1.0839999999916472,
+					"relative": 1.3358849197508118,
+					"rank": 4,
+					"medianText": "72.250",
+					"madText": "1.084",
+					"relativeText": "1.34×",
+					"combinedText": "72.250 ± 1.084 (1.34×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": 54.084000000102606,
+					"madNs": 1.502000000073167,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "54.084",
+					"madText": "1.502",
+					"relativeText": "1.00×",
+					"combinedText": "54.084 ± 1.502 (1.00×)"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 67.75000000016007,
+					"madNs": 1.0819999999966967,
+					"relative": 1.2526810147184295,
+					"rank": 3,
+					"medianText": "67.750",
+					"madText": "1.082",
+					"relativeText": "1.25×",
+					"combinedText": "67.750 ± 1.082 (1.25×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 93.99999999982356,
+					"madNs": 0.8360000001630397,
+					"relative": 1.7380371274248434,
+					"rank": 5,
+					"medianText": "94.000",
+					"madText": "0.836",
+					"relativeText": "1.74×",
+					"combinedText": "94.000 ± 0.836 (1.74×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 118.33400000023175,
+					"madNs": 5.291000000056556,
+					"relative": 2.187966866356173,
+					"rank": 6,
+					"medianText": "118.33",
+					"madText": "5.291",
+					"relativeText": "2.19×",
+					"combinedText": "118.33 ± 5.291 (2.19×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": 208.25199999990218,
+					"madNs": 3.1639999999697466,
+					"relative": 3.8505288070317856,
+					"rank": 7,
+					"medianText": "208.25",
+					"madText": "3.164",
+					"relativeText": "3.85×",
+					"combinedText": "208.25 ± 3.164 (3.85×)"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 61.8339999998625,
+					"madNs": 0.666000000137501,
+					"relative": 1.1432956142250055,
+					"rank": 2,
+					"medianText": "61.834",
+					"madText": "0.666",
+					"relativeText": "1.14×",
+					"combinedText": "61.834 ± 0.666 (1.14×)"
+				}
+			]
+		},
+		{
+			"id": "wide-10",
+			"name": "Wide graph (10 dependencies)",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 161.45999999992,
+					"madNs": 2.910000000611035,
+					"relative": 1.5625665344074342,
+					"rank": 4,
+					"medianText": "161.46",
+					"madText": "2.910",
+					"relativeText": "1.56×",
+					"combinedText": "161.46 ± 2.910 (1.56×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": 122.9200000000219,
+					"madNs": 3.1250000006366463,
+					"relative": 1.189586760866414,
+					"rank": 2,
+					"medianText": "122.92",
+					"madText": "3.125",
+					"relativeText": "1.19×",
+					"combinedText": "122.92 ± 3.125 (1.19×)"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 147.50000000049113,
+					"madNs": 2.085000000420223,
+					"relative": 1.4274654021180364,
+					"rank": 3,
+					"medianText": "147.50",
+					"madText": "2.085",
+					"relativeText": "1.43×",
+					"combinedText": "147.50 ± 2.085 (1.43×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 179.7900000002528,
+					"madNs": 3.9550000002464003,
+					"relative": 1.739959353534292,
+					"rank": 5,
+					"medianText": "179.79",
+					"madText": "3.955",
+					"relativeText": "1.74×",
+					"combinedText": "179.79 ± 3.955 (1.74×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 232.28999999957978,
+					"madNs": 8.335000000556647,
+					"relative": 2.24804025936471,
+					"rank": 6,
+					"medianText": "232.29",
+					"madText": "8.335",
+					"relativeText": "2.25×",
+					"combinedText": "232.29 ± 8.335 (2.25×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": 516.2500000000136,
+					"madNs": 12.289999999666179,
+					"relative": 4.996128907396623,
+					"rank": 7,
+					"medianText": "516.25",
+					"madText": "12.290",
+					"relativeText": "5.00×",
+					"combinedText": "516.25 ± 12.290 (5.00×)"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 103.3299999997439,
+					"madNs": 1.2450000002672823,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "103.33",
+					"madText": "1.245",
+					"relativeText": "1.00×",
+					"combinedText": "103.33 ± 1.245 (1.00×)"
+				}
+			]
+		},
+		{
+			"id": "registration",
+			"name": "Registration",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 1070.8500000021104,
+					"madNs": 10.400000002164234,
+					"relative": 2.3908238446110404,
+					"rank": 3,
+					"medianText": "1070.9",
+					"madText": "10.400",
+					"relativeText": "2.39×",
+					"combinedText": "1070.9 ± 10.400 (2.39×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": 7493.750000003274,
+					"madNs": 85.39999999470592,
+					"relative": 16.73085510157959,
+					"rank": 4,
+					"medianText": "7493.8",
+					"madText": "85.400",
+					"relativeText": "16.73×",
+					"combinedText": "7493.8 ± 85.400 (16.73×)"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 13245.875000004049,
+					"madNs": 72.87500000359069,
+					"relative": 29.573286447854073,
+					"rank": 5,
+					"medianText": "13245.9",
+					"madText": "72.875",
+					"relativeText": "29.57×",
+					"combinedText": "13245.9 ± 72.875 (29.57×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 17739.57499999881,
+					"madNs": 143.75000000654836,
+					"relative": 39.60610627368863,
+					"rank": 6,
+					"medianText": "17739.6",
+					"madText": "143.75",
+					"relativeText": "39.61×",
+					"combinedText": "17739.6 ± 143.75 (39.61×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 458.3000000025095,
+					"madNs": 4.149999995206599,
+					"relative": 1.023219468636205,
+					"rank": 2,
+					"medianText": "458.30",
+					"madText": "4.150",
+					"relativeText": "1.02×",
+					"combinedText": "458.30 ± 4.150 (1.02×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": null,
+					"madNs": null,
+					"relative": null,
+					"rank": null,
+					"medianText": "N/A",
+					"madText": "N/A",
+					"relativeText": "N/A",
+					"combinedText": "N/A"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 447.90000000034524,
+					"madNs": 2.1000000003823516,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "447.90",
+					"madText": "2.100",
+					"relativeText": "1.00×",
+					"combinedText": "447.90 ± 2.100 (1.00×)"
+				}
+			]
+		},
+		{
+			"id": "first-resolve",
+			"name": "First resolve",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 246.24999999957708,
+					"madNs": 4.579999999805295,
+					"relative": 1.103666188593384,
+					"rank": 2,
+					"medianText": "246.25",
+					"madText": "4.580",
+					"relativeText": "1.10×",
+					"combinedText": "246.25 ± 4.580 (1.10×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": 1397.2899999998845,
+					"madNs": 44.790000000034524,
+					"relative": 6.262504481876835,
+					"rank": 7,
+					"medianText": "1397.3",
+					"madText": "44.790",
+					"relativeText": "6.26×",
+					"combinedText": "1397.3 ± 44.790 (6.26×)"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 553.5399999973833,
+					"madNs": 7.084999998596686,
+					"relative": 2.480907135155911,
+					"rank": 4,
+					"medianText": "553.54",
+					"madText": "7.085",
+					"relativeText": "2.48×",
+					"combinedText": "553.54 ± 7.085 (2.48×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 1056.2525000023015,
+					"madNs": 27.705000001105873,
+					"relative": 4.7340108461798,
+					"rank": 5,
+					"medianText": "1056.3",
+					"madText": "27.705",
+					"relativeText": "4.73×",
+					"combinedText": "1056.3 ± 27.705 (4.73×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 301.977500000703,
+					"madNs": 3.0175000006238406,
+					"relative": 1.3534308892073377,
+					"rank": 3,
+					"medianText": "301.98",
+					"madText": "3.018",
+					"relativeText": "1.35×",
+					"combinedText": "301.98 ± 3.018 (1.35×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": 1129.579999999919,
+					"madNs": 13.544999999908214,
+					"relative": 5.062656866247174,
+					"rank": 6,
+					"medianText": "1129.6",
+					"madText": "13.545",
+					"relativeText": "5.06×",
+					"combinedText": "1129.6 ± 13.545 (5.06×)"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 223.12000000056287,
+					"madNs": 1.2499999991177901,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "223.12",
+					"madText": "1.250",
+					"relativeText": "1.00×",
+					"combinedText": "223.12 ± 1.250 (1.00×)"
+				}
+			]
+		},
+		{
+			"id": "scope-creation",
+			"name": "Scope creation",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 26.044999999612628,
+					"madNs": 0.41999999893960194,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "26.045",
+					"madText": "0.420",
+					"relativeText": "1.00×",
+					"combinedText": "26.045 ± 0.420 (1.00×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": 797.5000000010368,
+					"madNs": 24.062500000354703,
+					"relative": 30.620080630174627,
+					"rank": 7,
+					"medianText": "797.50",
+					"madText": "24.063",
+					"relativeText": "30.62×",
+					"combinedText": "797.50 ± 24.063 (30.62×)"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 119.79499999597465,
+					"madNs": 8.124999999381544,
+					"relative": 4.599539258888707,
+					"rank": 4,
+					"medianText": "119.79",
+					"madText": "8.125",
+					"relativeText": "4.60×",
+					"combinedText": "119.79 ± 8.125 (4.60×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 109.79499999848485,
+					"madNs": 6.87000000198168,
+					"relative": 4.2155884046887255,
+					"rank": 3,
+					"medianText": "109.79",
+					"madText": "6.870",
+					"relativeText": "4.22×",
+					"combinedText": "109.79 ± 6.870 (4.22×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 176.66500000132146,
+					"madNs": 1.87000000153148,
+					"relative": 6.783067767477406,
+					"rank": 6,
+					"medianText": "176.67",
+					"madText": "1.870",
+					"relativeText": "6.78×",
+					"combinedText": "176.67 ± 1.870 (6.78×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": 168.12500000014552,
+					"madNs": 1.4550000014423858,
+					"relative": 6.455173737863163,
+					"rank": 5,
+					"medianText": "168.13",
+					"madText": "1.455",
+					"relativeText": "6.46×",
+					"combinedText": "168.13 ± 1.455 (6.46×)"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 30.83000000060565,
+					"madNs": 0.2099999983329326,
+					"relative": 1.1837204838189361,
+					"rank": 2,
+					"medianText": "30.830",
+					"madText": "0.210",
+					"relativeText": "1.18×",
+					"combinedText": "30.830 ± 0.210 (1.18×)"
+				}
+			]
+		},
+		{
+			"id": "first-scoped-resolve",
+			"name": "First scoped resolve",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 72.91500000064843,
+					"madNs": 0.8350000007339986,
+					"relative": 1.3461644972339042,
+					"rank": 3,
+					"medianText": "72.915",
+					"madText": "0.835",
+					"relativeText": "1.35×",
+					"combinedText": "72.915 ± 0.835 (1.35×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": 539.1700000018318,
+					"madNs": 11.045000003377936,
+					"relative": 9.954213974759863,
+					"rank": 7,
+					"medianText": "539.17",
+					"madText": "11.045",
+					"relativeText": "9.95×",
+					"combinedText": "539.17 ± 11.045 (9.95×)"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 54.1650000059235,
+					"madNs": 1.1474999928395846,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "54.165",
+					"madText": "1.147",
+					"relativeText": "1.00×",
+					"combinedText": "54.165 ± 1.147 (1.00×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 93.33500000138883,
+					"madNs": 1.0399999973742524,
+					"relative": 1.7231607124745072,
+					"rank": 4,
+					"medianText": "93.335",
+					"madText": "1.040",
+					"relativeText": "1.72×",
+					"combinedText": "93.335 ± 1.040 (1.72×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 121.24999999969077,
+					"madNs": 1.459999998587591,
+					"relative": 2.238530416069987,
+					"rank": 5,
+					"medianText": "121.25",
+					"madText": "1.460",
+					"relativeText": "2.24×",
+					"combinedText": "121.25 ± 1.460 (2.24×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": 144.9999999999818,
+					"madNs": 1.8799999998009298,
+					"relative": 2.677005446028331,
+					"rank": 6,
+					"medianText": "145.00",
+					"madText": "1.880",
+					"relativeText": "2.68×",
+					"combinedText": "145.00 ± 1.880 (2.68×)"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 66.03999999924781,
+					"madNs": 0.8350000007339986,
+					"relative": 1.2192375148532384,
+					"rank": 2,
+					"medianText": "66.040",
+					"madText": "0.835",
+					"relativeText": "1.22×",
+					"combinedText": "66.040 ± 0.835 (1.22×)"
+				}
+			]
+		},
+		{
+			"id": "warm-scoped-resolve",
+			"name": "Warm scoped resolve",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 8.791499999915686,
+					"madNs": 0.20849999987149204,
+					"relative": 5.273845230910689,
+					"rank": 2,
+					"medianText": "8.791",
+					"madText": "0.208",
+					"relativeText": "5.27×",
+					"combinedText": "8.791 ± 0.208 (5.27×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": 11.354500000152257,
+					"madNs": 0.12500000002546585,
+					"relative": 6.8113377325544775,
+					"rank": 3,
+					"medianText": "11.355",
+					"madText": "0.125",
+					"relativeText": "6.81×",
+					"combinedText": "11.355 ± 0.125 (6.81×)"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 12.313000000176544,
+					"madNs": 0.20850000055361306,
+					"relative": 7.3863227355692604,
+					"rank": 4,
+					"medianText": "12.313",
+					"madText": "0.209",
+					"relativeText": "7.39×",
+					"combinedText": "12.313 ± 0.209 (7.39×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 13.10349999994287,
+					"madNs": 0.2710000003389723,
+					"relative": 7.86052789439796,
+					"rank": 5,
+					"medianText": "13.103",
+					"madText": "0.271",
+					"relativeText": "7.86×",
+					"combinedText": "13.103 ± 0.271 (7.86×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 14.58350000007158,
+					"madNs": 0.3959999999096908,
+					"relative": 8.748350329989325,
+					"rank": 6,
+					"medianText": "14.584",
+					"madText": "0.396",
+					"relativeText": "8.75×",
+					"combinedText": "14.584 ± 0.396 (8.75×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": 39.93749999995089,
+					"madNs": 0.5209999999351567,
+					"relative": 23.957708458312755,
+					"rank": 7,
+					"medianText": "39.937",
+					"madText": "0.521",
+					"relativeText": "23.96×",
+					"combinedText": "39.937 ± 0.521 (23.96×)"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 1.6669999999976426,
+					"madNs": 0,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "1.667",
+					"madText": "0.000",
+					"relativeText": "1.00×",
+					"combinedText": "1.667 ± 0.000 (1.00×)"
+				}
+			]
+		},
+		{
+			"id": "async-teardown",
+			"name": "Async teardown",
+			"results": [
+				{
+					"subject": "di-craft",
+					"medianNs": 87.4999999996362,
+					"madNs": 0.4199999966658652,
+					"relative": 1,
+					"rank": 1,
+					"medianText": "87.500",
+					"madText": "0.420",
+					"relativeText": "1.00×",
+					"combinedText": "87.500 ± 0.420 (1.00×)"
+				},
+				{
+					"subject": "InversifyJS",
+					"medianNs": null,
+					"madNs": null,
+					"relative": null,
+					"rank": null,
+					"medianText": "N/A",
+					"madText": "N/A",
+					"relativeText": "N/A",
+					"combinedText": "N/A"
+				},
+				{
+					"subject": "Awilix PROXY",
+					"medianNs": 137.70499999736785,
+					"madNs": 1.8749999935607775,
+					"relative": 1.57377142854789,
+					"rank": 2,
+					"medianText": "137.70",
+					"madText": "1.875",
+					"relativeText": "1.57×",
+					"combinedText": "137.70 ± 1.875 (1.57×)"
+				},
+				{
+					"subject": "Awilix CLASSIC",
+					"medianNs": 140.4149999962101,
+					"madNs": 2.4949999988166383,
+					"relative": 1.6047428571062161,
+					"rank": 3,
+					"medianText": "140.41",
+					"madText": "2.495",
+					"relativeText": "1.60×",
+					"combinedText": "140.41 ± 2.495 (1.60×)"
+				},
+				{
+					"subject": "TSyringe",
+					"medianNs": 220.83000000066022,
+					"madNs": 3.535000000738364,
+					"relative": 2.523771428589467,
+					"rank": 5,
+					"medianText": "220.83",
+					"madText": "3.535",
+					"relativeText": "2.52×",
+					"combinedText": "220.83 ± 3.535 (2.52×)"
+				},
+				{
+					"subject": "TypeDI",
+					"medianNs": null,
+					"madNs": null,
+					"relative": null,
+					"rank": null,
+					"medianText": "N/A",
+					"madText": "N/A",
+					"relativeText": "N/A",
+					"combinedText": "N/A"
+				},
+				{
+					"subject": "Typed Inject",
+					"medianNs": 213.3349999985512,
+					"madNs": 3.1249999983629095,
+					"relative": 2.438114285707865,
+					"rank": 4,
+					"medianText": "213.33",
+					"madText": "3.125",
+					"relativeText": "2.44×",
+					"combinedText": "213.33 ± 3.125 (2.44×)"
+				}
+			]
+		}
+	]
 }

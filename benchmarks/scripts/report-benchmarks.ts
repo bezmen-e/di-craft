@@ -383,7 +383,7 @@ async function main(): Promise<void> {
 		const docsData = createDocsData(raw, sourceName);
 		await Promise.all([
 			Bun.write(readmePath, replaceGeneratedReport(readme, report)),
-			Bun.write(docsDataPath, `${JSON.stringify(docsData, null, 2)}\n`),
+			Bun.write(docsDataPath, `${JSON.stringify(docsData, null, "\t")}\n`),
 		]);
 		process.stdout.write(`Updated ${readmePath}\nUpdated ${docsDataPath}\n`);
 	} else {
