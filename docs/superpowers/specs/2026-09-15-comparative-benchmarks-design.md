@@ -28,8 +28,8 @@ Reference: <https://github.com/inferdi/inferdi/tree/main/benchmarks>
 - Store machine-readable raw results and generate deterministic Markdown tables.
 - Publish a concise, traceable benchmark summary on the documentation homepage
   and the complete comparison on a dedicated documentation page.
-- Keep benchmark-only dependencies and their lockfile isolated from the library
-  and documentation workspaces.
+- Keep benchmark-only dependencies owned by a private benchmark workspace while
+  sharing the monorepo's single reproducible Bun lockfile.
 
 ## Non-goals
 
@@ -40,15 +40,13 @@ Reference: <https://github.com/inferdi/inferdi/tree/main/benchmarks>
   initiated by a maintainer on a controlled machine.
 - Treat DI microbenchmark ratios as whole-application performance claims.
 
-## Repository layout and Bun isolation
+## Repository layout and Bun workspace
 
 The suite will be a top-level `benchmarks/` package:
 
 ```text
 benchmarks/
   package.json
-  bun.lock
-  bunfig.toml
   tsconfig.json
   README.md
   scripts/
@@ -60,30 +58,25 @@ benchmarks/
   results/
 ```
 
-Bun supports arbitrary workspace paths, including a root-level `benchmarks`
-entry. This package will deliberately **not** be added to the root `workspaces`
-array, however. A Bun workspace member shares the monorepo lockfile and install,
-whereas benchmark reproducibility benefits from an independent dependency graph.
-This matches the InferDI reference: its root workspace includes only
-`packages/*` and `apps/*`, while `benchmarks/` has its own lockfile and a local
-workspace definition with no members.
+Bun supports arbitrary root-level workspace paths, so `benchmarks` will be added
+to the root `workspaces` array beside `packages/*` and `docs`. The benchmark
+package will be private, declare every compared container and harness dependency
+it uses, and depend on `di-craft` through `workspace:*`.
 
-Keeping the package separate also prevents normal repository setup and CI from
-installing every compared DI container and the benchmark harness. These
-dependencies are needed only when a maintainer explicitly runs benchmark tasks.
-The documentation consumes a committed generated summary, so its build does not
-need the benchmark package installed.
+The monorepo will keep one root `bun.lock`. This differs intentionally from the
+InferDI reference, which uses a nested pnpm workspace and lockfile. A single Bun
+install root avoids a second toolchain boundary, keeps dependency ownership
+visible in `benchmarks/package.json`, and lets the suite import the same public
+`di-craft` export that consumers use. Normal installation will include the
+benchmark dependencies, but normal CI will not execute benchmark tasks.
 
-Commands will use `bun --cwd benchmarks ...` or `bun install --cwd benchmarks`.
-Because the root workspace patterns remain `packages/*` and `docs`, Bun treats
-`benchmarks/` as its own package root and writes `benchmarks/bun.lock`. A small
-artifact loader will dynamically import either `packages/di-craft/src/index.ts`
-or the production `packages/di-craft/dist/index.mjs`; no workspace dependency or
-test-runner alias is required.
+Both quick and public modes will benchmark the production ESM build. The library
+build is fast enough that a source alias is not worth bypassing the public package
+contract or maintaining two artifact-resolution paths.
 
-The benchmark package will be private and use exact dependency versions plus a
-frozen lockfile for public runs. Benchmark dependencies will use an isolated
-`benchmarks/node_modules`, not the root install.
+The benchmark package will use exact dependency versions. Public runs will
+require the root frozen lockfile. The documentation consumes only a committed
+generated summary and never imports benchmark runtime dependencies.
 
 All orchestration, tests, TypeScript execution, and benchmark child processes
 will run on Bun. The suite will not depend on Vitest, Vite, SWC, or a decorator
@@ -164,7 +157,7 @@ operations would make the comparison misleading.
 
 Quick mode is for adapter and scenario development:
 
-- source artifact selected through the dynamic artifact loader;
+- production `di-craft` artifact built before the run;
 - typecheck and all preconditions run first;
 - one short benchmark round;
 - one fresh Bun process per subject;
@@ -196,7 +189,7 @@ within a process.
 Raw JSON will use an explicit schema version and contain:
 
 - generation time and execution mode;
-- source or production artifact selection;
+- production artifact entry;
 - Git commit and dirty-worktree flag;
 - Bun, operating system, architecture, CPU, and available power-mode data;
 - exact versions of every compared library and benchmark dependency;
@@ -250,6 +243,14 @@ is better and show the benchmark date and Bun version. It must remain neutral
 when `di-craft` is not the fastest subject instead of changing or hiding
 scenarios based on the result.
 
+The homepage implementation will be a static `BenchmarkSummary.astro`
+component. Starlight does not provide a benchmark-specific visualization, so
+the component will reuse the site's existing surface, border, typography, and
+accent variables rather than introducing another UI system. It will be a compact
+three-row comparison on wide screens and stacked result cards on narrow screens,
+with semantic table markup retained for accessibility. It will require no client
+hydration or charting dependency.
+
 A dedicated `/benchmarks/` documentation page will render every scenario and
 subject from the same generated JSON, summarize the methodology and environment,
 and link to the committed raw result. The homepage section will link to this page
@@ -257,23 +258,26 @@ for the full comparison. The page and component will render an explicit
 "No public benchmark published yet" state if the generated data contains no
 publishable result; placeholder performance numbers are forbidden.
 
+The complete page will stay visually close to InferDI's report: one compact
+numeric table per scenario followed by combined tables. Native Starlight table
+styling, `Badge`, and `LinkButton` will provide the documentation UI; no custom
+interactive chart is needed for exact benchmark values.
+
 ## Commands and mise integration
 
 The repository root will expose commands equivalent to:
 
-- `benchmarks:install`
 - `benchmarks:typecheck`
 - `benchmarks:precondition`
 - `benchmarks:bench`
 - `benchmarks:quick`
-- `benchmarks:source`
 - `benchmarks:public`
 - `benchmarks:report`
 
 A new `benchmarks/mise.toml` will own the implementation commands, and the root
-mise monorepo will include `benchmarks` as a config root. Mise configuration is
-independent of Bun workspace membership, so this does not merge dependency
-graphs. Root `package.json` scripts will remain thin delegates to mise.
+mise monorepo will include `benchmarks` as a config root. Quick and public tasks
+will depend on the library build before executing the benchmark workspace. Root
+`package.json` scripts will remain thin delegates to mise.
 
 The benchmark package scripts will use Bun directly: `bun test` for adapter,
 merge, ordering, and report tests; `bun run` for TypeScript orchestration and
