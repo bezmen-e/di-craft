@@ -11,5 +11,6 @@ export type Token<T> = {
 	 */
 	readonly name: string;
 
+	/** @internal */
 	readonly __type?: T;
 };

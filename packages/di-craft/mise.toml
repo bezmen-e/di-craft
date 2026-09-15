@@ -30,10 +30,6 @@ run = "biome check ."
 description = "Type check di-craft source and tests"
 run = "tsc --noEmit -p tsconfig/src.json && tsc --noEmit -p tsconfig/node.json && tsc --noEmit -p tsconfig/test.json"
 
-[tasks."typecheck:examples"]
-description = "Type check typed documentation examples"
-run = "tsc --noEmit -p tsconfig/examples.json && tsc --noEmit -p tsconfig/examples.node.json"
-
 [tasks.test]
 description = "Run di-craft tests"
 run = "bun test"
@@ -59,7 +55,6 @@ run = [
 	{ task = "format:check" },
 	{ task = "lint" },
 	{ task = "typecheck" },
-	{ task = "typecheck:examples" },
 	{ task = "test" },
 	{ task = "build" },
 ]

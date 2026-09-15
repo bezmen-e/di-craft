@@ -1,0 +1,78 @@
+---
+title: Containers and scopes
+description: Resolve dependency graphs and choose predictable service lifetimes.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import scopesExample from '../../../../examples/core/scopes.ts?raw';
+
+## Containers
+
+A container owns provider registrations and resolves dependency graphs on demand.
+
+```ts
+const container = createContainer(providers);
+
+container.register(provideValue(PORT, 3000));
+container.has(PORT); // true
+container.get(PORT); // 3000
+```
+
+Registering the same token twice throws `DuplicateProviderError`. For an
+intentional test or environment override, pass `{ allowOverride: true }`.
+
+```ts
+container.register(provideValue(API, fakeApi), { allowOverride: true });
+```
+
+## Scopes
+
+| Scope | Lifetime |
+| --- | --- |
+| `singleton` | One cached instance in the container that owns the provider |
+| `scoped` | One cached instance in each resolving container |
+| `transient` | A fresh instance on every resolution |
+
+Use the `Scopes` constants for autocompletion:
+
+```ts
+provideFactory(REQUEST_STATE, {
+  scope: Scopes.Scoped,
+  deps: { request: REQUEST },
+  useFactory: ({ request }) => new RequestState(request),
+});
+```
+
+A longer-lived service cannot capture a shorter-lived dependency. For example,
+a singleton cannot depend on a scoped provider. Invalid lifetime graphs fail
+during resolution with `InvalidProviderError`.
+
+## Child containers
+
+Child containers inherit providers from a parent while adding or overriding
+request-local values. Singleton instances remain owned by the provider's
+container; scoped instances belong to the child performing resolution.
+
+<CodeBlock code={scopesExample} title="examples/core/scopes.ts" />
+
+This is the core primitive used by the Node.js and Next.js request adapters.
+
+## Resolution errors
+
+All library errors extend `DiError`:
+
+| Error | Meaning |
+| --- | --- |
+| `MissingProviderError` | No provider exists for a requested token |
+| `DuplicateProviderError` | A token was registered more than once |
+| `CircularDependencyError` | The provider graph contains a cycle |
+| `InvalidDependencyError` | A dependency declaration is missing or invalid |
+| `InvalidProviderError` | A scope, disposal hook, or override is invalid |
+
+<Aside type="tip" title="Resolve synchronously">
+	`di-craft` has no `getAsync`. Initialize async resources first and register the
+	ready value, or make the token carry a `Promise<T>` and await the resolved promise.
+</Aside>
+
+Cached resources are released through [deterministic disposal](/core/disposal).

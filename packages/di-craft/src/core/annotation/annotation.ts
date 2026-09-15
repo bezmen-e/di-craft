@@ -71,6 +71,9 @@ export function Injectable<T>(
  *   }
  * }
  * ```
+ *
+ * @param options - Token, constructor dependencies, lifetime, and cleanup hook.
+ * @returns A standard class decorator that stores provider metadata.
  */
 export function Injectable<T>(
 	options: InjectableOptions<T>,
@@ -87,6 +90,9 @@ export function Injectable<T>(
  * The returned provider is a normal di-craft factory provider, so scopes,
  * optional dependencies, disposal hooks, overrides, and cycle detection behave
  * the same as with `provideFactory`.
+ *
+ * @param target - A class decorated with `@Injectable`.
+ * @returns A factory provider that constructs the decorated class.
  */
 export function provideInjectable<T>(
 	target: InjectableClass<T>,

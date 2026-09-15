@@ -2,8 +2,11 @@
  * Built-in provider lifetimes.
  */
 export const Scopes = {
+	/** One instance cached by the container that owns the provider. */
 	Singleton: "singleton",
+	/** A new instance for every resolution. */
 	Transient: "transient",
+	/** One instance cached by each resolving container. */
 	Scoped: "scoped",
 } as const;
 

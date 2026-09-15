@@ -5,23 +5,24 @@
 	"packageManager": "bun@1.4.2",
 	"workspaces": [
 		"packages/*",
-		"site"
+		"docs"
 	],
 	"scripts": {
 		"build:lib": "mise run build:lib",
-		"build:site": "mise run build:site",
+		"build:docs": "mise run build:docs",
 		"ci": "mise run ci",
-		"dev:site": "mise run dev:site",
+		"dev:docs": "mise run dev:docs",
 		"fix": "mise run fix",
 		"format": "mise run format",
 		"format:lib": "mise run //packages/di-craft:format",
-		"format:site": "mise run //site:format",
+		"format:docs": "mise run //docs:format",
 		"lint": "mise run lint",
 		"lint:lib": "mise run //packages/di-craft:lint",
-		"lint:site": "mise run //site:lint",
+		"lint:docs": "mise run //docs:lint",
 		"prepare": "mise run --no-deps prepare",
-		"preview:site": "mise run preview:site",
+		"preview:docs": "mise run preview:docs",
 		"test:lib": "mise run test:lib",
+		"typecheck:docs": "mise run typecheck:docs",
 		"typecheck:lib": "mise run typecheck:lib"
 	},
 	"devDependencies": {

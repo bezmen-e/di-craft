@@ -48,7 +48,7 @@ jobs:
         env:
           CI: true
       - name: Type check library examples
-        run: mise run --no-deps //packages/di-craft:typecheck:examples
+        run: mise run --no-deps //docs:typecheck
         env:
           CI: true
       - name: Test library

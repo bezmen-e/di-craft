@@ -16,7 +16,7 @@ local typecheck = new Step {
 }
 
 local typecheckExamples = new Step {
-  check = "mise run typecheck:lib:examples"
+  check = "mise run typecheck:docs"
 }
 
 local fallow = new Step {

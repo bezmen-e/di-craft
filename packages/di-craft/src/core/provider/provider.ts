@@ -22,6 +22,10 @@ import type {
  * ```ts
  * provideValue(PORT, 3000);
  * ```
+ *
+ * @param token - Token that identifies the value.
+ * @param useValue - Existing value to register.
+ * @returns A value provider accepted by a container.
  */
 export const provideValue = <T>(
 	token: Token<T>,
@@ -44,13 +48,21 @@ export const provideValue = <T>(
  *   useFactory: ({ config }) => new HttpClient(config.apiUrl),
  * });
  * ```
+ *
+ * @param token - Token provided by the factory result.
+ * @param options - Factory dependencies, lifetime, implementation, and cleanup.
+ * @returns A lazy factory provider accepted by a container.
  */
 export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 	token: Token<T>,
 	options: {
+		/** Named dependencies resolved before calling `useFactory`. */
 		readonly deps?: TDeps;
+		/** Provider lifetime. Defaults to `Scopes.Singleton`. */
 		readonly scope?: Scope;
+		/** Creates the provided value from the resolved dependency map. */
 		readonly useFactory: Factory<T, TDeps>;
+		/** Releases a cached instance when its owning container is disposed. */
 		readonly onDispose?: DisposeHook<T>;
 	},
 ): FactoryProvider<T, TDeps> => {
@@ -81,6 +93,9 @@ export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
  * ```ts
  * const logger = container.get(optional(LOGGER));
  * ```
+ *
+ * @param token - Token whose provider may be absent.
+ * @returns An optional dependency descriptor resolving to `T | undefined`.
  */
 export const optional = <T>(token: Token<T>): OptionalDependency<T> => ({
 	token,

@@ -32,6 +32,9 @@ export type {
  * Await all async work that reads the request container before the callback
  * passed to `runWithRequestContainer` settles. The request container is disposed
  * immediately after that callback settles.
+ *
+ * @param options - Root and per-request providers for this adapter instance.
+ * @returns Helpers for root access and AsyncLocalStorage-backed request scopes.
  */
 export const createNodeDi = ({
 	providers: rootProviders = [],

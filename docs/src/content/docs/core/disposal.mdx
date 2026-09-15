@@ -1,0 +1,35 @@
+---
+title: Disposal
+description: Release cached resources in deterministic reverse-creation order.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import disposalExample from '../../../../examples/core/disposal.ts?raw';
+
+Factory providers can declare an `onDispose` hook for cached instances. Call
+`container.dispose()` at the lifecycle boundary you own.
+
+<CodeBlock code={disposalExample} title="examples/core/disposal.ts" />
+
+## Rules
+
+- Hooks run in reverse creation order.
+- Async hooks are awaited.
+- Calling `dispose()` more than once is safe.
+- A container disposes only cached instances it owns.
+- Unresolved providers have nothing to dispose.
+- Transient instances are not tracked and cannot declare `onDispose`.
+
+Child containers are disposed independently from their parents. In a request
+lifecycle, dispose the request child after the handler settles and keep the root
+container alive until application shutdown.
+
+<Aside type="caution" title="Do not outlive the scope">
+	Avoid detached work that continues using scoped dependencies after their
+	container has been disposed. Await the work inside the lifecycle boundary, or
+	pass it plain data that no longer depends on the container.
+</Aside>
+
+The [Node.js adapter](/guides/nodejs) and explicit Next.js request runner handle
+child-container disposal in `finally` blocks.

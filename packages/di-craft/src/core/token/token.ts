@@ -22,6 +22,9 @@ class TokenClass<T> implements Token<T> {
  * ```ts
  * const CONFIG = createToken<Config>("config");
  * ```
+ *
+ * @param name - Human-readable name used in diagnostics.
+ * @returns A unique token carrying the type parameter `T`.
  */
 export const createToken = <T>(name: string): Token<T> =>
 	new TokenClass<T>(name);

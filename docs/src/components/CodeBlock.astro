@@ -1,0 +1,17 @@
+---
+// biome-ignore lint/correctness/noUnusedImports: Astro uses this import in the template below.
+import { Code } from "@astrojs/starlight/components";
+
+interface Props {
+	code: string;
+	lang?: string;
+	title?: string;
+}
+
+// biome-ignore lint/correctness/noUnusedVariables: Astro template expressions are not tracked by Biome.
+const { code, lang = "ts", title } = Astro.props;
+// biome-ignore lint/correctness/noUnusedVariables: Astro template expressions are not tracked by Biome.
+const meta = title ? `title="${title}"` : "";
+---
+
+<Code code={code.trim()} lang={lang} meta={meta} />

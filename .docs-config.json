@@ -1,0 +1,76 @@
+{
+	"site": {
+		"directory": "docs",
+		"baseUrl": "/",
+		"siteUrl": "https://di-craft.pages.dev",
+		"contentDir": "src/content/docs"
+	},
+	"sections": [
+		{
+			"slug": "introduction",
+			"label": "Introduction",
+			"purpose": "Explain why di-craft exists, how to install it, and how to build a first dependency graph."
+		},
+		{
+			"slug": "core",
+			"label": "Core concepts",
+			"purpose": "Explain tokens, providers, containers, scopes, resolution, and resource disposal."
+		},
+		{
+			"slug": "guides",
+			"label": "Guides",
+			"purpose": "Show runtime- and framework-specific integration patterns."
+		},
+		{
+			"slug": "api",
+			"label": "API Reference",
+			"purpose": "Provide generated TypeDoc reference for every public package entry point."
+		}
+	],
+	"sourceMappings": [
+		{
+			"source": "packages/di-craft/package.json",
+			"docs": [
+				"introduction/installation",
+				"introduction/getting-started"
+			]
+		},
+		{
+			"source": "packages/di-craft/src/core/token/**/*.ts",
+			"docs": ["core/tokens-and-providers", "api/di-craft"]
+		},
+		{
+			"source": "packages/di-craft/src/core/provider/**/*.ts",
+			"docs": ["core/tokens-and-providers", "api/di-craft"]
+		},
+		{
+			"source": "packages/di-craft/src/core/{container,registry,resolver,scope,store}/**/*.ts",
+			"docs": [
+				"core/containers-and-scopes",
+				"core/disposal",
+				"api/di-craft"
+			]
+		},
+		{
+			"source": "packages/di-craft/src/core/annotation/**/*.ts",
+			"docs": ["guides/annotations", "api/di-craft"]
+		},
+		{
+			"source": "packages/di-craft/src/adapters/node/**/*.ts",
+			"docs": ["guides/nodejs", "api/node"]
+		},
+		{
+			"source": "packages/di-craft/src/adapters/next/**/*.ts",
+			"docs": ["guides/nextjs", "api/next/server", "api/next/client"]
+		}
+	],
+	"terminology": {
+		"dependency injection": ["dependency-injection"],
+		"entry point": ["entrypoint"],
+		"request scope": ["request lifetime"]
+	},
+	"agentDocs": {
+		"quickReferencePage": "introduction/getting-started",
+		"llmsSmallExcludes": ["api"]
+	}
+}

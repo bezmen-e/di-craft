@@ -1,0 +1,17 @@
+{
+	"extends": "../packages/di-craft/tsconfig/src.json",
+	"compilerOptions": {
+		"paths": {
+			"di-craft": ["../packages/di-craft/src/index.ts"],
+			"di-craft/next/client": [
+				"../packages/di-craft/src/adapters/next/client.ts"
+			],
+			"di-craft/next/server": [
+				"../packages/di-craft/src/adapters/next/server.ts"
+			],
+			"di-craft/node": ["../packages/di-craft/src/adapters/node/server.ts"]
+		}
+	},
+	"include": ["examples/**/*.ts"],
+	"exclude": ["examples/node/**/*.ts"]
+}

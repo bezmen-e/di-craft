@@ -1,0 +1,64 @@
+[task_config]
+dir = "{{ config_root }}"
+
+[vars]
+repo_root = "{{ config_root }}/.."
+docs_out_dir = "{{ vars.repo_root }}/.var/dist/docs"
+
+[env]
+'_'.path = [
+	"{{ config_root }}/node_modules/.bin",
+	"{{ vars.repo_root }}/node_modules/.bin",
+]
+
+[tasks.dev]
+description = "Start the documentation dev server"
+run = "astro dev"
+
+[tasks.build]
+description = "Build the documentation site"
+run = "mise run --no-deps build:base"
+outputs = ["{{ vars.docs_out_dir }}/**/*"]
+
+[tasks."build:base"]
+hide = true
+usage = '''
+arg "<dir>" env="DOCS_OUT_DIR" default="{{ vars.docs_out_dir }}" help="Output directory for the documentation site build"
+'''
+run = [
+	"astro build --outDir ${usage_dir?}",
+	"node ./scripts/check-seo.mjs ${usage_dir?}",
+]
+
+[tasks.preview]
+description = "Preview the documentation production build"
+run = "astro preview"
+
+[tasks.lint]
+description = "Lint docs files"
+run = "biome check ."
+
+[tasks."lint:fix"]
+description = "Lint and fix docs files"
+run = "biome check --write ."
+
+[tasks.format]
+description = "Format and fix docs files"
+run = "biome check --write ."
+
+[tasks."format:check"]
+description = "Check docs formatting and linting"
+run = "biome check ."
+
+[tasks.typecheck]
+description = "Type check documentation examples"
+run = "tsc --noEmit -p tsconfig.examples.json && tsc --noEmit -p tsconfig.examples.node.json"
+
+[tasks.checks]
+description = "Run the docs quality pipeline"
+run = [
+	{ task = "format:check" },
+	{ task = "lint" },
+	{ task = "typecheck" },
+	{ task = "build" },
+]

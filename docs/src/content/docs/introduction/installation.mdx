@@ -1,0 +1,48 @@
+---
+title: Installation
+description: Install di-craft and choose the entry point for your runtime.
+---
+
+import { Aside, TabItem, Tabs } from '@astrojs/starlight/components';
+
+`di-craft` is published as an ESM-first TypeScript library and includes its type
+declarations.
+
+<Tabs syncKey="package-manager">
+	<TabItem label="npm" icon="seti:npm">
+		```sh
+		npm install di-craft
+		```
+	</TabItem>
+	<TabItem label="pnpm" icon="seti:pnpm">
+		```sh
+		pnpm add di-craft
+		```
+	</TabItem>
+	<TabItem label="Bun" icon="seti:bun">
+		```sh
+		bun add di-craft
+		```
+	</TabItem>
+	<TabItem label="Yarn" icon="seti:yarn">
+		```sh
+		yarn add di-craft
+		```
+	</TabItem>
+</Tabs>
+
+## Entry points
+
+| Import | Use it for |
+| --- | --- |
+| `di-craft` | Tokens, providers, containers, scopes, and annotations |
+| `di-craft/node` | Async request scopes backed by `AsyncLocalStorage` |
+| `di-craft/next/server` | Next.js App Router server composition |
+| `di-craft/next/client` | Hydrating serializable client state |
+
+<Aside type="note" title="Keep server code server-only">
+	Import the Node and Next server entry points only from server modules. The
+	client adapter intentionally contains hydration helpers—not a server container.
+</Aside>
+
+Next, follow the [getting started guide](/introduction/getting-started).

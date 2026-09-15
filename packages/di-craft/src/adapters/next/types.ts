@@ -83,6 +83,7 @@ export type NextDiAdapter = {
 	readonly disposeRootContainer: () => Promise<void>;
 };
 
+/** Primitive value that can safely cross a Server Component boundary. */
 export type SerializablePrimitive = string | number | boolean | null;
 
 /**
