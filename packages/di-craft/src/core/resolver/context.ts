@@ -2,15 +2,12 @@ import type { Token } from "../token";
 import { CircularDependencyError } from "./errors";
 
 export class ResolutionContext {
-	private readonly resolving = new Set<symbol>();
 	private readonly path: Token<unknown>[] = [];
+	private readonly pathIds: symbol[] = [];
 
 	enter(token: Token<unknown>): void {
-		if (this.resolving.has(token.id)) {
-			const cycleStartIndex = this.path.findIndex(
-				(pathToken) => pathToken.id === token.id,
-			);
-
+		const cycleStartIndex = this.pathIds.indexOf(token.id);
+		if (cycleStartIndex !== -1) {
 			const cycle = [...this.path.slice(cycleStartIndex), token];
 
 			throw new CircularDependencyError(
@@ -18,12 +15,12 @@ export class ResolutionContext {
 			);
 		}
 
-		this.resolving.add(token.id);
 		this.path.push(token);
+		this.pathIds.push(token.id);
 	}
 
-	exit(token: Token<unknown>): void {
+	exit(): void {
 		this.path.pop();
-		this.resolving.delete(token.id);
+		this.pathIds.pop();
 	}
 }

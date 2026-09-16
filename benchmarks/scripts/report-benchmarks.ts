@@ -5,13 +5,11 @@ import { required } from "../src/invariant.ts";
 import type {
 	AggregatedScenario,
 	AggregatedSubjectResult,
-	BenchmarkDocsData,
 	BenchmarkRun,
 } from "../src/results.ts";
 import { median } from "../src/statistics.ts";
 
 const benchmarkRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const repositoryRoot = resolve(benchmarkRoot, "..");
 const reportStart = "<!-- benchmark-report:start -->";
 const reportEnd = "<!-- benchmark-report:end -->";
 
@@ -188,26 +186,6 @@ export function aggregateRun(raw: BenchmarkRun): AggregatedScenario[] {
 	);
 }
 
-export function createDocsData(
-	raw: BenchmarkRun,
-	sourceName: string,
-): BenchmarkDocsData {
-	const scenarios = aggregateRun(raw);
-	return {
-		schemaVersion: 1,
-		published: isPublishableResult(raw),
-		sourceResult: `benchmarks/${sourceName}`,
-		generatedAt: raw.generatedAt,
-		git: raw.git,
-		environment: raw.environment,
-		configuration: raw.configuration,
-		subjects: required(scenarios[0], "Raw result has no scenarios").results.map(
-			(result) => result.subject,
-		),
-		scenarios,
-	};
-}
-
 export function renderReport(raw: BenchmarkRun, sourceName: string): string {
 	const scenarios = aggregateRun(raw);
 	const subjects = scenarios[0]?.results.map((result) => result.subject) ?? [];
@@ -371,21 +349,13 @@ async function main(): Promise<void> {
 	if (write) {
 		if (!isPublishableResult(raw)) {
 			throw new Error(
-				"Only a frozen-lockfile production result with complete balanced subject-order blocks can update published output",
+				"Only a frozen-lockfile production result with complete balanced subject-order blocks can update the generated report",
 			);
 		}
 		const readmePath = resolve(benchmarkRoot, "README.md");
-		const docsDataPath = resolve(
-			repositoryRoot,
-			"docs/src/data/benchmarks.json",
-		);
 		const readme = readFileSync(readmePath, "utf8");
-		const docsData = createDocsData(raw, sourceName);
-		await Promise.all([
-			Bun.write(readmePath, replaceGeneratedReport(readme, report)),
-			Bun.write(docsDataPath, `${JSON.stringify(docsData, null, "\t")}\n`),
-		]);
-		process.stdout.write(`Updated ${readmePath}\nUpdated ${docsDataPath}\n`);
+		await Bun.write(readmePath, replaceGeneratedReport(readme, report));
+		process.stdout.write(`Updated ${readmePath}\n`);
 	} else {
 		process.stdout.write(report);
 	}

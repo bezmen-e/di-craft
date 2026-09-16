@@ -48,7 +48,7 @@ const temporaryRoot = mkdtempSync(join(tmpdir(), "di-craft-bench-"));
 
 try {
 	if (mode === "public") {
-		run([process.execPath, "install", "--frozen-lockfile"], repositoryRoot);
+		run([process.execPath, "install", "--frozen-lockfile"], benchmarkRoot);
 	}
 
 	run([process.execPath, "run", "build:lib"], repositoryRoot);

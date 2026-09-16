@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import type { BenchmarkRun } from "../src/results.ts";
 import type { BenchmarkRoundResult } from "../src/runner/result-types.ts";
 import {
-	createDocsData,
 	hasBalancedSubjectOrder,
 	isPublishableResult,
 	mad,
@@ -87,21 +86,10 @@ describe("benchmark reports", () => {
 		expect(isPublishableResult(raw)).toBe(true);
 	});
 
-	test("renders deterministic markdown and docs data", () => {
+	test("renders deterministic markdown", () => {
 		const raw = publicRun();
 		const first = renderReport(raw, "results/public.json");
 		expect(renderReport(raw, "results/public.json")).toBe(first);
 		expect(first).toContain("| di-craft | 11.500 | 0.500 | 1.00× | 1 |");
-		const docs = createDocsData(raw, "results/public.json");
-		expect(docs.published).toBe(true);
-		expect(docs.sourceResult).toBe("benchmarks/results/public.json");
-		expect(docs.scenarios[0]?.results[0]).toMatchObject({
-			subject: "di-craft",
-			rank: 1,
-			medianText: "11.500",
-			madText: "0.500",
-			relativeText: "1.00×",
-			combinedText: "11.500 ± 0.500 (1.00×)",
-		});
 	});
 });

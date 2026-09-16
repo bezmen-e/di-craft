@@ -50,15 +50,3 @@ export interface AggregatedScenario {
 	readonly name: string;
 	readonly results: readonly AggregatedSubjectResult[];
 }
-
-export interface BenchmarkDocsData {
-	readonly schemaVersion: 1;
-	readonly published: boolean;
-	readonly sourceResult: string | null;
-	readonly generatedAt: string | null;
-	readonly git: BenchmarkRun["git"] | null;
-	readonly environment: BenchmarkRun["environment"] | null;
-	readonly configuration: BenchmarkRun["configuration"] | null;
-	readonly subjects: readonly string[];
-	readonly scenarios: readonly AggregatedScenario[];
-}

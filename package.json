@@ -5,11 +5,11 @@
 	"packageManager": "bun@1.4.2",
 	"workspaces": [
 		"packages/*",
-		"docs",
-		"benchmarks"
+		"docs"
 	],
 	"scripts": {
 		"benchmarks:bench": "mise run //benchmarks:quick",
+		"benchmarks:install": "mise run //benchmarks:install",
 		"benchmarks:precondition": "mise run //benchmarks:precondition",
 		"benchmarks:public": "mise run //benchmarks:public",
 		"benchmarks:quick": "mise run //benchmarks:quick",

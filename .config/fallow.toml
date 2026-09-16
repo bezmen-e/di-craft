@@ -1,7 +1,5 @@
 entry = [
 	"packages/di-craft/src/**/*.ts",
-	# Launched as an isolated Bun child process by run-benchmarks.ts.
-	"benchmarks/src/runner/benchmark-subject.ts",
 	# Starlight loads these entry points from string paths in astro.config.mjs.
 	"docs/src/components/Hero.astro",
 	"docs/src/components/ThemeToggle.astro",
@@ -19,22 +17,15 @@ ignoreDependencies = [
 ]
 
 ignorePatterns = [
-	# Fixture members are consumed through several containers' dynamic DI APIs.
-	"benchmarks/src/fixtures/**",
+	# Benchmarks are an isolated project with their own package and Fallow config.
+	"benchmarks/**",
 	"packages/di-craft/dist/**",
 	"packages/di-craft/src/**/*.test.ts",
 	"docs/examples/**",
 ]
 
-ignoreExports = [
-	# Container adapters intentionally expose the same contract-shaped factory.
-	{ file = "benchmarks/src/containers/*.ts", exports = ["buildRoot"] },
-]
-
 [duplicates]
 ignore = [
-	# Comparable container adapters intentionally repeat the same contract wiring.
-	"benchmarks/src/containers/**",
 	"packages/di-craft/src/**/*.test.ts",
 ]
 ignoreImports = true

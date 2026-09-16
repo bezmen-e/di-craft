@@ -12,13 +12,16 @@ subjects:
 The methodology and runner structure are adapted from the MIT-licensed
 [InferDI benchmark suite](https://github.com/inferdi/inferdi/tree/main/benchmarks).
 The implementation uses Bun for tests, orchestration, and every isolated subject
-process.
+process. Like the InferDI reference, this directory is intentionally separate
+from the root workspace and owns its comparison dependencies in
+`benchmarks/bun.lock`.
 
 ## Run locally
 
 From the repository root:
 
 ```bash
+bun run benchmarks:install
 bun run benchmarks:precondition
 bun run benchmarks:quick
 ```
@@ -33,9 +36,9 @@ Run a publishable balanced block with:
 bun run benchmarks:public
 ```
 
-The public pipeline uses the frozen root lockfile, the production ESM package,
-14 balanced rounds, and one fresh Bun process per subject. It records runtime,
-hardware, dependency, Git, and dispersion metadata with the raw timings.
+The public pipeline uses the frozen benchmark lockfile, the production ESM
+package, 14 balanced rounds, and one fresh Bun process per subject. It records
+runtime, hardware, dependency, Git, and dispersion metadata with the raw timings.
 
 Render a result without changing files:
 
@@ -43,8 +46,7 @@ Render a result without changing files:
 bun run benchmarks:report -- results/public-<timestamp>.json
 ```
 
-After reviewing a public result, update this README and the generated
-documentation data together:
+After reviewing a public result, update the internal report in this README:
 
 ```bash
 bun run benchmarks:report -- results/public-<timestamp>.json --write

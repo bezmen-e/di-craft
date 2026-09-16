@@ -17,7 +17,7 @@
 	"devDependencies": {
 		"@types/bun": "1.4.2",
 		"awilix": "13.0.5",
-		"di-craft": "workspace:*",
+		"di-craft": "file:../packages/di-craft",
 		"inversify": "8.2.3",
 		"reflect-metadata": "0.2.2",
 		"tinybench": "2.9.0",

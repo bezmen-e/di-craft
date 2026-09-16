@@ -22,12 +22,18 @@ run = [
 ]
 
 [tasks."lint:fallow:dead-code"]
-description = "Check dead-code findings against the Fallow baseline"
-run = "fallow dead-code --config .config/fallow.toml --fail-on-issues"
+description = "Check root and benchmark dead code with Fallow"
+run = [
+	"fallow dead-code --config .config/fallow.toml --fail-on-issues",
+	"mise run //benchmarks:lint:fallow:dead-code",
+]
 
 [tasks."lint:fallow:dupes"]
-description = "Check duplicate-code findings against the Fallow baseline"
-run = "fallow dupes --config .config/fallow.toml --fail-on-issues"
+description = "Check root and benchmark duplication with Fallow"
+run = [
+	"fallow dupes --config .config/fallow.toml --fail-on-issues",
+	"mise run //benchmarks:lint:fallow:dupes",
+]
 
 [tasks."lint:fallow:fix:preview"]
 description = "Preview Fallow unused-export and dependency fixes"

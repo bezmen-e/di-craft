@@ -26,10 +26,10 @@ Reference: <https://github.com/inferdi/inferdi/tree/main/benchmarks>
 - Isolate every benchmark subject in a fresh process and balance launch-order
   effects across public rounds.
 - Store machine-readable raw results and generate deterministic Markdown tables.
-- Publish a concise, traceable benchmark summary on the documentation homepage
-  and the complete comparison on a dedicated documentation page.
-- Keep benchmark-only dependencies owned by a private benchmark workspace while
-  sharing the monorepo's single reproducible Bun lockfile.
+- Keep results as an internal optimization aid until they are ready for a
+  separate publishing decision.
+- Keep benchmark-only dependencies and their reproducible lockfile isolated from
+  the root Bun workspace.
 
 ## Non-goals
 
@@ -40,7 +40,7 @@ Reference: <https://github.com/inferdi/inferdi/tree/main/benchmarks>
   initiated by a maintainer on a controlled machine.
 - Treat DI microbenchmark ratios as whole-application performance claims.
 
-## Repository layout and Bun workspace
+## Repository layout and dependency isolation
 
 The suite will be a top-level `benchmarks/` package:
 
@@ -58,25 +58,19 @@ benchmarks/
   results/
 ```
 
-Bun supports arbitrary root-level workspace paths, so `benchmarks` will be added
-to the root `workspaces` array beside `packages/*` and `docs`. The benchmark
-package will be private, declare every compared container and harness dependency
-it uses, and depend on `di-craft` through `workspace:*`.
-
-The monorepo will keep one root `bun.lock`. This differs intentionally from the
-InferDI reference, which uses a nested pnpm workspace and lockfile. A single Bun
-install root avoids a second toolchain boundary, keeps dependency ownership
-visible in `benchmarks/package.json`, and lets the suite import the same public
-`di-craft` export that consumers use. Normal installation will include the
-benchmark dependencies, but normal CI will not execute benchmark tasks.
+Like the InferDI reference, `benchmarks` will remain outside the root workspace
+and own an isolated lockfile. The private package will declare every compared
+container and harness dependency it uses in `benchmarks/package.json`, depend on
+`di-craft` through `file:../packages/di-craft`, and commit
+`benchmarks/bun.lock`. Root installation therefore does not install comparison
+libraries or record them in the root `bun.lock`.
 
 Both quick and public modes will benchmark the production ESM build. The library
 build is fast enough that a source alias is not worth bypassing the public package
 contract or maintaining two artifact-resolution paths.
 
 The benchmark package will use exact dependency versions. Public runs will
-require the root frozen lockfile. The documentation consumes only a committed
-generated summary and never imports benchmark runtime dependencies.
+require the isolated benchmark lockfile to pass a frozen install.
 
 All orchestration, tests, TypeScript execution, and benchmark child processes
 will run on Bun. The suite will not depend on Vitest, Vite, SWC, or a decorator
@@ -214,59 +208,18 @@ blocks with at least the default public warmup and measurement durations.
 Quick JSON files will be ignored. Selected public JSON files may be committed
 alongside the generated report so claims retain their raw evidence.
 
-## Documentation publishing
+## Internal results
 
-The benchmark reporter will be the only producer of displayed benchmark values.
-For a publishable public result, its `--write` mode will generate both:
-
-- the marked results section in `benchmarks/README.md`;
-- an aggregated `docs/src/data/benchmarks.json` containing result metadata and
-  normalized median, MAD, rank, and relative values for every scenario and
-  subject.
-
-Both outputs will identify the same raw result path and Git commit. They will be
-generated from the validated in-memory aggregate so the repository README and
-documentation cannot calculate or round values differently. Documentation
-builds read only the committed aggregate and never execute benchmarks.
-
-The Starlight homepage will render a compact performance section after the
-existing feature grid and before the contact section. It will show three stable
-headline scenarios:
-
-1. Hot singleton resolve
-2. Transient resolve
-3. Deep graph, ten levels
-
-Each row will show the `di-craft` median, its rank among all subjects, and its
-ratio to the fastest subject in that scenario. The block will state that lower
-is better and show the benchmark date and Bun version. It must remain neutral
-when `di-craft` is not the fastest subject instead of changing or hiding
-scenarios based on the result.
-
-The homepage implementation will be a static `BenchmarkSummary.astro`
-component. Starlight does not provide a benchmark-specific visualization, so
-the component will reuse the site's existing surface, border, typography, and
-accent variables rather than introducing another UI system. It will be a compact
-three-row comparison on wide screens and stacked result cards on narrow screens,
-with semantic table markup retained for accessibility. It will require no client
-hydration or charting dependency.
-
-A dedicated `/benchmarks/` documentation page will render every scenario and
-subject from the same generated JSON, summarize the methodology and environment,
-and link to the committed raw result. The homepage section will link to this page
-for the full comparison. The page and component will render an explicit
-"No public benchmark published yet" state if the generated data contains no
-publishable result; placeholder performance numbers are forbidden.
-
-The complete page will stay visually close to InferDI's report: one compact
-numeric table per scenario followed by combined tables. Native Starlight table
-styling, `Badge`, and `LinkButton` will provide the documentation UI; no custom
-interactive chart is needed for exact benchmark values.
+Benchmark results remain an internal optimization aid until the library's hot
+paths have been improved and reviewed. The reporter's `--write` mode updates
+only the marked section in `benchmarks/README.md`; the Starlight homepage,
+navigation, and documentation pages do not publish benchmark claims.
 
 ## Commands and mise integration
 
 The repository root will expose commands equivalent to:
 
+- `benchmarks:install`
 - `benchmarks:typecheck`
 - `benchmarks:precondition`
 - `benchmarks:bench`
@@ -313,9 +266,8 @@ Implementation is complete when:
   results;
 - quick mode completes all supported scenarios and writes valid raw JSON;
 - report generation is byte-for-byte deterministic;
-- a public result generates identical aggregates for the benchmark README and
-  documentation data;
-- the documentation homepage summary and complete benchmark page render from
-  generated data without installing benchmark dependencies;
+- a public result deterministically updates the internal benchmark README;
+- the root `bun.lock` does not contain benchmark-only dependencies;
+- `benchmarks/bun.lock` supports a frozen install of the isolated package;
 - the normal library and documentation quality pipelines still pass after the
   old benchmark dependencies and tasks are removed.

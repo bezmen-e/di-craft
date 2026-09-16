@@ -73,12 +73,40 @@ export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 		);
 	}
 
+	const scope = options.scope ?? Scopes.Singleton;
+
+	if (options.deps && options.onDispose) {
+		return {
+			provide: token,
+			deps: options.deps,
+			scope,
+			useFactory: options.useFactory,
+			onDispose: options.onDispose,
+		};
+	}
+
+	if (options.deps) {
+		return {
+			provide: token,
+			deps: options.deps,
+			scope,
+			useFactory: options.useFactory,
+		};
+	}
+
+	if (options.onDispose) {
+		return {
+			provide: token,
+			scope,
+			useFactory: options.useFactory,
+			onDispose: options.onDispose,
+		};
+	}
+
 	return {
 		provide: token,
+		scope,
 		useFactory: options.useFactory,
-		scope: options.scope ?? Scopes.Singleton,
-		...(options.deps ? { deps: options.deps } : {}),
-		...(options.onDispose ? { onDispose: options.onDispose } : {}),
 	};
 };
 

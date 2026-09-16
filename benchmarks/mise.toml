@@ -18,6 +18,18 @@ run = "biome check --write ."
 description = "Check benchmark workspace formatting"
 run = "biome check ."
 
+[tasks.install]
+description = "Install isolated benchmark dependencies"
+run = "bun install --frozen-lockfile"
+
+[tasks."lint:fallow:dead-code"]
+description = "Check benchmark dead code with Fallow"
+run = "fallow dead-code --root . --config .config/fallow.toml --fail-on-issues"
+
+[tasks."lint:fallow:dupes"]
+description = "Check benchmark duplication with Fallow"
+run = "fallow dupes --root . --config .config/fallow.toml --fail-on-issues"
+
 [tasks.typecheck]
 description = "Type check comparative benchmarks"
 depends = ["//packages/di-craft:build"]
