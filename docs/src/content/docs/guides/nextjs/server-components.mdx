@@ -1,0 +1,61 @@
+---
+title: Use DI in Server Components
+description: Create one render-scoped child container for a Next.js Server Component tree.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+import CodeBlock from '../../../../components/CodeBlock.astro';
+import nestedRscExample from '../../../../../examples/next/nested-server-components.ts?raw';
+
+Use `createNextDi()` when Server Components in one render pass should share
+scoped dependencies. This guide assumes an App Router project and a server-only
+composition module.
+
+<Steps>
+
+1. Create the server composition module
+
+   Pass React's `cache` function to the adapter. React owns render memoization;
+   `di-craft` owns the dependency graph.
+
+   ```ts
+   // app/di.server.ts
+   import "server-only";
+   import { cache } from "react";
+   import { createNextDi } from "di-craft/next/server";
+
+   export const { getRequestContainer } = createNextDi({
+     cache,
+     providers,
+     requestProviders,
+   });
+   ```
+
+2. Resolve at the Server Component boundary
+
+   ```tsx
+   import { getRequestContainer } from "./di.server";
+
+   export default async function Page() {
+     const users = await getRequestContainer().get(USERS_SERVICE).list();
+
+     return <UsersView users={users} />;
+   }
+   ```
+
+3. Reuse the scope in nested Server Components
+
+   Repeated calls to `getRequestContainer()` return the same child container
+   during the current render pass.
+
+</Steps>
+
+<CodeBlock code={nestedRscExample} title="examples/next/nested-server-components.ts" />
+
+<Aside type="caution" title="Render scope is not an explicit disposal boundary">
+	React does not expose a general “RSC render finished” hook. Keep resources that
+	require deterministic cleanup in an explicit callback scope instead.
+</Aside>
+
+For Route Handlers, Server Actions, transactions, temporary files, and similar
+resources, use [an explicit request scope](/guides/nextjs/route-handlers-and-actions).

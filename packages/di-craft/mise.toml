@@ -51,15 +51,6 @@ sources = [
 ]
 outputs = ["dist/**/*"]
 
-[tasks.bench]
-description = "Run di-craft benchmarks"
-run = "bun run bench/core.bench.ts"
-
-[tasks.profile]
-description = "Capture a CPU profile for dependency resolution"
-run = "bun --cpu-prof --cpu-prof-md --cpu-prof-dir ./.tmp/profiles bench/profile-resolve.ts"
-outputs = [".tmp/profiles/**/*"]
-
 [tasks.checks]
 description = "Run the full di-craft package quality pipeline"
 run = [

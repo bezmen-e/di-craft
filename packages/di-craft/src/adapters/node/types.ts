@@ -41,6 +41,9 @@ export type NodeDiAdapter = {
 	readonly getRootContainer: () => Container;
 	/**
 	 * Returns the container bound to the current async request scope.
+	 *
+	 * @throws `NodeRequestScopeError` outside an active request scope or after it
+	 * has been disposed.
 	 */
 	readonly getRequestContainer: () => Container;
 	/**

@@ -4,16 +4,26 @@
  * @module
  */
 
+export type {
+	InjectableClass,
+	InjectableConstructor,
+	InjectableOptions,
+	ResolveDependencyTuple,
+} from "./annotation";
 export { Injectable, provideInjectable } from "./annotation";
 export type { Container } from "./container";
 export { createChildContainer, createContainer } from "./container";
 export { DiError } from "./error";
 export type {
 	Dependency,
+	DepsMap,
 	DisposeHook,
+	Factory,
 	FactoryProvider,
 	OptionalDependency,
 	Provider,
+	ResolveDeps,
+	ResolvedDependency,
 	ValueProvider,
 } from "./provider";
 export {

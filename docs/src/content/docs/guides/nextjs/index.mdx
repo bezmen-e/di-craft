@@ -1,0 +1,48 @@
+---
+title: Next.js overview
+description: Choose the right di-craft scope for each Next.js App Router boundary.
+---
+
+The Next.js integration keeps dependency injection aligned with the boundary
+that actually owns a service. It does not create a global container or move a
+server container into the browser.
+
+## Choose a boundary
+
+| Next.js boundary | Use | Lifetime |
+| --- | --- | --- |
+| Server Components and nested RSC | `di-craft/next/server` with React `cache` | One container per render pass |
+| Route Handlers and Server Actions | `runWithRequestContainer()` | One explicitly disposed container per callback |
+| Deep Node.js async calls | `di-craft/node` | One `AsyncLocalStorage` scope per callback |
+| Client Components | `di-craft/next/client` | A separate client container restored from serializable state |
+
+These containers are intentionally different:
+
+```txt
+RSC render container != Server Action container
+RSC render container != Route Handler container
+server container     != client container
+```
+
+## Entry points
+
+```ts
+import { createNextDi, dehydrate } from "di-craft/next/server";
+import { hydrate } from "di-craft/next/client";
+```
+
+Shared hydration types such as `Hydratable`, `HydrationSchema`, and
+`HydrationSnapshot` are exported from both Next.js entry points.
+
+## Guides
+
+- [Use DI in Server Components](/guides/nextjs/server-components)
+- [Scope Route Handlers and Server Actions](/guides/nextjs/route-handlers-and-actions)
+- [Share request scope with AsyncLocalStorage](/guides/nextjs/async-local-storage)
+- [Hydrate client state](/guides/nextjs/hydration)
+
+## Deliberate limits
+
+The adapter does not add React or Next.js to the core package, infer dependencies
+from runtime types, replace Next.js data fetching, or hydrate a server DI
+container in the browser.

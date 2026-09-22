@@ -11,6 +11,9 @@ export type Container = {
 	 *
 	 * Pass `{ allowOverride: true }` to intentionally replace an existing
 	 * provider for the same token.
+	 *
+	 * @throws `DuplicateProviderError` when the token is already registered.
+	 * @throws `InvalidProviderError` when overriding a live disposable instance.
 	 */
 	register(provider: Provider, options?: RegisterOptions): void;
 	/**
@@ -18,6 +21,10 @@ export type Container = {
 	 *
 	 * Throws `MissingProviderError` when no provider exists in this container or
 	 * any parent container.
+	 *
+	 * @throws `MissingProviderError` when no provider exists.
+	 * @throws `CircularDependencyError` when the dependency graph contains a cycle.
+	 * @throws `InvalidProviderError` when provider lifetimes are incompatible.
 	 */
 	get<T>(token: Token<T>): T;
 	/**

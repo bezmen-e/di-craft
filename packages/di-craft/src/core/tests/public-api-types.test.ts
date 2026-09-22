@@ -3,11 +3,14 @@ import {
 	type Container,
 	createContainer,
 	createToken,
+	type Factory,
 	type FactoryProvider,
 	type OptionalDependency,
 	optional,
 	provideFactory,
 	provideValue,
+	type ResolveDeps,
+	type ResolvedDependency,
 	type Token,
 	type ValueProvider,
 } from "../../index";
@@ -88,9 +91,13 @@ describe("public API types", () => {
 		};
 
 		type FactoryDeps = Parameters<typeof provider.useFactory>[0];
+		type ServiceFactory = Factory<Service, Deps>;
 
 		const typeChecks: [
 			Expect<Equal<typeof provider, FactoryProvider<Service, Deps>>>,
+			Expect<Equal<ResolvedDependency<Token<Config>>, Config>>,
+			Expect<Equal<ResolveDeps<Deps>, FactoryDeps>>,
+			Expect<Equal<ReturnType<ServiceFactory>, Service>>,
 			Expect<
 				Equal<
 					FactoryDeps,
@@ -100,9 +107,9 @@ describe("public API types", () => {
 					}
 				>
 			>,
-		] = [true, true];
+		] = [true, true, true, true, true];
 
-		expect(typeChecks).toEqual([true, true]);
+		expect(typeChecks).toEqual([true, true, true, true, true]);
 	});
 
 	test("returns required and optional container values", () => {
@@ -123,5 +130,33 @@ describe("public API types", () => {
 		] = [true, true, true];
 
 		expect(typeChecks).toEqual([true, true, true]);
+	});
+
+	test("rejects invalid public API usage", () => {
+		const invalidUsage = () => {
+			const PORT = createToken<number>("PORT");
+			// @ts-expect-error A string cannot satisfy Token<number>.
+			provideValue(PORT, "3000");
+
+			type Config = { readonly apiUrl: string };
+			const CONFIG = createToken<Config>("CONFIG");
+			const API_URL = createToken<string>("API_URL");
+
+			provideFactory(API_URL, {
+				deps: { config: CONFIG },
+				// @ts-expect-error Config has no "missing" property.
+				useFactory: ({ config }) => config.missing,
+			});
+
+			type Logger = { info(message: string): void };
+			const LOGGER = createToken<Logger>("LOGGER");
+			const container = createContainer();
+
+			// @ts-expect-error Optional resolution returns Logger | undefined.
+			const logger: Logger = container.get(optional(LOGGER));
+			return logger;
+		};
+
+		expect(typeof invalidUsage).toBe("function");
 	});
 });

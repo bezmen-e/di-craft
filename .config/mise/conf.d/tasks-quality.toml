@@ -21,11 +21,11 @@ run = [
 ]
 
 [tasks."lint:fallow:dead-code"]
-description = "Check dead-code findings against the Fallow baseline"
+description = "Check dead code with Fallow"
 run = "fallow dead-code --config .config/fallow.toml --fail-on-issues"
 
 [tasks."lint:fallow:dupes"]
-description = "Check duplicate-code findings against the Fallow baseline"
+description = "Check duplication with Fallow"
 run = "fallow dupes --config .config/fallow.toml --fail-on-issues"
 
 [tasks."lint:fallow:fix:preview"]

@@ -124,7 +124,7 @@ class ResolverClass implements Resolver {
 
 			return value;
 		} finally {
-			ctx.exit(token);
+			ctx.exit();
 		}
 	}
 

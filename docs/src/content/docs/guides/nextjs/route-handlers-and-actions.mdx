@@ -1,0 +1,36 @@
+---
+title: Scope Route Handlers and Server Actions
+description: Run Next.js server work in a fresh container with deterministic disposal.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import CodeBlock from '../../../../components/CodeBlock.astro';
+import routeHandlerExample from '../../../../../examples/next/route-handler.ts?raw';
+import serverActionExample from '../../../../../examples/next/server-action.ts?raw';
+
+Use `runWithRequestContainer()` where your code owns the full lifecycle. It
+creates a fresh child container, passes it to the callback, and disposes it in a
+`finally` block.
+
+## Route Handler
+
+Register request-specific values when entering the scope and resolve services
+inside the callback:
+
+<CodeBlock code={routeHandlerExample} title="examples/next/route-handler.ts" />
+
+## Server Action
+
+The same helper gives each Server Action its own explicit scope:
+
+<CodeBlock code={serverActionExample} title="examples/next/server-action.ts" />
+
+<Aside type="note" title="This is not the RSC container">
+	A Route Handler or Server Action does not share the container created during a
+	Page render. Register the values required by that boundary when entering it.
+</Aside>
+
+`runWithRequestContainer()` does not bind the container to async context. Pass
+the callback argument through your code, or use
+[AsyncLocalStorage](/guides/nextjs/async-local-storage) when deep calls need to
+read the current request container.

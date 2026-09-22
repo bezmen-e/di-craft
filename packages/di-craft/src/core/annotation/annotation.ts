@@ -17,15 +17,11 @@ import type {
 } from "./types";
 
 type Constructable<T> = new (...args: unknown[]) => T;
+/** Standard class decorator returned by `Injectable`. @inline */
 type InjectableDecorator<TTarget> = (
 	target: TTarget,
 	context: ClassDecoratorContext,
 ) => void;
-
-type InjectableOptionsWithoutDeps<T> = Omit<
-	InjectableOptions<T, readonly []>,
-	"deps"
->;
 
 const ANONYMOUS_CLASS_NAME = "<anonymous>";
 
@@ -52,7 +48,7 @@ export function Injectable<
 ): InjectableDecorator<InjectableConstructor<T, TDeps>>;
 
 export function Injectable<T>(
-	options: InjectableOptionsWithoutDeps<T>,
+	options: Omit<InjectableOptions<T, readonly []>, "deps">,
 ): InjectableDecorator<InjectableConstructor<T, readonly []>>;
 /**
  * Marks a class as an injectable provider for a token.
@@ -93,6 +89,8 @@ export function Injectable<T>(
  *
  * @param target - A class decorated with `@Injectable`.
  * @returns A factory provider that constructs the decorated class.
+ * @throws {@link InvalidProviderError} When the class has no `@Injectable`
+ * metadata.
  */
 export function provideInjectable<T>(
 	target: InjectableClass<T>,

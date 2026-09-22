@@ -1,0 +1,57 @@
+---
+title: Hydrate client state
+description: Transfer serializable state from a server container to a separate client container.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import CodeBlock from '../../../../components/CodeBlock.astro';
+import hydrationExample from '../../../../../examples/next/hydration.ts?raw';
+
+The server container never crosses the React Server Component boundary. Transfer
+only a serializable snapshot and restore it into a separate client-safe
+container.
+
+```txt
+server state -> serializable snapshot -> client state
+```
+
+<Steps>
+
+1. Make the state hydratable
+
+   Implement `Hydratable<TSnapshot>` with a serializable snapshot type.
+
+2. Define a typed hydration schema
+
+   ```ts
+   const hydration = {
+     user: USER_STATE,
+   } satisfies HydrationSchema;
+   ```
+
+3. Create the server snapshot
+
+   ```ts
+   const snapshot = dehydrate({
+     container: getRequestContainer(),
+     schema: hydration,
+   });
+   ```
+
+4. Restore it on the client
+
+   ```ts
+   hydrate({
+     container: clientContainer,
+     schema: hydration,
+     snapshot,
+   });
+   ```
+
+</Steps>
+
+<CodeBlock code={hydrationExample} title="examples/next/hydration.ts" />
+
+For streamed UI, let Suspense, `loading.js`, and React's `use` model control the
+rendering boundary. `di-craft` only creates the data or snapshot; it is not a
+client state manager.

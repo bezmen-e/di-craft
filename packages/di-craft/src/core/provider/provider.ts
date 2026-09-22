@@ -52,6 +52,8 @@ export const provideValue = <T>(
  * @param token - Token provided by the factory result.
  * @param options - Factory dependencies, lifetime, implementation, and cleanup.
  * @returns A lazy factory provider accepted by a container.
+ * @throws {@link InvalidProviderError} When a transient provider declares an
+ * `onDispose` hook that could never run.
  */
 export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 	token: Token<T>,
@@ -73,12 +75,40 @@ export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 		);
 	}
 
+	const scope = options.scope ?? Scopes.Singleton;
+
+	if (options.deps && options.onDispose) {
+		return {
+			provide: token,
+			deps: options.deps,
+			scope,
+			useFactory: options.useFactory,
+			onDispose: options.onDispose,
+		};
+	}
+
+	if (options.deps) {
+		return {
+			provide: token,
+			deps: options.deps,
+			scope,
+			useFactory: options.useFactory,
+		};
+	}
+
+	if (options.onDispose) {
+		return {
+			provide: token,
+			scope,
+			useFactory: options.useFactory,
+			onDispose: options.onDispose,
+		};
+	}
+
 	return {
 		provide: token,
+		scope,
 		useFactory: options.useFactory,
-		scope: options.scope ?? Scopes.Singleton,
-		...(options.deps ? { deps: options.deps } : {}),
-		...(options.onDispose ? { onDispose: options.onDispose } : {}),
 	};
 };
 

@@ -9,7 +9,7 @@ type-safe dependency injection library for TypeScript.
 ## Workspace
 
 ```txt
-packages/di-craft/  Library source, tests, and benchmarks
+packages/di-craft/  Library source and tests
 docs/               Astro Starlight site and type-checked examples
 assets/             Shared repository assets
 .config/mise/       Toolchain and task orchestration

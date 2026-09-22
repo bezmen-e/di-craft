@@ -74,6 +74,8 @@ class ContainerClass implements Container {
  *
  * @param providers - Providers registered before the first resolution.
  * @returns A new root container.
+ * @throws `DuplicateProviderError` When the initial providers contain the same
+ * token more than once.
  */
 export const createContainer = (
 	providers: readonly Provider[] = [],
@@ -88,6 +90,8 @@ export const createContainer = (
  * @param parent - Container used as the fallback provider registry.
  * @param providers - Providers registered locally in the child.
  * @returns A new child container.
+ * @throws `DuplicateProviderError` When the child providers contain the same
+ * token more than once.
  */
 export const createChildContainer = (
 	parent: Container,
