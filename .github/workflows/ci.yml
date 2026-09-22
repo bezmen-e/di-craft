@@ -44,9 +44,5 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile --ignore-scripts
 
-      - name: Install benchmark dependencies
-        working-directory: benchmarks
-        run: bun install --frozen-lockfile --ignore-scripts
-
       - name: Run all checks
         run: mise run ci

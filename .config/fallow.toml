@@ -16,8 +16,6 @@ ignoreDependencies = [
 ]
 
 ignorePatterns = [
-	# Benchmarks are an isolated project with their own package and Fallow config.
-	"benchmarks/**",
 	"packages/di-craft/dist/**",
 	"packages/di-craft/src/**/*.test.ts",
 	"docs/examples/**",

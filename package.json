@@ -8,14 +8,6 @@
 		"docs"
 	],
 	"scripts": {
-		"benchmarks:bench": "mise run //benchmarks:quick",
-		"benchmarks:install": "mise run //benchmarks:install",
-		"benchmarks:precondition": "mise run //benchmarks:precondition",
-		"benchmarks:public": "mise run //benchmarks:public",
-		"benchmarks:quick": "mise run //benchmarks:quick",
-		"benchmarks:report": "mise run //benchmarks:report --",
-		"benchmarks:test": "mise run //benchmarks:test",
-		"benchmarks:typecheck": "mise run //benchmarks:typecheck",
 		"build:lib": "mise run build:lib",
 		"build:docs": "mise run build:docs",
 		"ci": "mise run ci",

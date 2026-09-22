@@ -1,7 +1,3 @@
 [tasks."test:lib"]
 description = "Run package tests"
 run = "mise run //packages/di-craft:test"
-
-[tasks."test:benchmarks"]
-description = "Run benchmark adapter and reporting tests"
-run = "mise run //benchmarks:test"
