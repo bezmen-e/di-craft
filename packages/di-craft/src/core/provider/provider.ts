@@ -52,6 +52,8 @@ export const provideValue = <T>(
  * @param token - Token provided by the factory result.
  * @param options - Factory dependencies, lifetime, implementation, and cleanup.
  * @returns A lazy factory provider accepted by a container.
+ * @throws {@link InvalidProviderError} When a transient provider declares an
+ * `onDispose` hook that could never run.
  */
 export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 	token: Token<T>,

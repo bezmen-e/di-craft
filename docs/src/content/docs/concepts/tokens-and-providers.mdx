@@ -17,6 +17,7 @@ import { createToken } from "di-craft";
 
 type Config = { readonly apiUrl: string };
 const CONFIG = createToken<Config>("CONFIG");
+// Token<Config>
 ```
 
 The value type flows through providers and resolution:
@@ -71,5 +72,46 @@ throws while being created, the original error still surfaces.
 	[annotations guide](/guides/annotations).
 </Aside>
 
-Next, learn how [containers and scopes](/core/containers-and-scopes) control
+## What TypeScript rejects
+
+The token type controls the value accepted by its provider:
+
+```ts
+import { createToken, provideValue } from "di-craft";
+
+const PORT = createToken<number>("PORT");
+// @ts-expect-error A string cannot satisfy Token<number>.
+provideValue(PORT, "3000");
+```
+
+Factory dependencies are inferred from their tokens:
+
+```ts
+import { createToken, provideFactory } from "di-craft";
+
+type Config = { readonly apiUrl: string };
+const CONFIG = createToken<Config>("CONFIG");
+const API_URL = createToken<string>("API_URL");
+
+provideFactory(API_URL, {
+  deps: { config: CONFIG },
+  // @ts-expect-error Config has no "missing" property.
+  useFactory: ({ config }) => config.missing,
+});
+```
+
+Optional dependencies remain optional after resolution:
+
+```ts
+import { createContainer, createToken, optional } from "di-craft";
+
+type Logger = { info(message: string): void };
+const LOGGER = createToken<Logger>("LOGGER");
+const container = createContainer();
+
+// @ts-expect-error Optional resolution returns Logger | undefined.
+const logger: Logger = container.get(optional(LOGGER));
+```
+
+Next, learn how [containers and scopes](/concepts/containers-and-scopes) control
 ownership and lifetime.

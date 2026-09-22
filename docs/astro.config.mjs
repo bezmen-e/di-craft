@@ -13,6 +13,12 @@ const typeDocSeoPlugin = fileURLToPath(
 	new URL("./scripts/typedoc-seo.mjs", import.meta.url),
 );
 
+const coreApiLinks = {
+	Container: `${siteUrl}/api/di-craft/type-aliases/container/`,
+	Provider: `${siteUrl}/api/di-craft/type-aliases/provider/`,
+	Token: `${siteUrl}/api/di-craft/type-aliases/token/`,
+};
+
 const [coreTypeDoc, coreTypeDocSidebar] = createStarlightTypeDocPlugin();
 const [nodeTypeDoc, nodeTypeDocSidebar] = createStarlightTypeDocPlugin();
 const [nextServerTypeDoc, nextServerTypeDocSidebar] =
@@ -32,6 +38,15 @@ const typeDoc = {
 	plugin: [typeDocSeoPlugin],
 	readme: "none",
 	sort: ["source-order"],
+	treatValidationWarningsAsErrors: true,
+	validation: {
+		invalidLink: true,
+		invalidPath: true,
+		notDocumented: true,
+		notExported: true,
+		rewrittenLink: true,
+		unusedMergeModuleWith: true,
+	},
 };
 
 const plugins = [
@@ -48,7 +63,11 @@ const plugins = [
 		output: "api/node",
 		sidebar: { label: "di-craft/node" },
 		tsconfig: "../packages/di-craft/tsconfig/node.json",
-		typeDoc: { ...typeDoc, name: "Node.js API" },
+		typeDoc: {
+			...typeDoc,
+			externalSymbolLinkMappings: { "di-craft": coreApiLinks },
+			name: "Node.js API",
+		},
 		watch: true,
 	}),
 	nextServerTypeDoc({
@@ -56,7 +75,11 @@ const plugins = [
 		output: "api/next/server",
 		sidebar: { label: "di-craft/next/server" },
 		tsconfig: "../packages/di-craft/tsconfig/src.json",
-		typeDoc: { ...typeDoc, name: "Next.js server API" },
+		typeDoc: {
+			...typeDoc,
+			externalSymbolLinkMappings: { "di-craft": coreApiLinks },
+			name: "Next.js server API",
+		},
 		watch: true,
 	}),
 	nextClientTypeDoc({
@@ -64,7 +87,16 @@ const plugins = [
 		output: "api/next/client",
 		sidebar: { label: "di-craft/next/client" },
 		tsconfig: "../packages/di-craft/tsconfig/src.json",
-		typeDoc: { ...typeDoc, name: "Next.js client API" },
+		typeDoc: {
+			...typeDoc,
+			externalSymbolLinkMappings: {
+				"di-craft": {
+					...coreApiLinks,
+					DehydrateOptions: `${siteUrl}/api/next/server/type-aliases/dehydrateoptions/`,
+				},
+			},
+			name: "Next.js client API",
+		},
 		watch: true,
 	}),
 	starlightLlmsTxt({
@@ -72,9 +104,14 @@ const plugins = [
 		exclude: ["api/**"],
 		customSets: [
 			{
-				label: "Learn",
-				description: "Introduction and core concepts for di-craft.",
-				paths: ["introduction/**", "core/**"],
+				label: "Start here",
+				description: "Installation and a first dependency graph with di-craft.",
+				paths: ["start-here/**"],
+			},
+			{
+				label: "Concepts",
+				description: "The design and core concepts behind di-craft.",
+				paths: ["concepts/**"],
 			},
 			{
 				label: "Guides",
@@ -100,7 +137,7 @@ export default defineConfig({
 				"A small, type-safe dependency injection library for TypeScript.",
 			favicon: "/favicon.svg",
 			logo: {
-				src: "./src/assets/logo.svg",
+				src: "./public/favicon.svg",
 				alt: "",
 			},
 			head: [
@@ -146,7 +183,6 @@ export default defineConfig({
 			customCss: ["./src/styles/global.css"],
 			components: {
 				Hero: "./src/components/Hero.astro",
-				ThemeSelect: "./src/components/ThemeToggle.astro",
 			},
 			expressiveCode: {
 				themes: ["github-light", "github-dark"],
@@ -161,27 +197,37 @@ export default defineConfig({
 			sidebar: [
 				{ label: "Overview", link: "/" },
 				{
-					label: "Introduction",
-					collapsed: true,
-					items: [
-						"introduction/why-di-craft",
-						"introduction/installation",
-						"introduction/getting-started",
-					],
+					label: "Start here",
+					items: ["start-here/installation", "start-here/getting-started"],
 				},
 				{
-					label: "Core concepts",
+					label: "Concepts",
 					collapsed: true,
 					items: [
-						"core/tokens-and-providers",
-						"core/containers-and-scopes",
-						"core/disposal",
+						"concepts/why-di-craft",
+						"concepts/tokens-and-providers",
+						"concepts/containers-and-scopes",
+						"concepts/disposal",
 					],
 				},
 				{
 					label: "Guides",
 					collapsed: true,
-					items: ["guides/annotations", "guides/nextjs", "guides/nodejs"],
+					items: [
+						"guides/annotations",
+						"guides/nodejs",
+						{
+							label: "Next.js",
+							collapsed: true,
+							items: [
+								"guides/nextjs",
+								"guides/nextjs/server-components",
+								"guides/nextjs/route-handlers-and-actions",
+								"guides/nextjs/async-local-storage",
+								"guides/nextjs/hydration",
+							],
+						},
+					],
 				},
 				{
 					label: "API Reference",

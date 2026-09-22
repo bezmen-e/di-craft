@@ -19,19 +19,30 @@ export type OptionalDependency<T> = {
  */
 export type Dependency<T> = Token<T> | OptionalDependency<T>;
 
+/**
+ * Named dependency tokens accepted by a factory provider.
+ */
 export type DepsMap = Record<string, Dependency<unknown>>;
 
-type DependencyValue<TDep> =
+/** Value produced when the container resolves a dependency descriptor. */
+export type ResolvedDependency<TDep> =
 	TDep extends OptionalDependency<infer T>
 		? T | undefined
 		: TDep extends Token<infer T>
 			? T
 			: never;
 
+/**
+ * Values inferred from the tokens in a factory dependency map.
+ */
 export type ResolveDeps<TDeps extends DepsMap> = {
-	readonly [TKey in keyof TDeps]: DependencyValue<TDeps[TKey]>;
+	readonly [TKey in keyof TDeps]: ResolvedDependency<TDeps[TKey]>;
 };
 
+/**
+ * Factory function whose input is inferred from its dependency map.
+ *
+ */
 export type Factory<T, TDeps extends DepsMap> = (deps: ResolveDeps<TDeps>) => T;
 
 /**
@@ -71,6 +82,11 @@ export type FactoryProvider<T, TDeps extends DepsMap = Record<never, never>> = {
 	readonly onDispose?: DisposeHook<T>;
 };
 
+/**
+ * Internal wide factory-provider shape used by the public `Provider` union.
+ *
+ * @inline
+ */
 // biome-ignore lint/suspicious/noExplicitAny: the value type appears in contravariant position (onDispose) and deps are invariant, so any is required to keep specific FactoryProvider types assignable to the Provider union
 export type AnyFactoryProvider = FactoryProvider<any, any>;
 

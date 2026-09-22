@@ -1,22 +1,24 @@
+---
+// biome-ignore lint/correctness/noUnusedImports: Astro uses this import in the template below.
+import { LinkButton } from "@astrojs/starlight/components";
+---
+
 <section class="dc-hero">
 	<div class="dc-hero__copy">
+		<p class="dc-hero__eyebrow">
+			<span aria-hidden="true"></span>
+			Type-safe DI
+		</p>
 		<h1 id="_top" data-page-title>
-			<span class="dc-wordmark">di-craft</span>
-			<span>Type-safe DI for TypeScript.</span>
+			<span>Dependency injection</span>
+			<span class="dc-hero__accent">without runtime magic.</span>
 		</h1>
 		<p class="dc-hero__lead">
-			Explicit dependency graphs with full inference, predictable scopes, and zero
-			runtime magic.
+			A tiny, type-safe dependency injection container for TypeScript
 		</p>
 		<div class="dc-hero__actions">
-			<a class="dc-button dc-button--primary" href="/introduction/getting-started">Get started</a>
-			<a class="dc-button" href="/api/di-craft/readme">API reference</a>
-			<a class="dc-button" href="https://github.com/bezmen-e/di-craft">View on GitHub</a>
+			<LinkButton class="dc-button" href="/start-here/installation">Get started</LinkButton>
 		</div>
-	</div>
-
-	<div class="dc-hero__visual" aria-hidden="true">
-		<div class="dc-hero__glow" aria-hidden="true"></div>
-		<img src="/favicon.svg" alt="" />
+		<p class="dc-hero__meta">2.1 kB min+gzip · 0 runtime dependencies</p>
 	</div>
 </section>

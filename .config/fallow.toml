@@ -2,7 +2,6 @@ entry = [
 	"packages/di-craft/src/**/*.ts",
 	# Starlight loads these entry points from string paths in astro.config.mjs.
 	"docs/src/components/Hero.astro",
-	"docs/src/components/ThemeToggle.astro",
 	"docs/src/styles/global.css",
 	"docs/scripts/check-seo.mjs",
 	"docs/scripts/typedoc-seo.mjs",

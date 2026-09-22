@@ -7,14 +7,14 @@
 	},
 	"sections": [
 		{
-			"slug": "introduction",
-			"label": "Introduction",
-			"purpose": "Explain why di-craft exists, how to install it, and how to build a first dependency graph."
+			"slug": "start-here",
+			"label": "Start here",
+			"purpose": "Install di-craft and build a first dependency graph in under five minutes."
 		},
 		{
-			"slug": "core",
-			"label": "Core concepts",
-			"purpose": "Explain tokens, providers, containers, scopes, resolution, and resource disposal."
+			"slug": "concepts",
+			"label": "Concepts",
+			"purpose": "Explain explicit dependency injection, tokens, providers, containers, scopes, resolution, and resource disposal."
 		},
 		{
 			"slug": "guides",
@@ -30,24 +30,21 @@
 	"sourceMappings": [
 		{
 			"source": "packages/di-craft/package.json",
-			"docs": [
-				"introduction/installation",
-				"introduction/getting-started"
-			]
+			"docs": ["start-here/installation", "start-here/getting-started"]
 		},
 		{
 			"source": "packages/di-craft/src/core/token/**/*.ts",
-			"docs": ["core/tokens-and-providers", "api/di-craft"]
+			"docs": ["concepts/tokens-and-providers", "api/di-craft"]
 		},
 		{
 			"source": "packages/di-craft/src/core/provider/**/*.ts",
-			"docs": ["core/tokens-and-providers", "api/di-craft"]
+			"docs": ["concepts/tokens-and-providers", "api/di-craft"]
 		},
 		{
 			"source": "packages/di-craft/src/core/{container,registry,resolver,scope,store}/**/*.ts",
 			"docs": [
-				"core/containers-and-scopes",
-				"core/disposal",
+				"concepts/containers-and-scopes",
+				"concepts/disposal",
 				"api/di-craft"
 			]
 		},
@@ -57,11 +54,23 @@
 		},
 		{
 			"source": "packages/di-craft/src/adapters/node/**/*.ts",
-			"docs": ["guides/nodejs", "api/node"]
+			"docs": [
+				"guides/nodejs",
+				"guides/nextjs/async-local-storage",
+				"api/node"
+			]
 		},
 		{
 			"source": "packages/di-craft/src/adapters/next/**/*.ts",
-			"docs": ["guides/nextjs", "api/next/server", "api/next/client"]
+			"docs": [
+				"guides/nextjs",
+				"guides/nextjs/server-components",
+				"guides/nextjs/route-handlers-and-actions",
+				"guides/nextjs/async-local-storage",
+				"guides/nextjs/hydration",
+				"api/next/server",
+				"api/next/client"
+			]
 		}
 	],
 	"terminology": {
@@ -70,7 +79,7 @@
 		"request scope": ["request lifetime"]
 	},
 	"agentDocs": {
-		"quickReferencePage": "introduction/getting-started",
+		"quickReferencePage": "start-here/getting-started",
 		"llmsSmallExcludes": ["api"]
 	}
 }

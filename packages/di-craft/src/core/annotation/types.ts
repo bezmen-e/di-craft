@@ -1,18 +1,15 @@
-import type { Dependency, DisposeHook, OptionalDependency } from "../provider";
+import type { Dependency, DisposeHook, ResolvedDependency } from "../provider";
 import type { Scope } from "../scope";
 import type { Token } from "../token";
 
+/** @inline */
 type InjectableDeps = readonly Dependency<unknown>[];
 
-type DependencyValue<TDependency> =
-	TDependency extends OptionalDependency<infer T>
-		? T | undefined
-		: TDependency extends Token<infer T>
-			? T
-			: never;
-
+/**
+ * Constructor argument types inferred from an injectable dependency tuple.
+ */
 export type ResolveDependencyTuple<TDeps extends InjectableDeps> = {
-	-readonly [TKey in keyof TDeps]: DependencyValue<TDeps[TKey]>;
+	-readonly [TKey in keyof TDeps]: ResolvedDependency<TDeps[TKey]>;
 };
 
 /**

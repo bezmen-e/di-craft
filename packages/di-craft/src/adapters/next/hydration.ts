@@ -24,6 +24,7 @@ import type {
  *
  * @param options - Container and schema describing state to serialize.
  * @returns A serializable snapshot inferred from the schema.
+ * @throws `Error` when the schema contains a missing token.
  */
 export const dehydrate = <const TSchema extends HydrationSchema>(
 	options: DehydrateOptions<TSchema>,
@@ -61,6 +62,8 @@ export const dehydrate = <const TSchema extends HydrationSchema>(
  * ```
  *
  * @param options - Client container, matching schema, and server snapshot.
+ * @throws `Error` when the schema contains a missing token or the snapshot is
+ * missing a required key.
  */
 export const hydrate = <const TSchema extends HydrationSchema>(
 	options: HydrateOptions<TSchema>,

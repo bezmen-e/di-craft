@@ -1,0 +1,47 @@
+---
+title: Share request scope with AsyncLocalStorage
+description: Use the Node.js adapter in Next.js when deep async code needs request-local DI.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import CodeBlock from '../../../../components/CodeBlock.astro';
+import nextRuntimeExample from '../../../../../examples/node/next-runtime-als.ts?raw';
+
+Use `di-craft/node` for Node runtime entry points where nested async functions
+need the current request container without receiving it as an argument.
+
+## Create an app-local adapter
+
+```ts
+// app/di.node.ts
+import "server-only";
+import { createNodeDi } from "di-craft/node";
+
+export const { getRequestContainer, runWithRequestContainer } = createNodeDi({
+  providers,
+});
+```
+
+Wrap each Route Handler or Server Action once, then call
+`getRequestContainer()` from code running inside that scope.
+
+<CodeBlock code={nextRuntimeExample} title="examples/node/next-runtime-als.ts" />
+
+## Combine it with React cache
+
+`AsyncLocalStorage` owns request or tenant context and deterministic disposal.
+React `cache()` remains a separate render-pass deduplication layer:
+
+```txt
+AsyncLocalStorage -> request context and disposal
+React cache()     -> dedupe within one RSC render pass
+```
+
+<Aside type="caution" title="Do not reuse a disposed async scope">
+	Work scheduled after `runWithRequestContainer()` settles must receive plain
+	data or enter a fresh scope. This includes deferred callbacks such as Next.js
+	`after()`.
+</Aside>
+
+See [Node.js request scopes](/guides/nodejs) for the adapter's complete runtime,
+testing, and disposal rules.

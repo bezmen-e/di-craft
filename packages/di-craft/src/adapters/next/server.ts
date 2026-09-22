@@ -60,6 +60,7 @@ const assertServerRuntime = (): void => {
  *
  * @param options - React cache function and providers for the server adapter.
  * @returns Helpers for root, render-scoped, and explicit request containers.
+ * @throws `Error` when called in a browser runtime.
  */
 export const createNextDi = ({
 	cache,

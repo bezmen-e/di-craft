@@ -1,11 +1,10 @@
 ---
-title: Node.js
+title: Create Node.js request scopes
 description: Run request-scoped containers through Node.js AsyncLocalStorage.
 ---
 
 import CodeBlock from '../../../components/CodeBlock.astro';
 import asyncContextExample from '../../../../examples/node/async-context.ts?raw';
-import nextRuntimeExample from '../../../../examples/node/next-runtime-als.ts?raw';
 
 The Node adapter provides explicit async request scopes with
 `AsyncLocalStorage`.
@@ -75,40 +74,8 @@ from `di-craft/next/server` is usually enough. Reach for `di-craft/node` when
 nested Node async calls need to read the current request container with
 `getRequestContainer()`.
 
-That distinction matters in multi-tenant or resource-heavy entry points:
-
-```ts
-import { getRequestContainer, runWithRequestContainer } from "@/lib/di.node";
-
-export async function POST(request: Request) {
-  const tenantId = request.headers.get("x-tenant-id") ?? "public";
-
-  return runWithRequestContainer({
-    providers: [provideValue(TENANT_ID, tenantId)],
-    run: async () => {
-      return createPostFromDeepCode();
-    },
-  });
-}
-
-const createPostFromDeepCode = async () => {
-  const posts = getRequestContainer().get(POSTS_SERVICE);
-
-  return posts.create();
-};
-```
-
-`@/lib/di.node` is your app-local composition module. It imports
-`createNodeDi()` from `di-craft/node`, calls it with your providers, and exports
-the returned `getRequestContainer()` and `runWithRequestContainer()` helpers.
-
-The full Next.js Node runtime example shows the entry point wrapper and deep
-`getRequestContainer()` pattern:
-
-<CodeBlock code={nextRuntimeExample} title="examples/node/next-runtime-als.ts" />
-
-Use `React.cache()` separately for RSC-only dedupe while `AsyncLocalStorage`
-owns request/tenant context and disposal.
+For the full Next.js entry-point pattern, see
+[Share request scope with AsyncLocalStorage](/guides/nextjs/async-local-storage).
 
 ## Disposal
 
@@ -129,10 +96,10 @@ Do not start detached async work that later calls `getRequestContainer()` from
 inside the callback. Pass the plain data it needs, or await that work before the
 callback returns, so it does not read from a disposed request container.
 
-Next.js post-action work scheduled with `after()` may inherit the runtime async
-context, but di-craft marks that request scope inactive after disposal. Calling
-`getRequestContainer()` from the deferred callback throws
-`NodeRequestScopeError`. Re-enter a new scope or pass plain values to that work.
+Deferred work may inherit the runtime async context, but di-craft marks that
+request scope inactive after disposal. Calling `getRequestContainer()` from the
+deferred callback throws `NodeRequestScopeError`. Re-enter a new scope or pass
+plain values to that work.
 
 ## Testing
 

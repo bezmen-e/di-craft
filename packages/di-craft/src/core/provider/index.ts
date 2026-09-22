@@ -12,9 +12,11 @@ export type {
 	Dependency,
 	DepsMap,
 	DisposeHook,
+	Factory,
 	FactoryProvider,
 	OptionalDependency,
 	Provider,
 	ResolveDeps,
+	ResolvedDependency,
 	ValueProvider,
 } from "./types";
