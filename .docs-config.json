@@ -54,11 +54,7 @@
 		},
 		{
 			"source": "packages/di-craft/src/adapters/node/**/*.ts",
-			"docs": [
-				"guides/nodejs",
-				"guides/nextjs/async-local-storage",
-				"api/node"
-			]
+			"docs": ["guides/nodejs", "guides/nextjs/async-local-storage", "api/node"]
 		},
 		{
 			"source": "packages/di-craft/src/adapters/next/**/*.ts",

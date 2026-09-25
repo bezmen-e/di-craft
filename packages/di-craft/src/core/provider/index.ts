@@ -7,7 +7,6 @@ export {
 	provideFactory,
 	provideValue,
 } from "./provider";
-
 export type {
 	Dependency,
 	DepsMap,

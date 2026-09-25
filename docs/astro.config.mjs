@@ -1,6 +1,7 @@
 // @ts-check
 
 import { fileURLToPath } from "node:url";
+
 import mdx from "@astrojs/mdx";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
