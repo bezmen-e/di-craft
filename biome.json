@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.5.12/schema.json",
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -10,25 +10,98 @@
 	},
 	"formatter": {
 		"enabled": true,
+		"formatWithErrors": false,
 		"indentStyle": "tab",
-		"indentWidth": 2
+		"indentWidth": 2,
+		"lineEnding": "lf",
+		"lineWidth": 80
 	},
 	"linter": {
 		"enabled": true,
+		"domains": {
+			"astro": "recommended",
+			"project": "recommended",
+			"test": "recommended"
+		},
 		"rules": {
-			"preset": "recommended"
+			"preset": "recommended",
+			"correctness": {
+				"noUndeclaredDependencies": "error",
+				"noUnusedImports": "error",
+				"noUnusedVariables": "error"
+			},
+			"nursery": {
+				"noFloatingPromises": "error"
+			},
+			"style": {
+				"noInferrableTypes": "error",
+				"noParameterAssign": "error",
+				"noUnusedTemplateLiteral": "error",
+				"noUselessElse": "error",
+				"useAsConstAssertion": "error",
+				"useConst": "error",
+				"useDefaultParameterLast": "error",
+				"useEnumInitializers": "error",
+				"useImportType": {
+					"level": "error",
+					"options": {
+						"style": "auto"
+					}
+				},
+				"useNodejsImportProtocol": "error",
+				"useNumberNamespace": "error",
+				"useSelfClosingElements": "error",
+				"useSingleVarDeclarator": "error",
+				"useTemplate": "error"
+			},
+			"suspicious": {
+				"noExplicitAny": "error",
+				"noImportCycles": "error",
+				"noVar": "error"
+			}
 		}
 	},
 	"javascript": {
 		"formatter": {
-			"quoteStyle": "double"
+			"arrowParentheses": "always",
+			"bracketSameLine": false,
+			"bracketSpacing": true,
+			"jsxQuoteStyle": "double",
+			"quoteProperties": "asNeeded",
+			"quoteStyle": "double",
+			"semicolons": "always",
+			"trailingCommas": "all"
+		}
+	},
+	"json": {
+		"formatter": {
+			"trailingCommas": "none"
 		}
 	},
 	"assist": {
 		"enabled": true,
 		"actions": {
 			"source": {
-				"organizeImports": "on"
+				"organizeImports": {
+					"level": "on",
+					"options": {
+						"groups": [
+							[":BUN:", ":NODE:"],
+							":BLANK_LINE:",
+							[
+								":PACKAGE:",
+								":PACKAGE_WITH_PROTOCOL:",
+								"!di-craft",
+								"!di-craft/**"
+							],
+							":BLANK_LINE:",
+							["di-craft", "di-craft/**"],
+							":BLANK_LINE:",
+							[":ALIAS:", ":PATH:"]
+						],
+						"sortBareImports": false
+					}
+				}
 			}
 		}
 	},

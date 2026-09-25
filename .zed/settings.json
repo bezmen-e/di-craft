@@ -1,0 +1,152 @@
+{
+	"languages": {
+		"Astro": {
+			"code_actions_on_format": {
+				"source.fixAll.biome": true,
+				"source.organizeImports.biome": true
+			},
+			"format_on_save": "on",
+			"formatter": {
+				"language_server": {
+					"name": "biome"
+				}
+			},
+			"preferred_line_length": 80
+		},
+		"CSS": {
+			"format_on_save": "on",
+			"formatter": {
+				"language_server": {
+					"name": "biome"
+				}
+			},
+			"preferred_line_length": 80
+		},
+		"JSON": {
+			"format_on_save": "on",
+			"formatter": {
+				"language_server": {
+					"name": "biome"
+				}
+			},
+			"preferred_line_length": 80
+		},
+		"JSONC": {
+			"format_on_save": "on",
+			"formatter": {
+				"language_server": {
+					"name": "biome"
+				}
+			},
+			"preferred_line_length": 80
+		},
+		"JSX": {
+			"code_actions_on_format": {
+				"source.fixAll.biome": true,
+				"source.organizeImports.biome": true
+			},
+			"format_on_save": "on",
+			"formatter": {
+				"language_server": {
+					"name": "biome"
+				}
+			},
+			"preferred_line_length": 80,
+			"prettier": {
+				"allowed": false
+			}
+		},
+		"JavaScript": {
+			"code_actions_on_format": {
+				"source.fixAll.biome": true,
+				"source.organizeImports.biome": true
+			},
+			"format_on_save": "on",
+			"formatter": {
+				"language_server": {
+					"name": "biome"
+				}
+			},
+			"preferred_line_length": 80,
+			"prettier": {
+				"allowed": false
+			}
+		},
+		"TSX": {
+			"code_actions_on_format": {
+				"source.fixAll.biome": true,
+				"source.organizeImports.biome": true
+			},
+			"format_on_save": "on",
+			"formatter": {
+				"language_server": {
+					"name": "biome"
+				}
+			},
+			"preferred_line_length": 80,
+			"prettier": {
+				"allowed": false
+			}
+		},
+		"TypeScript": {
+			"code_actions_on_format": {
+				"source.fixAll.biome": true,
+				"source.organizeImports.biome": true
+			},
+			"format_on_save": "on",
+			"formatter": {
+				"language_server": {
+					"name": "biome"
+				}
+			},
+			"preferred_line_length": 80,
+			"prettier": {
+				"allowed": false
+			}
+		}
+	},
+	"lsp": {
+		"biome": {
+			"settings": {
+				"require_config_file": true
+			}
+		},
+		"vtsls": {
+			"settings": {
+				"javascript": {
+					"preferences": {
+						"autoImportFileExcludePatterns": [
+							"**/.astro/**",
+							"**/.var/**",
+							"**/dist/**"
+						],
+						"importModuleSpecifier": "project-relative",
+						"importModuleSpecifierEnding": "minimal",
+						"includePackageJsonAutoImports": "on",
+						"quoteStyle": "double"
+					},
+					"suggest": {
+						"autoImports": true
+					}
+				},
+				"typescript": {
+					"preferences": {
+						"autoImportFileExcludePatterns": [
+							"**/.astro/**",
+							"**/.var/**",
+							"**/dist/**"
+						],
+						"importModuleSpecifier": "project-relative",
+						"importModuleSpecifierEnding": "minimal",
+						"includePackageJsonAutoImports": "on",
+						"preferTypeOnlyAutoImports": true,
+						"quoteStyle": "double"
+					},
+					"suggest": {
+						"autoImports": true
+					}
+				}
+			}
+		}
+	}
+}

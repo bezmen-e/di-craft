@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { provideFactory, provideValue } from "../provider";
 import { createToken } from "../token";
 import { createRegistry, DuplicateProviderError } from ".";

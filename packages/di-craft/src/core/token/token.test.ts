@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+
 import { createToken } from "./token";
 
 describe("createToken", () => {

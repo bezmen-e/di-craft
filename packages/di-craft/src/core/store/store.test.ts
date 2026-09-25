@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { createToken } from "../token";
 import { createStore } from "./store";
 
