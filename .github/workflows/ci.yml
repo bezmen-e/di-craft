@@ -16,7 +16,7 @@ concurrency:
 jobs:
   checks:
     name: Checks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
       actions: read # Required by zizmor to inspect workflow metadata.
