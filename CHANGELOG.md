@@ -10,6 +10,8 @@ Entries before `0.0.34` were reconstructed from the Git history.
 
 ## [Unreleased]
 
+## [0.0.35] - 2026-11-12
+
 ### Changed
 
 - Simplified `provideFactory` provider object construction (internal refactor,
@@ -153,6 +155,7 @@ Entries before `0.0.34` were reconstructed from the Git history.
 
 - Initial releases; npm publishing pipeline iterations.
 
-[Unreleased]: https://github.com/bezmen-e/di-craft/compare/v0.0.34...HEAD
+[Unreleased]: https://github.com/bezmen-e/di-craft/compare/v0.0.35...HEAD
+[0.0.35]: https://github.com/bezmen-e/di-craft/releases/tag/v0.0.35
 [0.0.34]: https://github.com/bezmen-e/di-craft/releases/tag/v0.0.34
 [0.0.33]: https://github.com/bezmen-e/di-craft/releases/tag/v0.0.33
