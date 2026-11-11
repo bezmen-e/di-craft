@@ -5,6 +5,7 @@ description: Run request-scoped containers through Node.js AsyncLocalStorage.
 
 import CodeBlock from '../../../components/CodeBlock.astro';
 import asyncContextExample from '../../../../examples/node/async-context.ts?raw';
+import requestContextExample from '../../../../examples/node/request-context.ts?raw';
 
 The Node adapter provides explicit async request scopes with
 `AsyncLocalStorage`.
@@ -54,6 +55,25 @@ returns. Async work started inside the scope can keep the `AsyncLocalStorage`
 store, but `runWithRequestContainer()` disposes the request container as soon as
 the callback settles.
 
+## Vary providers per request
+
+`runWithRequestContainer()` and `createRequestContainer()` accept an optional
+`context` that is forwarded to `requestProviders`. Use it to register a
+different provider set per kind of request without creating separate adapters:
+
+<CodeBlock code={requestContextExample} title="examples/node/request-context.ts" />
+
+The classification itself — human, search crawler, or link-preview bot — stays
+in your application; di-craft only carries the value. Providers that are not
+registered are never instantiated, so body-only services simply do not exist
+for a preview render.
+
+A scope created without a context provides `undefined` to `requestProviders`.
+In Next.js, an RSC render pass carries no request metadata, so
+`getRequestContainer()` from `di-craft/next/server` always provides `undefined`
+there; context flows through the explicit `runWithRequestContainer()` and
+`createRequestContainer()` paths.
+
 ## Relationship With Next.js
 
 `di-craft/node` and `di-craft/next/server` solve different scope boundaries:
@@ -100,6 +120,14 @@ Deferred work may inherit the runtime async context, but di-craft marks that
 request scope inactive after disposal. Calling `getRequestContainer()` from the
 deferred callback throws `NodeRequestScopeError`. Re-enter a new scope or pass
 plain values to that work.
+
+## Timeouts under load
+
+A stalled event loop can fire a timer before it handles a response that already
+arrived, so a timeout guarding request-scoped work can misfire even when the
+upstream service answered quickly. When timeouts misfire under load, spread the
+same traffic across more workers or make renders cheaper instead of tightening
+the timeout budget.
 
 ## Testing
 

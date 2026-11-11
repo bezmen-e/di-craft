@@ -40,20 +40,24 @@ export type {
  * immediately after that callback settles. Deferred work, including callbacks
  * registered with Next.js `after`, must enter a fresh request scope.
  *
+ * The `context` passed to a scope is forwarded to `requestProviders`, so each
+ * kind of request can register a different provider set.
+ *
  * @param options - Root and per-request providers for this adapter instance.
  * @returns Helpers for root access and AsyncLocalStorage-backed request scopes.
  */
-export const createNodeDi = ({
+export const createNodeDi = <TContext = undefined>({
 	providers: rootProviders = [],
 	requestProviders,
-}: CreateNodeDiOptions = {}): NodeDiAdapter => {
+}: CreateNodeDiOptions<TContext> = {}): NodeDiAdapter<TContext> => {
 	const storage = new AsyncLocalStorage<RequestScope>();
 	const rootContainer = createContainer(rootProviders);
 	const createRequestContainer = (
 		extraProviders: readonly Provider[] = [],
+		context?: TContext,
 	): Container =>
 		createChildContainer(rootContainer, [
-			...(requestProviders?.() ?? []),
+			...(requestProviders?.(context) ?? []),
 			...extraProviders,
 		]);
 
@@ -73,9 +77,12 @@ export const createNodeDi = ({
 
 	const runWithRequestContainer = async <TResult>({
 		providers: extraProviders = [],
+		context,
 		run,
-	}: RunWithRequestContainerOptions<TResult>): Promise<Awaited<TResult>> => {
-		const container = createRequestContainer(extraProviders);
+	}: RunWithRequestContainerOptions<TResult, TContext>): Promise<
+		Awaited<TResult>
+	> => {
+		const container = createRequestContainer(extraProviders, context);
 		const requestScope: RequestScope = { active: true, container };
 
 		return await storage.run(requestScope, async () => {

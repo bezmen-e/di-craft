@@ -34,3 +34,8 @@ The same helper gives each Server Action its own explicit scope:
 the callback argument through your code, or use
 [AsyncLocalStorage](/guides/nextjs/async-local-storage) when deep calls need to
 read the current request container.
+
+`runWithRequestContainer()` and `createRequestContainer()` also accept an
+optional `context` forwarded to `requestProviders`, so each kind of request can
+register a different provider set. See
+[Vary providers per request](/guides/nodejs#vary-providers-per-request).

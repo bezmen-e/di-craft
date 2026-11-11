@@ -222,6 +222,44 @@ describe("next/server", () => {
 		});
 	});
 
+	test("passes request context to requestProviders for explicit scopes", async () => {
+		type Audience = "human" | "preview";
+		const TIMELINE = createToken<string>("TIMELINE");
+
+		const di = createNextDi<Audience>({
+			cache: requestCache,
+			requestProviders: (context) =>
+				context === "preview" ? [] : [provideValue(TIMELINE, "full timeline")],
+		});
+
+		await di.runWithRequestContainer({
+			context: "preview",
+			run: async (container) => {
+				expect(container.has(TIMELINE)).toBe(false);
+			},
+		});
+
+		expect(di.createRequestContainer([], "human").get(TIMELINE)).toBe(
+			"full timeline",
+		);
+	});
+
+	test("creates RSC render containers without request metadata", () => {
+		const seen: Array<string | undefined> = [];
+
+		const di = createNextDi<string>({
+			cache: requestCache,
+			requestProviders: (context) => {
+				seen.push(context);
+				return [];
+			},
+		});
+
+		di.getRequestContainer();
+
+		expect(seen).toEqual([undefined]);
+	});
+
 	test("throws when imported server helper is used in a browser runtime", () => {
 		const descriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
 
