@@ -76,7 +76,8 @@ Releases flow through Changesets and the single Release workflow:
    `patch` while the library is versioned `0.0.x`).
 2. Merging to `main` makes the Release workflow open or update the Version
    Packages pull request: it consumes the changeset files, bumps
-   `packages/di-craft/package.json`, and generates `CHANGELOG.md`.
+   `packages/di-craft/package.json`, and generates
+   `packages/di-craft/CHANGELOG.md`.
 3. Merging that pull request runs the workflow again with no changesets left:
    it builds the library and stages the package on npm (`npm stage publish`)
    through OIDC trusted publishing. `scripts/stage-publish.mjs` skips every
