@@ -7,6 +7,7 @@ import { Steps } from '@astrojs/starlight/components';
 import CodeBlock from '../../../../components/CodeBlock.astro';
 import hydrationExample from '../../../../../examples/next/hydration.ts?raw';
 import partialHydrationExample from '../../../../../examples/hydration/partial-boundaries.ts?raw';
+import lateConsumersExample from '../../../../../examples/hydration/late-consumers.ts?raw';
 
 The server container never crosses the React Server Component boundary. Transfer
 only a serializable snapshot and restore it into a separate client-safe
@@ -79,6 +80,44 @@ hydrate it on the client as soon as its snapshot arrives:
 <CodeBlock
   code={partialHydrationExample}
   title="examples/hydration/partial-boundaries.ts"
+/>
+
+## Hold snapshots for late consumers
+
+A streamed snapshot can arrive before the component that needs it mounts: a
+dialog or tab opened seconds after the page rendered still wants the data the
+page already received. `createSnapshotBus` parks delivered snapshots for a
+short time — 30 seconds by default — so late consumers hydrate without
+refetching:
+
+```ts
+const snapshots = createSnapshotBus();
+
+// When the streamed snapshot arrives:
+snapshots.push(conversationSchema, snapshot);
+
+// When a dialog mounts later:
+const cached = snapshots.pull(conversationSchema);
+if (cached !== undefined) {
+  hydrate({
+    container: clientContainer,
+    schema: conversationSchema,
+    snapshot: cached,
+  });
+}
+```
+
+- The schema object is the key, so share one stable schema reference between
+  the pushing and pulling code.
+- Pulling does not remove the entry; several late consumers can hydrate from
+  one snapshot. Pushing again replaces it and resets the time to live.
+- Expiration is lazy and the bus never schedules timers, so it is safe in
+  every runtime. Pass `ttl` (milliseconds) to change that window, or a `now`
+  clock to make expiration deterministic in tests.
+
+<CodeBlock
+  code={lateConsumersExample}
+  title="examples/hydration/late-consumers.ts"
 />
 
 Let Suspense, `loading.js`, and React's `use` model control the rendering

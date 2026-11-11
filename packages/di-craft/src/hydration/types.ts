@@ -81,3 +81,61 @@ export type HydrateOptions<TSchema extends HydrationSchema> =
 		 */
 		readonly snapshot: HydrationSnapshot<TSchema>;
 	};
+
+/**
+ * Options for `createSnapshotBus`.
+ */
+export type SnapshotBusOptions = {
+	/**
+	 * How long a pushed snapshot stays readable, in milliseconds. Pushing the
+	 * same schema again resets its remaining time.
+	 *
+	 * @defaultValue `30_000`
+	 */
+	readonly ttl?: number;
+	/**
+	 * Clock used to age entries. Override it for deterministic tests.
+	 *
+	 * @defaultValue `Date.now`
+	 */
+	readonly now?: () => number;
+};
+
+/**
+ * Short-lived holder for snapshots that arrived before their consumers.
+ *
+ * A streamed snapshot can be delivered before the component that needs it
+ * mounts, for example a dialog opened seconds after the page rendered. The bus
+ * keeps such snapshots readable for a limited time so late consumers can
+ * hydrate without refetching. Entries expire lazily; the bus never schedules
+ * timers, so it is safe in every runtime.
+ */
+export type SnapshotBus = {
+	/**
+	 * Stores a snapshot for a schema, replacing any previous one and resetting
+	 * its time to live. The schema object itself is the key, so it must be a
+	 * stable reference shared by the pushing and pulling code.
+	 */
+	push<TSchema extends HydrationSchema>(
+		schema: TSchema,
+		snapshot: HydrationSnapshot<TSchema>,
+	): void;
+	/**
+	 * Returns the stored snapshot for a schema, or `undefined` when nothing was
+	 * pushed for it or its time to live has elapsed. Reading does not remove
+	 * the entry, so several late consumers can hydrate from one snapshot.
+	 */
+	pull<TSchema extends HydrationSchema>(
+		schema: TSchema,
+	): HydrationSnapshot<TSchema> | undefined;
+	/**
+	 * Removes the snapshot stored for a schema. Returns `true` when a live
+	 * snapshot was removed; expired entries count as already gone, matching
+	 * `pull`.
+	 */
+	delete(schema: HydrationSchema): boolean;
+	/**
+	 * Removes every stored snapshot.
+	 */
+	clear(): void;
+};
