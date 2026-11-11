@@ -16,6 +16,18 @@ Entries before `0.0.34` were reconstructed from the Git history.
   no API changes).
 - Rewrote resolver host selection as an exhaustive switch (internal refactor,
   no API changes).
+- Optimized the resolver hot path (measured by the public benchmark suite,
+  median of 14 balanced rounds, Apple M5 Pro / Bun 1.4.2):
+  - deep graph (10 levels) resolve: 272.9 → 181.7 ns/op (−33%);
+  - wide graph (10 dependencies) resolve: 154.2 → 122.5 ns/op (−21%);
+  - first resolve: 225.4 → 183.3 ns/op (−19%);
+  - transient resolve: 38.7 → 32.6 ns/op (−16%);
+  - wide graph (4 dependencies) resolve: 64.1 → 54.1 ns/op (−16%).
+
+  Internals: dependency iteration without key-array allocation, inlined
+  dependency recursion, lazily allocated shared resolution context, inlined
+  scope-host selection, and a lazily allocated instance store. No public API
+  changes.
 
 ### Added
 
