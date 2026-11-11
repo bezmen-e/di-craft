@@ -11,8 +11,12 @@ in [our documentation](https://github.com/changesets/changesets/blob/main/docs/c
 
 - Every user-facing change ships with a changeset file: `bun run changeset` (choose `patch` —
   the library is versioned `0.0.x`, and features bump the patch digit).
-- The release workflow opens a "Version Packages" pull request that consumes the changeset
-  files, bumps `packages/di-craft/package.json`, and writes the `CHANGELOG.md` entry.
-- Publishing stays tag-triggered: after merging the release pull request, push a `vX.Y.Z` tag
-  and the `publish.yaml` workflow stages the npm package with trusted publishing.
-- Do not edit `CHANGELOG.md` by hand; it is generated from changesets.
+- Merging to `main` makes the Release workflow open or update a "Version Packages" pull
+  request that consumes the changeset files, bumps `packages/di-craft/package.json`, and
+  writes the `CHANGELOG.md` entry.
+- Merging the version pull request makes the same workflow build the library and stage it
+  on npm (`npm stage publish`, trusted publishing, no 2FA needed in CI).
+- Approve the staged release on npmjs.com with 2FA to publish it, then push the matching
+  `vX.Y.Z` tag and dispatch the Docs workflow to deploy the site.
+- Do not edit `CHANGELOG.md` by hand; it is generated from changesets. Biome ignores
+  `.changeset/*.md` because its Markdown formatter does not understand the frontmatter.
