@@ -70,8 +70,10 @@ mise run //docs:build
 The `benchmarks/` workspace compares `di-craft` with six DI subjects using the
 InferDI methodology: isolated per-subject processes, balanced rounds, and
 median/MAD aggregation. Results are recorded as JSON under
-`benchmarks/results/` and rendered to Markdown with the report task. Quick runs
-are for local iteration only; publishable claims use `benchmarks:public`.
+`benchmarks/results/` and rendered to Markdown with the report task. The docs
+performance page embeds an interactive SVG chart generated from the same
+publishable result with `benchmarks:chart`. Quick runs are for local iteration
+only; publishable claims use `benchmarks:public`.
 
 ```sh
 bun run benchmarks:install

@@ -10,6 +10,7 @@
 		"bench:quick": "bun run scripts/run-benchmarks.ts --mode quick",
 		"bench:public": "bun run scripts/run-benchmarks.ts --mode public",
 		"bench:report": "bun run scripts/report-benchmarks.ts",
+		"bench:chart": "bun run scripts/render-performance-chart.ts",
 		"precondition": "bun test src/precondition",
 		"test": "bun test src/precondition src/runner scripts",
 		"typecheck": "tsc --noEmit"

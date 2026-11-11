@@ -9,6 +9,7 @@
 	],
 	"scripts": {
 		"benchmarks:bench": "mise run //benchmarks:quick",
+		"benchmarks:chart": "mise run //benchmarks:chart --",
 		"benchmarks:install": "mise run //benchmarks:install",
 		"benchmarks:precondition": "mise run //benchmarks:precondition",
 		"benchmarks:public": "mise run //benchmarks:public",

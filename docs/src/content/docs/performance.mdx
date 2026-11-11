@@ -3,6 +3,8 @@ title: Performance
 description: Recorded benchmark results against six TypeScript DI containers, the measurement design behind them, and how to reproduce the runs.
 ---
 
+import PerformanceChart from "../../components/PerformanceChart.astro";
+
 ## Recorded Result
 
 In the public run recorded on **2026-11-11**, `di-craft` resolved a hot
@@ -12,6 +14,13 @@ median. These figures measure container overhead, not HTTP throughput or total
 application performance. The
 [raw result](https://github.com/bezmen-e/di-craft/blob/main/benchmarks/results/public-2026-11-11T14-57-42-521Z.json)
 contains all fourteen rounds and the environment metadata.
+
+Select a scenario to compare all seven containers. Bars show the median
+`ns/op` across the fourteen balanced rounds on a per-scenario linear scale;
+lower is better.
+
+<PerformanceChart />
+
 
 A warm resolve reads one `Map` entry keyed by the token's `symbol` id and
 returns the cached instance before any cycle or lifetime bookkeeping runs. The
@@ -182,6 +191,8 @@ The benchmark workspace is intentionally isolated from the root Bun workspace
 and owns its comparison dependencies in `benchmarks/bun.lock`. Quick results
 are for local iteration and must not be used for public claims; publishable
 numbers come from `benchmarks:public` and are rendered with
-`bun run benchmarks:report`. See the
+`bun run benchmarks:report`. The interactive chart on this page is generated
+from the same publishable result with `bun run benchmarks:chart` and lives in
+`docs/src/assets/performance-chart.svg`. See the
 [benchmark workspace README](https://github.com/bezmen-e/di-craft/blob/main/benchmarks/README.md)
 for methodology, fairness notes, and fixture sources.

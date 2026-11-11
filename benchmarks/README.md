@@ -52,6 +52,13 @@ After reviewing a public result, update the internal report in this README:
 bun run benchmarks:report -- results/public-<timestamp>.json --write
 ```
 
+Regenerate the interactive SVG chart on the documentation performance page
+(written to `docs/src/assets/performance-chart.svg`):
+
+```bash
+bun run benchmarks:chart -- results/public-<timestamp>.json
+```
+
 Lower values are better. Ratios describe DI operations in these synthetic
 scenarios, not whole-application speedups.
 

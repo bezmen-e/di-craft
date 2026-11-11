@@ -61,3 +61,7 @@ run = "bun run bench:public"
 [tasks.report]
 description = "Render a benchmark result as Markdown"
 run = "bun run bench:report --"
+
+[tasks.chart]
+description = "Render a benchmark result as the docs SVG chart"
+run = "bun run bench:chart --"

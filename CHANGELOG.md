@@ -34,8 +34,9 @@ Entries before `0.0.34` were reconstructed from the Git history.
 - Comparative benchmark workspace under `benchmarks/`, adapted from the InferDI
   benchmark methodology: per-subject process isolation, balanced rounds,
   median/MAD aggregation, and reproducible JSON results.
-- Performance guide on the documentation site with the recorded public
-  benchmark results and measurement design.
+- Performance page on the documentation site with the recorded public
+  benchmark results, an interactive comparison chart generated from the raw
+  result, and the measurement design.
 - This changelog.
 
 ### Removed

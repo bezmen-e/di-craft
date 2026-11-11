@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { relative, resolve } from "node:path";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { required } from "../src/invariant.ts";
@@ -9,6 +9,7 @@ import type {
 	BenchmarkRun,
 } from "../src/results.ts";
 import { median } from "../src/statistics.ts";
+import { readRun } from "./read-run.ts";
 
 const benchmarkRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const reportStart = "<!-- benchmark-report:start -->";
@@ -313,7 +314,7 @@ export function validateRaw(raw: BenchmarkRun): void {
 	}
 }
 
-function formatNumber(value: number): string {
+export function formatNumber(value: number): string {
 	if (value >= 1000) return value.toFixed(1);
 	if (value >= 100) return value.toFixed(2);
 	return value.toFixed(3);
@@ -337,12 +338,7 @@ async function main(): Promise<void> {
 			"Usage: bun run scripts/report-benchmarks.ts <raw.json> [--write]",
 		);
 
-	const inputPath = resolve(process.cwd(), input);
-	const raw = JSON.parse(readFileSync(inputPath, "utf8")) as BenchmarkRun;
-	const relativeSource = relative(benchmarkRoot, inputPath);
-	const sourceName = relativeSource.startsWith("..")
-		? inputPath
-		: relativeSource;
+	const { raw, sourceName } = readRun(input);
 	const report = renderReport(raw, sourceName);
 	if (report !== renderReport(raw, sourceName))
 		throw new Error("Report generation is not deterministic");

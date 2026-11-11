@@ -217,7 +217,6 @@ export default defineConfig({
 					items: [
 						"guides/annotations",
 						"guides/nodejs",
-						"guides/performance",
 						{
 							label: "Next.js",
 							collapsed: true,
@@ -231,6 +230,7 @@ export default defineConfig({
 						},
 					],
 				},
+				{ label: "Performance", link: "/performance/" },
 				{
 					label: "API Reference",
 					collapsed: true,
