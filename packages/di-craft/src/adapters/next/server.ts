@@ -46,6 +46,11 @@ const assertServerRuntime = (): void => {
  * import React itself; pass `cache` from `react` so React/Next owns render
  * memoization.
  *
+ * The `context` passed to `runWithRequestContainer` or `createRequestContainer`
+ * is forwarded to `requestProviders`, so each kind of request can register a
+ * different provider set. An RSC render pass carries no request metadata, so
+ * the cached `getRequestContainer` always resolves without one.
+ *
  * @example
  * ```ts
  * import "server-only";
@@ -62,21 +67,24 @@ const assertServerRuntime = (): void => {
  * @returns Helpers for root, render-scoped, and explicit request containers.
  * @throws `Error` when called in a browser runtime.
  */
-export const createNextDi = ({
+export const createNextDi = <TContext = undefined>({
 	cache,
 	providers = [],
 	requestProviders,
-}: CreateNextDiOptions): NextDiAdapter => {
+}: CreateNextDiOptions<TContext>): NextDiAdapter<TContext> => {
 	assertServerRuntime();
 
 	const rootContainer = createContainer(providers);
 	const createRequestContainer = (
 		providers: readonly Provider[] = [],
+		context?: TContext,
 	): Container =>
 		createChildContainer(rootContainer, [
-			...(requestProviders?.() ?? []),
+			...(requestProviders?.(context) ?? []),
 			...providers,
 		]);
+	// An RSC render pass carries no request metadata, so the cached render
+	// container is always created without a context.
 	const getRequestContainer = cache(() => createRequestContainer());
 
 	return {
@@ -85,9 +93,12 @@ export const createNextDi = ({
 		createRequestContainer,
 		runWithRequestContainer: async <TResult>({
 			providers = [],
+			context,
 			run,
-		}: RunWithRequestContainerOptions<TResult>): Promise<Awaited<TResult>> => {
-			const container = createRequestContainer(providers);
+		}: RunWithRequestContainerOptions<TResult, TContext>): Promise<
+			Awaited<TResult>
+		> => {
+			const container = createRequestContainer(providers, context);
 
 			try {
 				return await run(container);

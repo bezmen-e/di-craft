@@ -197,4 +197,63 @@ describe("node/server", () => {
 		).rejects.toThrow("Request failed.");
 		expect(disposed).toEqual([1]);
 	});
+
+	test("passes request context to requestProviders", async () => {
+		type Audience = "human" | "preview";
+		const TIMELINE = createToken<string>("TIMELINE");
+
+		const di = createNodeDi<Audience>({
+			requestProviders: (context) =>
+				context === "preview" ? [] : [provideValue(TIMELINE, "full timeline")],
+		});
+
+		await di.runWithRequestContainer({
+			context: "preview",
+			run: async (container) => {
+				expect(container.has(TIMELINE)).toBe(false);
+			},
+		});
+
+		await di.runWithRequestContainer({
+			context: "human",
+			run: async (container) => {
+				expect(container.get(TIMELINE)).toBe("full timeline");
+			},
+		});
+	});
+
+	test("forwards undefined context when a scope has none", async () => {
+		const seen: Array<string | undefined> = [];
+		const di = createNodeDi<string>({
+			requestProviders: (context) => {
+				seen.push(context);
+				return [];
+			},
+		});
+
+		await di.runWithRequestContainer({
+			run: async () => {},
+		});
+		await di.runWithRequestContainer({
+			context: "request-1",
+			run: async () => {},
+		});
+
+		expect(seen).toEqual([undefined, "request-1"]);
+	});
+
+	test("creates manual request containers with a context", () => {
+		type Audience = "human" | "preview";
+		const TIMELINE = createToken<string>("TIMELINE");
+
+		const di = createNodeDi<Audience>({
+			requestProviders: (context) =>
+				context === "preview" ? [] : [provideValue(TIMELINE, "full timeline")],
+		});
+
+		expect(di.createRequestContainer([], "preview").has(TIMELINE)).toBe(false);
+		expect(di.createRequestContainer([], "human").get(TIMELINE)).toBe(
+			"full timeline",
+		);
+	});
 });
