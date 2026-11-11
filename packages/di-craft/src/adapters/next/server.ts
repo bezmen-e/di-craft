@@ -13,7 +13,7 @@ import type {
 	RunWithRequestContainerOptions,
 } from "./types";
 
-export { dehydrate } from "./hydration";
+export { dehydrate } from "../../hydration";
 export type {
 	CreateNextDiOptions,
 	DehydrateOptions,

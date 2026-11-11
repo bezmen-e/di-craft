@@ -31,8 +31,18 @@ import { createNextDi, dehydrate } from "di-craft/next/server";
 import { hydrate } from "di-craft/next/client";
 ```
 
-Shared hydration types such as `Hydratable`, `HydrationSchema`, and
-`HydrationSnapshot` are exported from both Next.js entry points.
+The hydration helpers and shared types such as `Hydratable`, `HydrationSchema`,
+and `HydrationSnapshot` live in the framework-agnostic `di-craft/hydration`
+entry point:
+
+```ts
+import { dehydrate, hydrate } from "di-craft/hydration";
+```
+
+Each Next.js entry point keeps re-exporting the hydration surface it has always
+exposed: `dehydrate` from `di-craft/next/server`, `hydrate` from
+`di-craft/next/client`, and the shared types from both. `di-craft/hydration`
+exports the full set.
 
 ## Guides
 
