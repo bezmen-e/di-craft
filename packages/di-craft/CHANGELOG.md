@@ -8,8 +8,6 @@ Versions below `1.0.0` may include breaking changes in minor releases.
 
 Entries before `0.0.34` were reconstructed from the Git history.
 
-## [Unreleased]
-
 ## [0.0.35] - 2026-11-12
 
 ### Changed

@@ -5,7 +5,7 @@ type-safe dependency injection library for TypeScript.
 
 - [Documentation](https://di-craft.pages.dev)
 - [Package README](./packages/di-craft/README.md)
-- [Changelog](./CHANGELOG.md)
+- [Changelog](./packages/di-craft/CHANGELOG.md)
 - [Tooling and maintenance roadmap](./TOOLING.md)
 
 ## Workspace

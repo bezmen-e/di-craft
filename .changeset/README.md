@@ -13,10 +13,11 @@ in [our documentation](https://github.com/changesets/changesets/blob/main/docs/c
   the library is versioned `0.0.x`, and features bump the patch digit).
 - Merging to `main` makes the Release workflow open or update a "Version Packages" pull
   request that consumes the changeset files, bumps `packages/di-craft/package.json`, and
-  writes the `CHANGELOG.md` entry.
+  writes the `packages/di-craft/CHANGELOG.md` entry.
 - Merging the version pull request makes the same workflow build the library and stage it
   on npm (`npm stage publish`, trusted publishing, no 2FA needed in CI).
 - Approve the staged release on npmjs.com with 2FA to publish it, then push the matching
   `vX.Y.Z` tag and dispatch the Docs workflow to deploy the site.
-- Do not edit `CHANGELOG.md` by hand; it is generated from changesets. Biome ignores
+- Do not edit `packages/di-craft/CHANGELOG.md` by hand; it is generated from
+  changesets. Biome ignores
   `.changeset/*.md` because its Markdown formatter does not understand the frontmatter.
