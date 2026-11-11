@@ -189,8 +189,10 @@ export function renderPerformanceChart(
 		);
 	}
 	const scenarios = aggregateRun(raw);
-	const firstScenario = required(scenarios[0], "Result has no scenarios");
-	const subjects = firstScenario.results.map((result) => result.subject);
+	const subjects = required(
+		scenarios[0],
+		"Result has no scenarios",
+	).results.map((result) => result.subject);
 	const scenes: readonly Scene[] = scenarios.map((scenario) => ({
 		name: scenario.name,
 		values: scenario.results.map((result) =>
@@ -207,8 +209,8 @@ export function renderPerformanceChart(
 	const footerY = chartTop + subjects.length * rowHeight + 36;
 	const height = footerY + 32;
 
-	const initialScene = firstScenario;
-	const initialValues = scenes[0]?.values ?? [];
+	const firstScene = required(scenes[0], "Result has no scenes");
+	const initialValues = firstScene.values;
 	const order = sortOrder(initialValues);
 	const max = maxValue(initialValues);
 
@@ -274,7 +276,7 @@ export function renderPerformanceChart(
 		"</style>",
 		`<rect width="${width}" height="${height}" rx="24" fill="#0c1422"/>`,
 		`<text x="${padding}" y="44" class="muted" font-size="11" letter-spacing="2.3">DEPENDENCY INJECTION / BENCHMARK</text>`,
-		`<text id="scenario-title" x="${padding}" y="92" font-size="22" font-weight="600">${escapeXml(initialScene.name)}</text>`,
+		`<text id="scenario-title" x="${padding}" y="92" font-size="22" font-weight="600">${escapeXml(firstScene.name)}</text>`,
 		`<text x="${padding}" y="124" class="muted" font-size="13">Nanoseconds per operation (ns/op) · linear scale per scenario · lower is better</text>`,
 		'<g id="tabs" role="tablist" aria-label="Benchmark scenarios">',
 		tabMarkup.join("\n"),

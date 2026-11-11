@@ -10,14 +10,8 @@ class StoreClass implements Store {
 	}
 
 	set(token: Token<unknown>, record: InstanceRecord): void {
-		let instances = this.instances;
-
-		if (!instances) {
-			instances = new Map();
-			this.instances = instances;
-		}
-
-		instances.set(token.id, record);
+		this.instances ??= new Map();
+		this.instances.set(token.id, record);
 	}
 
 	delete(token: Token<unknown>): void {

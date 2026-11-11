@@ -24,9 +24,9 @@ class ResolverClass implements Resolver {
 	// Allocated lazily so containers that never resolve pay nothing.
 	private sharedContext: ResolutionContext | undefined;
 
-	constructor(registry: Registry, parent?: ResolverClass) {
+	constructor(registry: Registry, parent?: Resolver) {
 		this.registry = registry;
-		this.parent = parent;
+		this.parent = parent instanceof ResolverClass ? parent : undefined;
 	}
 
 	resolve<T>(token: Token<T>): T {
@@ -111,12 +111,8 @@ class ResolverClass implements Resolver {
 		let ctx = context;
 
 		if (ctx === undefined) {
+			this.sharedContext ??= new ResolutionContext();
 			ctx = this.sharedContext;
-
-			if (ctx === undefined) {
-				ctx = new ResolutionContext();
-				this.sharedContext = ctx;
-			}
 		}
 
 		ctx.enter(token);
@@ -189,4 +185,4 @@ class ResolverClass implements Resolver {
 export const createResolver = (
 	registry: Registry,
 	parent?: Resolver,
-): Resolver => new ResolverClass(registry, parent as ResolverClass | undefined);
+): Resolver => new ResolverClass(registry, parent);

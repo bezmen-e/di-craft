@@ -7,12 +7,13 @@ export class ResolutionContext {
 
 	enter(token: Token<unknown>): void {
 		const cycleStartIndex = this.pathIds.indexOf(token.id);
-		if (cycleStartIndex !== -1) {
-			const cycle = [...this.path.slice(cycleStartIndex), token];
 
-			throw new CircularDependencyError(
-				cycle.map((cycleToken) => cycleToken.name),
-			);
+		if (cycleStartIndex !== -1) {
+			const cycle = this.path.slice(cycleStartIndex).map(({ name }) => name);
+
+			cycle.push(token.name);
+
+			throw new CircularDependencyError(cycle);
 		}
 
 		this.path.push(token);
