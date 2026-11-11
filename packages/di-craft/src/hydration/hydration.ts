@@ -9,9 +9,10 @@ import type {
 /**
  * Reads serializable snapshots from hydratable entities declared in a schema.
  *
- * Use this on the server side before crossing into a Client Component. Only the
+ * Use this on the server side before crossing into client-rendered UI. Only the
  * returned snapshot should cross the boundary, not the container or service
- * instances themselves.
+ * instances themselves. Each schema should cross once; send the snapshot that
+ * a boundary needs, not every state the container holds.
  *
  * @example
  * ```ts
@@ -49,8 +50,10 @@ export const dehydrate = <const TSchema extends HydrationSchema>(
 /**
  * Restores serializable snapshots into hydratable entities declared in a schema.
  *
- * Use this with a client-safe container and the snapshot received through a
- * Client Component prop.
+ * Use this with a client-safe container and the snapshot received from a server
+ * render. Schemas may be hydrated incrementally: apply each schema when its
+ * snapshot arrives, and hydrate the same token again to update it with a newer
+ * snapshot.
  *
  * @example
  * ```ts

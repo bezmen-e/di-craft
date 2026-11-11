@@ -53,6 +53,10 @@
 			"docs": ["guides/annotations", "api/di-craft"]
 		},
 		{
+			"source": "packages/di-craft/src/hydration/**/*.ts",
+			"docs": ["guides/nextjs/hydration", "api/hydration"]
+		},
+		{
 			"source": "packages/di-craft/src/adapters/node/**/*.ts",
 			"docs": ["guides/nodejs", "guides/nextjs/async-local-storage", "api/node"]
 		},

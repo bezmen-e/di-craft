@@ -21,6 +21,8 @@ const coreApiLinks = {
 };
 
 const [coreTypeDoc, coreTypeDocSidebar] = createStarlightTypeDocPlugin();
+const [hydrationTypeDoc, hydrationTypeDocSidebar] =
+	createStarlightTypeDocPlugin();
 const [nodeTypeDoc, nodeTypeDocSidebar] = createStarlightTypeDocPlugin();
 const [nextServerTypeDoc, nextServerTypeDocSidebar] =
 	createStarlightTypeDocPlugin();
@@ -57,6 +59,18 @@ const plugins = [
 		sidebar: { label: "di-craft" },
 		tsconfig: "../packages/di-craft/tsconfig/src.json",
 		typeDoc: { ...typeDoc, name: "Core API" },
+		watch: true,
+	}),
+	hydrationTypeDoc({
+		entryPoints: ["../packages/di-craft/src/hydration/index.ts"],
+		output: "api/hydration",
+		sidebar: { label: "di-craft/hydration" },
+		tsconfig: "../packages/di-craft/tsconfig/src.json",
+		typeDoc: {
+			...typeDoc,
+			externalSymbolLinkMappings: { "di-craft": coreApiLinks },
+			name: "Hydration API",
+		},
 		watch: true,
 	}),
 	nodeTypeDoc({
@@ -236,6 +250,7 @@ export default defineConfig({
 					collapsed: true,
 					items: [
 						coreTypeDocSidebar,
+						hydrationTypeDocSidebar,
 						nodeTypeDocSidebar,
 						nextServerTypeDocSidebar,
 						nextClientTypeDocSidebar,

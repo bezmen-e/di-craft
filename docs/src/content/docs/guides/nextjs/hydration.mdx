@@ -6,6 +6,7 @@ description: Transfer serializable state from a server container to a separate c
 import { Steps } from '@astrojs/starlight/components';
 import CodeBlock from '../../../../components/CodeBlock.astro';
 import hydrationExample from '../../../../../examples/next/hydration.ts?raw';
+import partialHydrationExample from '../../../../../examples/hydration/partial-boundaries.ts?raw';
 
 The server container never crosses the React Server Component boundary. Transfer
 only a serializable snapshot and restore it into a separate client-safe
@@ -14,6 +15,11 @@ container.
 ```txt
 server state -> serializable snapshot -> client state
 ```
+
+`dehydrate` and `hydrate` live in the framework-agnostic `di-craft/hydration`
+entry point. `di-craft/next/server` re-exports `dehydrate`, and
+`di-craft/next/client` re-exports `hydrate`, so Next.js apps can import them
+from either place.
 
 <Steps>
 
@@ -52,6 +58,29 @@ server state -> serializable snapshot -> client state
 
 <CodeBlock code={hydrationExample} title="examples/next/hydration.ts" />
 
-For streamed UI, let Suspense, `loading.js`, and React's `use` model control the
-rendering boundary. `di-craft` only creates the data or snapshot; it is not a
-client state manager.
+## Keep snapshots raw and minimal
+
+Serialize response-level data — the shape your services received — instead of
+derived, normalized records. Derived state is often several times larger than
+the raw payload it came from, and the client can recompute it. Send the state a
+boundary needs, not every state the container holds, and let each snapshot
+cross the boundary exactly once.
+
+## Stream partial snapshots
+
+For streamed UI, hydrate incrementally. Define one schema per Suspense
+boundary, dehydrate each boundary's schema where it renders on the server, and
+hydrate it on the client as soon as its snapshot arrives:
+
+- Schemas are independent: hydrating one boundary never touches another
+  boundary's tokens.
+- Hydrating the same token again applies the newer snapshot as an update.
+
+<CodeBlock
+  code={partialHydrationExample}
+  title="examples/hydration/partial-boundaries.ts"
+/>
+
+Let Suspense, `loading.js`, and React's `use` model control the rendering
+boundaries. `di-craft` only creates the data or snapshot; it is not a client
+state manager.
