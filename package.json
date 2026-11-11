@@ -19,6 +19,7 @@
 		"benchmarks:typecheck": "mise run //benchmarks:typecheck",
 		"build:lib": "mise run build:lib",
 		"build:docs": "mise run build:docs",
+		"changeset": "changeset",
 		"ci": "mise run ci",
 		"deploy:docs": "wrangler pages deploy .var/dist/cf-pages --project-name=di-craft --branch=main",
 		"dev:docs": "mise run dev:docs",
@@ -37,6 +38,8 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.6.6",
+		"@changesets/changelog-github": "1.0.1",
+		"@changesets/cli": "3.0.3",
 		"fallow": "3.41.0",
 		"wrangler": "4.158.0"
 	}
