@@ -75,41 +75,16 @@ export const provideFactory = <T, TDeps extends DepsMap = Record<never, never>>(
 		);
 	}
 
-	const scope = options.scope ?? Scopes.Singleton;
-
-	if (options.deps && options.onDispose) {
-		return {
-			provide: token,
-			deps: options.deps,
-			scope,
-			useFactory: options.useFactory,
-			onDispose: options.onDispose,
-		};
-	}
-
-	if (options.deps) {
-		return {
-			provide: token,
-			deps: options.deps,
-			scope,
-			useFactory: options.useFactory,
-		};
-	}
-
-	if (options.onDispose) {
-		return {
-			provide: token,
-			scope,
-			useFactory: options.useFactory,
-			onDispose: options.onDispose,
-		};
-	}
-
-	return {
+	// Include optional fields only when present to keep the provider shape exact.
+	const provider: FactoryProvider<T, TDeps> = {
 		provide: token,
-		scope,
+		scope: options.scope ?? Scopes.Singleton,
 		useFactory: options.useFactory,
+		...(options.deps && { deps: options.deps }),
+		...(options.onDispose && { onDispose: options.onDispose }),
 	};
+
+	return provider;
 };
 
 /**

@@ -132,15 +132,14 @@ class ResolverClass implements Resolver {
 		scope: Scope | undefined,
 		owner: ResolverClass,
 	): ResolverClass | undefined {
-		if (scope === Scopes.Transient) {
-			return undefined;
+		switch (scope) {
+			case Scopes.Transient:
+				return undefined;
+			case Scopes.Scoped:
+				return this;
+			default:
+				return owner;
 		}
-
-		if (scope === Scopes.Scoped) {
-			return this;
-		}
-
-		return owner;
 	}
 
 	private resolveDeps<TDeps extends DepsMap>(
