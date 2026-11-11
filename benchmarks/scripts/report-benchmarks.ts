@@ -206,13 +206,19 @@ export function renderReport(raw: BenchmarkRun, sourceName: string): string {
 
 	for (const scenario of scenarios) {
 		lines.push(`### ${scenario.name}`, "");
-		lines.push("| Subject | Median ns/op | MAD ns/op | Relative | Rank |");
-		lines.push("|---|---:|---:|---:|---:|");
-		for (const result of scenario.results) {
-			lines.push(
-				`| ${result.subject} | ${result.medianText} | ${result.madText} | ${result.relativeText} | ${result.rank ?? "N/A"} |`,
-			);
-		}
+		lines.push(
+			...renderMarkdownTable(
+				["Subject", "Median ns/op", "MAD ns/op", "Relative", "Rank"],
+				["left", "right", "right", "right", "right"],
+				scenario.results.map((result) => [
+					result.subject,
+					result.medianText,
+					result.madText,
+					result.relativeText,
+					`${result.rank ?? "N/A"}`,
+				]),
+			),
+		);
 		lines.push("");
 	}
 
@@ -256,24 +262,55 @@ export function renderReport(raw: BenchmarkRun, sourceName: string): string {
 	return `${lines.join("\n").trimEnd()}\n`;
 }
 
+type ColumnAlignment = "left" | "right";
+
+// Pads every column to its widest cell so the output is stable under the
+// Biome Markdown formatter (spaces around pipes, alignment colons preserved).
+function renderMarkdownTable(
+	header: readonly string[],
+	alignments: readonly ColumnAlignment[],
+	rows: readonly (readonly string[])[],
+): string[] {
+	const widths = header.map((title, column) =>
+		Math.max(3, title.length, ...rows.map((row) => row[column]?.length ?? 0)),
+	);
+	const row = (cells: readonly string[]): string =>
+		`| ${cells
+			.map((cell, column) =>
+				alignments[column] === "right"
+					? cell.padStart(widths[column] ?? cell.length)
+					: cell.padEnd(widths[column] ?? cell.length),
+			)
+			.join(" | ")} |`;
+	const delimiter = alignments
+		.map((align, column) => {
+			const width = widths[column] ?? 3;
+			return align === "right"
+				? `${"-".repeat(width - 1)}:`
+				: "-".repeat(width);
+		})
+		.join(" | ");
+	return [row(header), `| ${delimiter} |`, ...rows.map(row)];
+}
+
 function renderCombinedTable(
 	subjects: readonly string[],
 	scenarios: readonly AggregatedScenario[],
 	formatCell: (result: AggregatedSubjectResult | undefined) => string,
 ): string[] {
-	const lines = [
-		`| Scenario | ${subjects.join(" | ")} |`,
-		`|---|${subjects.map(() => "---:").join("|")}|`,
-	];
-	for (const scenario of scenarios) {
-		const bySubject = new Map(
-			scenario.results.map((result) => [result.subject, result]),
-		);
-		lines.push(
-			`| ${scenario.name} | ${subjects.map((subject) => formatCell(bySubject.get(subject))).join(" | ")} |`,
-		);
-	}
-	return lines;
+	return renderMarkdownTable(
+		["Scenario", ...subjects],
+		["left", ...subjects.map((): ColumnAlignment => "right")],
+		scenarios.map((scenario) => {
+			const bySubject = new Map(
+				scenario.results.map((result) => [result.subject, result]),
+			);
+			return [
+				scenario.name,
+				...subjects.map((subject) => formatCell(bySubject.get(subject))),
+			];
+		}),
+	);
 }
 
 export function validateRaw(raw: BenchmarkRun): void {

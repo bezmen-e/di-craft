@@ -22,8 +22,27 @@ HK_MISE = 1
 [deps.bun]
 auto = true
 sources = ["bun.lock", "bunfig.toml", "package.json", "benchmarks/package.json", "docs/package.json", "packages/*/package.json"]
-outputs = ["node_modules/.bun"]
-run = "bun install"
+outputs = ["node_modules/.mise-deps-bun"]
+# The hoisted linker leaves no state marker of its own, and concurrent
+# `bun install` runs on one tree race on .bin links (EEXIST), which breaks
+# parallel hk checks. Serialize installs with a lock directory and track
+# freshness with our own marker file.
+run = """
+lock="${TMPDIR:-/tmp}/di-craft-bun-install.lock"
+tries=0
+until mkdir "$lock" 2>/dev/null; do
+	tries=$((tries + 1))
+	[ "$tries" -ge 240 ] && break
+	sleep 0.5
+done
+status=0
+bun install || status=$?
+rmdir "$lock" 2>/dev/null || true
+if [ "$status" -eq 0 ]; then
+	touch node_modules/.mise-deps-bun
+fi
+exit $status
+"""
 
 [shell_alias]
 mr = "mise run"

@@ -5,19 +5,19 @@ development workflow. Public library documentation lives under `docs/`.
 
 ## Ownership
 
-| Tool | Responsibility |
-| --- | --- |
-| Bun | Workspace dependencies, lockfile, and library tests |
-| mise | Tool versions, environment, and task orchestration |
-| Biome | Formatting, linting, imports, and safe code actions |
-| TypeScript | Library, adapter, test, and docs type-checking |
-| hk | Fast checks and Git hooks backed by mise tasks |
-| Fallow | Dead-code, dependency, and duplicate-code analysis |
-| tsdown | ESM bundles, declarations, Publint, and ATTW |
-| Astro, Starlight, TypeDoc | Documentation site and API reference |
-| Tinybench | Comparative benchmark measurements under `benchmarks/` |
-| Wrangler | Cloudflare Pages deployment |
-| GitHub Actions | CI, documentation deployment, and npm publishing |
+| Tool                      | Responsibility                                         |
+| ------------------------- | ------------------------------------------------------ |
+| Bun                       | Workspace dependencies, lockfile, and library tests    |
+| mise                      | Tool versions, environment, and task orchestration     |
+| Biome                     | Formatting, linting, imports, and safe code actions    |
+| TypeScript                | Library, adapter, test, and docs type-checking         |
+| hk                        | Fast checks and Git hooks backed by mise tasks         |
+| Fallow                    | Dead-code, dependency, and duplicate-code analysis     |
+| tsdown                    | ESM bundles, declarations, Publint, and ATTW           |
+| Astro, Starlight, TypeDoc | Documentation site and API reference                   |
+| Tinybench                 | Comparative benchmark measurements under `benchmarks/` |
+| Wrangler                  | Cloudflare Pages deployment                            |
+| GitHub Actions            | CI, documentation deployment, and npm publishing       |
 
 ## Workflow
 
@@ -35,13 +35,13 @@ bun install
 
 Everyday commands:
 
-| Command | Purpose |
-| --- | --- |
-| `mise run check` | Run the hk check pipeline |
-| `mise run fix` | Apply supported formatting and lint fixes |
+| Command             | Purpose                                     |
+| ------------------- | ------------------------------------------- |
+| `mise run check`    | Run the hk check pipeline                   |
+| `mise run fix`      | Apply supported formatting and lint fixes   |
 | `mise run validate` | Apply fixes, then run the complete pipeline |
-| `mise run ci` | Run the same non-mutating checks as CI |
-| `mise tasks ls` | List available root and workspace tasks |
+| `mise run ci`       | Run the same non-mutating checks as CI      |
+| `mise tasks ls`     | List available root and workspace tasks     |
 
 Run a workspace directly when narrowing the feedback loop:
 

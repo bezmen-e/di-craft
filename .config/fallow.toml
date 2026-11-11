@@ -8,17 +8,19 @@ entry = [
 ]
 
 ignoreDependencies = [
-	"@arethetypeswrong/core",
 	# The docs workspace depends on the package for release alignment while
 	# TypeDoc reads the source entrypoint directly.
 	"di-craft",
-	"publint",
+]
+
+ignoreBinaries = [
+	# System-provided task runner; package.json scripts call it directly.
+	"mise",
 ]
 
 ignorePatterns = [
 	# Benchmarks are an isolated project with their own package and Fallow config.
 	"benchmarks/**",
-	"packages/di-craft/dist/**",
 	"packages/di-craft/src/**/*.test.ts",
 	"docs/examples/**",
 ]

@@ -91,6 +91,8 @@ describe("benchmark reports", () => {
 		const raw = publicRun();
 		const first = renderReport(raw, "results/public.json");
 		expect(renderReport(raw, "results/public.json")).toBe(first);
-		expect(first).toContain("| di-craft | 11.500 | 0.500 | 1.00× | 1 |");
+		expect(first).toContain(
+			"| di-craft |       11.500 |     0.500 |    1.00× |    1 |",
+		);
 	});
 });
