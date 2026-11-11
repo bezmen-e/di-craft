@@ -1,0 +1,16 @@
+---
+// biome-ignore lint/correctness/noUnusedImports: Astro uses this import in the template below.
+import chart from "../assets/performance-chart.svg?raw";
+---
+
+<div class="performance-chart" set:html={chart}></div>
+
+<style>
+	.performance-chart {
+		margin-block: 1.5rem;
+	}
+	.performance-chart :global(svg) {
+		display: block;
+		height: auto;
+	}
+</style>

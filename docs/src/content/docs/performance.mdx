@@ -1,0 +1,198 @@
+---
+title: Performance
+description: Recorded benchmark results against six TypeScript DI containers, the measurement design behind them, and how to reproduce the runs.
+---
+
+import PerformanceChart from "../../components/PerformanceChart.astro";
+
+## Recorded Result
+
+In the public run recorded on **2026-11-11**, `di-craft` resolved a hot
+singleton in a median **5.458 ns/op**. For that one scenario and the recorded
+package versions, the participating containers measured **1.76× to 4.47×** its
+median. These figures measure container overhead, not HTTP throughput or total
+application performance. The
+[raw result](https://github.com/bezmen-e/di-craft/blob/main/benchmarks/results/public-2026-11-11T14-57-42-521Z.json)
+contains all fourteen rounds and the environment metadata.
+
+Select a scenario to compare all seven containers. Bars show the median
+`ns/op` across the fourteen balanced rounds on a per-scenario linear scale;
+lower is better.
+
+<PerformanceChart />
+
+
+A warm resolve reads one `Map` entry keyed by the token's `symbol` id and
+returns the cached instance before any cycle or lifetime bookkeeping runs. The
+benchmark scenarios cover these runtime choices:
+
+| Runtime choice                | Effect                                                                                                                                                     |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Symbol-keyed tokens           | Registry and instance stores are `Map`s keyed by a unique `symbol` per token. Lookups compare by identity, with no string hashing or metadata tables.       |
+| Explicit providers            | Registration is a flat `Map.set` with a duplicate check. There are no decorator side effects, constructor-name parsers, or reflection metadata to prepare.  |
+| Cached singleton/scoped reads | A warm resolve returns from a single `Map.get` on the owning container's store before the resolution context is touched.                                    |
+| Single parent-chain walk      | One loop finds both the provider and the container that owns it, so child-container lookups do not allocate or recurse per level.                           |
+| Lazy shared context           | Cycle-path bookkeeping allocates one reusable context per resolver, on the first resolve that needs it.                                                     |
+| Scope-aware host selection    | Singletons cache on the registering container, scoped services on the requesting child, and transient services nowhere, with no extra dispatch table.       |
+| Async disposal                | Teardown snapshots and clears the store before running hooks in reverse creation order, so `dispose()` stays idempotent and re-entrancy safe.                |
+
+## Benchmark Suite
+
+The comparative workspace measures `di-craft` alongside InversifyJS v8.2.3,
+Awilix v13.0.5 in PROXY and CLASSIC modes, TSyringe v4.10.0, TypeDI v0.10, and
+Typed Inject v5.0.0, using Tinybench v2.9.0 on Bun v1.4.2. The `di-craft`
+subject imports the production ESM artifact built from this repository. The raw
+result records every package version and the machine environment used for the
+run.
+
+**Correctness before timing**
+
+The adapter contract suite runs before Tinybench. Each adapter must provide the
+same observable graph:
+
+- `Logger`, `Config`, `Repo`, and `Service` act as root singletons
+- transient graph nodes produce new instances per resolve
+- each scope caches its own `ScopedService` while sharing the root logger
+- deep and wide graphs wire the declared dependency counts
+- each declared teardown API invokes the scoped service disposer
+
+These checks keep lifetime or identity differences out of the timing
+comparison. The timed scenarios measure cost only after the adapters pass the
+contract against the production artifact.
+
+**Measurement design**
+
+The public runner performs a frozen-lockfile install, typechecks the benchmark
+workspace, builds the production ESM package, and runs the contract suite
+against that artifact. It then measures the subjects with these controls:
+
+1. One balanced block contains fourteen rounds for the seven subjects. Across a
+   block, each subject occupies each process position an equal number of times
+   and follows each other subject an equal number of times.
+2. Each subject runs in a fresh Bun process per round, so implementations do
+   not share JIT feedback, inline caches, or GC history.
+3. Tinybench warms each scenario for 50 ms and measures it for 100 ms. One
+   sample executes a batch sized for that operation.
+4. For each subject, scenario, and round, the runner divides the median
+   Tinybench batch duration by the batch size and records normalized `ns/op`.
+5. The reporter aggregates the fourteen per-round values with the median and
+   the median absolute deviation (MAD).
+
+Lower `ns/op` is better. MAD reports the spread around the median; it is not a
+confidence interval. Process isolation and balanced launch order reduce
+measurement bias, but they cannot remove OS scheduling, CPU frequency changes,
+JIT decisions, or GC timing.
+
+**Scenario boundaries**
+
+Each scenario isolates one part of container work. Production code combines a
+subset of these stages according to its lifetime model.
+
+| Workload group          | Scenarios                                                         | Container work represented                                       |
+| ----------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Warm access             | Hot singleton resolve, warm scoped resolve                        | Cached service lookup in the root container or an existing scope |
+| Object construction     | Transient resolve, deep graph, wide graphs (4 and 10 dependencies) | Cache misses, dependency traversal, argument assembly, and constructors |
+| Startup and cold access | Registration, first resolve                                       | Graph configuration followed by initial cache population         |
+| Scope lifecycle         | Scope creation, first scoped resolve, async teardown              | Per-request or per-job scope ownership from creation to cleanup  |
+
+Tinybench setup hooks prepare cold graphs and scopes outside each timing
+region. Cleanup for registration and resolve scenarios also stays outside the
+timed operation. The teardown scenario times cleanup as its target operation.
+
+TypeDI reports `N/A` for registration because its comparable service
+definitions run as decorator side effects during module evaluation, which the
+registration timer excludes. For async teardown, InversifyJS and TypeDI report
+`N/A` because the suite found no equivalent public contract; Awilix (both
+modes), TSyringe, and Typed Inject participate.
+
+**Public result**
+
+The value in each cell is `median ± MAD` in `ns/op`. The factor in parentheses
+compares that median with the lowest median in the same row.
+
+| Scenario                     |                di-craft |               InversifyJS |              Awilix PROXY |            Awilix CLASSIC |                TSyringe |                   TypeDI |            Typed Inject |
+| ---------------------------- | ----------------------: | ------------------------: | ------------------------: | ------------------------: | ----------------------: | -----------------------: | ----------------------: |
+| Hot singleton resolve        |   5.458 ± 0.124 (1.00×) |    10.042 ± 0.083 (1.84×) |     9.708 ± 0.083 (1.78×) |     9.604 ± 0.124 (1.76×) |  24.375 ± 0.646 (4.47×) |  17.125 ± 0.084 (3.14×) |  24.042 ± 0.000 (4.40×) |
+| Transient resolve            |  32.582 ± 0.248 (1.03×) |    31.668 ± 0.332 (1.00×) |    37.500 ± 0.248 (1.18×) |    45.918 ± 0.418 (1.45×) |  95.000 ± 3.332 (3.00×) | 147.58 ± 3.336 (4.66×)  |  54.416 ± 0.916 (1.72×) |
+| Deep graph (10 levels)       |  181.67 ± 0.835 (1.28×) |    141.87 ± 0.835 (1.00×) |   207.71 ± 1.875 (1.46×)  |   577.92 ± 3.745 (4.07×)  | 487.09 ± 8.330 (3.43×)  | 1218.5 ± 15.935 (8.59×) |  307.30 ± 6.875 (2.17×) |
+| Wide graph (4 dependencies)  |  54.084 ± 0.252 (1.00×) |    55.334 ± 0.166 (1.02×) |    71.664 ± 0.502 (1.33×) |    99.250 ± 1.084 (1.84×) | 123.50 ± 1.082 (2.28×)  | 215.50 ± 1.668 (3.98×)  |  63.666 ± 1.165 (1.18×) |
+| Wide graph (10 dependencies) |   122.50 ± 0.625 (1.13×) |    125.41 ± 0.410 (1.16×) |   152.29 ± 1.250 (1.41×)  |   187.92 ± 2.085 (1.73×)  | 244.58 ± 1.255 (2.26×)  | 542.92 ± 10.000 (5.01×) | 108.34 ± 1.040 (1.00×)  |
+| Registration                 |  760.45 ± 6.250 (1.61×) |  7517.7 ± 47.850 (15.90×) | 13540.6 ± 69.775 (28.63×) | 18109.4 ± 169.78 (38.29×) | 508.30 ± 8.300 (1.07×)  |           N/A            | 472.95 ± 4.150 (1.00×)  |
+| First resolve                |  183.33 ± 2.080 (1.00×) |  1693.4 ± 15.727 (9.24×)  |   792.92 ± 16.562 (4.33×) | 1444.4 ± 57.395 (7.88×)   | 312.29 ± 3.960 (1.70×)  | 1171.5 ± 12.500 (6.39×) | 233.96 ± 2.080 (1.28×)  |
+| Scope creation               |  26.460 ± 0.620 (1.00×) |   827.71 ± 18.543 (31.28×) |   112.92 ± 3.750 (4.27×)  |  119.79 ± 11.040 (4.53×)  | 188.96 ± 2.705 (7.14×)  | 176.46 ± 1.875 (6.67×)  |  33.545 ± 0.620 (1.27×) |
+| First scoped resolve         |  57.295 ± 0.625 (1.03×) |   549.59 ± 11.142 (9.84×)  |    55.830 ± 0.420 (1.00×) |    97.500 ± 2.085 (1.75×) | 126.46 ± 1.875 (2.27×)  | 151.04 ± 2.505 (2.71×)  |  68.750 ± 0.830 (1.23×) |
+| Warm scoped resolve          |   8.521 ± 0.146 (4.99×) |    11.125 ± 0.042 (6.51×) |    12.916 ± 0.063 (7.56×) |    13.729 ± 0.187 (8.04×) | 14.958 ± 0.105 (8.76×)  |  41.812 ± 0.188 (24.48×) |   1.708 ± 0.000 (1.00×) |
+| Async teardown               |  93.750 ± 0.420 (1.00×) |            N/A            |   145.42 ± 0.840 (1.55×)  |  146.04 ± 1.245 (1.56×)   | 230.83 ± 3.535 (2.46×)  |           N/A            | 223.12 ± 1.670 (2.38×)  |
+
+:::note[Source data]
+The table uses
+[`public-2026-11-11T14-57-42-521Z.json`](https://github.com/bezmen-e/di-craft/blob/main/benchmarks/results/public-2026-11-11T14-57-42-521Z.json).
+Open the raw result for the fourteen rounds, normalized measurements,
+Tinybench statistics, environment metadata, and dependency versions. The
+[benchmark workspace README](https://github.com/bezmen-e/di-craft/blob/main/benchmarks/README.md)
+documents each scenario, its production mapping, and the report calculation.
+:::
+
+**Reading the result**
+
+`di-craft` records the lowest median in 5 of the 11 scenarios: hot singleton
+resolve, wide graph (4 dependencies), first resolve, scope creation, and async
+teardown. It is within 3% of the lowest median in two more (transient resolve
+and first scoped resolve) and second in five rows overall. The clearest gains
+appear where the flat symbol-keyed registry, the single parent-chain walk, and
+the small cache-miss path dominate the measured work: first resolve, scope
+creation, and startup-adjacent operations.
+
+`Warm scoped resolve` is the widest gap. Typed Inject records 1.708 ns because
+it compiles an injector into direct closure calls; the row measures one cached
+read from an existing scope and excludes scope creation, the first scoped cache
+miss, and teardown, where the same production request pays separate costs
+(rows where `di-craft` records the lowest median).
+
+`Deep graph (10 levels)` and `Wide graph (10 dependencies)` remain behind
+InversifyJS (1.28×) and Typed Inject (1.00×/1.13×). These rows measure full
+cache-miss traversal: one resolve walks ten chained factories or assembles ten
+dependencies, paying a registry lookup, a lifetime check, and an argument
+object per level. `Registration` is third behind Typed Inject and TSyringe;
+`di-craft` validates duplicates and lifetime capture on every register call.
+
+**Match the scenario to the application**
+
+The reporter does not compute an overall score because applications pay
+different combinations of container work. A long-lived process may register
+once and spend most of its time on warm singleton reads. An HTTP adapter may
+create a scope, resolve one scoped graph, read cached scoped values, and
+dispose the scope for each request. A worker may construct transient graphs
+without opening scopes.
+
+Do not average the relative factors across rows. The scenarios use different
+batch sizes and isolate independent timing regions. Use the rows that match the
+application's measured resolve pattern, then profile the full application with
+its framework and I/O.
+
+The comparison applies to the recorded package versions, adapters, fixtures,
+and machine (Apple M5 Pro, Bun 1.4.2, macOS arm64). Each library keeps its
+public lifecycle model, so `N/A` means the suite found no equivalent operation
+for that row. The benchmark measures container overhead rather than end-to-end
+request latency.
+
+## Reproduce Locally
+
+From the repository root:
+
+```bash
+bun run benchmarks:install
+bun run benchmarks:precondition
+bun run benchmarks:quick    # one short round, local iteration only
+bun run benchmarks:public   # production artifact, 14 balanced rounds
+```
+
+The benchmark workspace is intentionally isolated from the root Bun workspace
+and owns its comparison dependencies in `benchmarks/bun.lock`. Quick results
+are for local iteration and must not be used for public claims; publishable
+numbers come from `benchmarks:public` and are rendered with
+`bun run benchmarks:report`. The interactive chart on this page is generated
+from the same publishable result with `bun run benchmarks:chart` and lives in
+`docs/src/assets/performance-chart.svg`. See the
+[benchmark workspace README](https://github.com/bezmen-e/di-craft/blob/main/benchmarks/README.md)
+for methodology, fairness notes, and fixture sources.

@@ -230,6 +230,7 @@ export default defineConfig({
 						},
 					],
 				},
+				{ label: "Performance", link: "/performance/" },
 				{
 					label: "API Reference",
 					collapsed: true,

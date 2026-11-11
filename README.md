@@ -5,6 +5,7 @@ type-safe dependency injection library for TypeScript.
 
 - [Documentation](https://di-craft.pages.dev)
 - [Package README](./packages/di-craft/README.md)
+- [Changelog](./CHANGELOG.md)
 - [Tooling and maintenance roadmap](./TOOLING.md)
 
 ## Workspace
@@ -12,6 +13,7 @@ type-safe dependency injection library for TypeScript.
 ```txt
 packages/di-craft/  Library source and tests
 docs/               Astro Starlight site and type-checked examples
+benchmarks/         Comparative DI benchmarks and recorded results
 assets/             Shared repository assets
 .config/mise/       Toolchain and task orchestration
 ```

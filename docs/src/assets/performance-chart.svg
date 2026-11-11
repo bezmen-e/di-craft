@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="bench-chart" viewBox="0 0 1200 720" width="100%" style="max-width:1200px" role="group" aria-labelledby="chart-title chart-desc" lang="en">
+<title id="chart-title">di-craft benchmark comparison</title>
+<desc id="chart-desc">Interactive bar chart of median nanoseconds per operation for 7 DI containers across 11 benchmark scenarios. Lower is better. Select a scenario tab to update the chart.</desc>
+<style>
+.bench-chart text{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#e6edf5}
+.bench-chart .muted{fill:#91a0b7}
+.bench-chart .tab{cursor:pointer;outline:none}
+.bench-chart .tab rect{fill:#182336;stroke:#2c3a50;stroke-width:1}
+.bench-chart .tab text{font-size:13px;fill:#b7c4d7;pointer-events:none}
+.bench-chart .tab:hover rect{fill:#24364b}
+.bench-chart .tab[aria-selected="true"] rect{fill:#4f8cff;stroke:#4f8cff}
+.bench-chart .tab[aria-selected="true"] text{fill:#fff;font-weight:650}
+.bench-chart .tab:focus-visible rect{stroke:#fff;stroke-width:2}
+.bench-chart .name{font-size:16px;font-weight:550}
+.bench-chart .value{font-size:15px;font-variant-numeric:tabular-nums;font-weight:600}
+</style>
+<rect width="1200" height="720" rx="24" fill="#0c1422"/>
+<text x="40" y="44" class="muted" font-size="11" letter-spacing="2.3">DEPENDENCY INJECTION / BENCHMARK</text>
+<text id="scenario-title" x="40" y="92" font-size="22" font-weight="600">Hot singleton resolve</text>
+<text x="40" y="124" class="muted" font-size="13">Nanoseconds per operation (ns/op) · linear scale per scenario · lower is better</text>
+<g id="tabs" role="tablist" aria-label="Benchmark scenarios">
+<g class="tab" id="tab-0" role="tab" aria-selected="true" tabindex="0" transform="translate(40 152)"><rect width="175" height="34" rx="17"/><text x="87.5" y="22" text-anchor="middle">Hot singleton resolve</text></g>
+<g class="tab" id="tab-1" role="tab" aria-selected="false" tabindex="-1" transform="translate(225 152)"><rect width="147" height="34" rx="17"/><text x="73.5" y="22" text-anchor="middle">Transient resolve</text></g>
+<g class="tab" id="tab-2" role="tab" aria-selected="false" tabindex="-1" transform="translate(382 152)"><rect width="182" height="34" rx="17"/><text x="91.0" y="22" text-anchor="middle">Deep graph (10 levels)</text></g>
+<g class="tab" id="tab-3" role="tab" aria-selected="false" tabindex="-1" transform="translate(574 152)"><rect width="216" height="34" rx="17"/><text x="108.0" y="22" text-anchor="middle">Wide graph (4 dependencies)</text></g>
+<g class="tab" id="tab-4" role="tab" aria-selected="false" tabindex="-1" transform="translate(800 152)"><rect width="223" height="34" rx="17"/><text x="111.5" y="22" text-anchor="middle">Wide graph (10 dependencies)</text></g>
+<g class="tab" id="tab-5" role="tab" aria-selected="false" tabindex="-1" transform="translate(1033 152)"><rect width="113" height="34" rx="17"/><text x="56.5" y="22" text-anchor="middle">Registration</text></g>
+<g class="tab" id="tab-6" role="tab" aria-selected="false" tabindex="-1" transform="translate(40 196)"><rect width="120" height="34" rx="17"/><text x="60.0" y="22" text-anchor="middle">First resolve</text></g>
+<g class="tab" id="tab-7" role="tab" aria-selected="false" tabindex="-1" transform="translate(170 196)"><rect width="127" height="34" rx="17"/><text x="63.5" y="22" text-anchor="middle">Scope creation</text></g>
+<g class="tab" id="tab-8" role="tab" aria-selected="false" tabindex="-1" transform="translate(307 196)"><rect width="168" height="34" rx="17"/><text x="84.0" y="22" text-anchor="middle">First scoped resolve</text></g>
+<g class="tab" id="tab-9" role="tab" aria-selected="false" tabindex="-1" transform="translate(485 196)"><rect width="161" height="34" rx="17"/><text x="80.5" y="22" text-anchor="middle">Warm scoped resolve</text></g>
+<g class="tab" id="tab-10" role="tab" aria-selected="false" tabindex="-1" transform="translate(656 196)"><rect width="127" height="34" rx="17"/><text x="63.5" y="22" text-anchor="middle">Async teardown</text></g>
+</g>
+<g id="chart" role="tabpanel" aria-labelledby="tab-0" transform="translate(0 260)">
+<g id="row-0" transform="translate(0 0)"><title>di-craft: 5.458 ns/op</title><text class="name" x="215" y="21" text-anchor="end">di-craft</text><rect class="bar" x="240" y="0" width="179.13" height="32" rx="5" fill="#4f8cff"/><text class="value" x="431.13" y="21">5.458</text></g>
+<g id="row-1" transform="translate(0 168)"><title>InversifyJS: 10.042 ns/op</title><text class="name" x="215" y="21" text-anchor="end">InversifyJS</text><rect class="bar" x="240" y="0" width="329.58" height="32" rx="5" fill="#b39aff"/><text class="value" x="581.58" y="21">10.042</text></g>
+<g id="row-2" transform="translate(0 112)"><title>Awilix PROXY: 9.708 ns/op</title><text class="name" x="215" y="21" text-anchor="end">Awilix PROXY</text><rect class="bar" x="240" y="0" width="318.62" height="32" rx="5" fill="#db9bea"/><text class="value" x="570.62" y="21">9.708</text></g>
+<g id="row-3" transform="translate(0 56)"><title>Awilix CLASSIC: 9.604 ns/op</title><text class="name" x="215" y="21" text-anchor="end">Awilix CLASSIC</text><rect class="bar" x="240" y="0" width="315.21" height="32" rx="5" fill="#e8799f"/><text class="value" x="567.21" y="21">9.604</text></g>
+<g id="row-4" transform="translate(0 336)"><title>TSyringe: 24.375 ns/op</title><text class="name" x="215" y="21" text-anchor="end">TSyringe</text><rect class="bar" x="240" y="0" width="800.00" height="32" rx="5" fill="#f3ba72"/><text class="value" x="1052.00" y="21">24.375</text></g>
+<g id="row-5" transform="translate(0 224)"><title>TypeDI: 17.125 ns/op</title><text class="name" x="215" y="21" text-anchor="end">TypeDI</text><rect class="bar" x="240" y="0" width="562.05" height="32" rx="5" fill="#9aa7bd"/><text class="value" x="814.05" y="21">17.125</text></g>
+<g id="row-6" transform="translate(0 280)"><title>Typed Inject: 24.042 ns/op</title><text class="name" x="215" y="21" text-anchor="end">Typed Inject</text><rect class="bar" x="240" y="0" width="789.07" height="32" rx="5" fill="#7fd1c1"/><text class="value" x="1041.07" y="21">24.042</text></g>
+</g>
+<text x="40" y="688" class="muted" font-size="12">Median of 14 balanced rounds · Bun 1.4.2 · Apple M5 Pro · source: results/public-2026-11-11T14-57-42-521Z.json</text>
+<script><![CDATA[
+
+(()=>{
+const data=[{"name":"Hot singleton resolve","values":[5.458,10.042,9.708,9.604,24.375,17.125,24.042]},{"name":"Transient resolve","values":[32.582,31.668,37.5,45.918,95,147.58,54.416]},{"name":"Deep graph (10 levels)","values":[181.67,141.87,207.71,577.92,487.09,1218.5,307.3]},{"name":"Wide graph (4 dependencies)","values":[54.084,55.334,71.664,99.25,123.5,215.5,63.666]},{"name":"Wide graph (10 dependencies)","values":[122.5,125.41,152.29,187.92,244.58,542.92,108.34]},{"name":"Registration","values":[760.45,7517.7,13540.6,18109.4,508.3,null,472.95]},{"name":"First resolve","values":[183.33,1693.4,792.92,1444.4,312.29,1171.5,233.96]},{"name":"Scope creation","values":[26.46,827.71,112.92,119.79,188.96,176.46,33.545]},{"name":"First scoped resolve","values":[57.295,549.59,55.83,97.5,126.46,151.04,68.75]},{"name":"Warm scoped resolve","values":[8.521,11.125,12.916,13.729,14.958,41.812,1.708]},{"name":"Async teardown","values":[93.75,null,145.42,146.04,230.83,null,223.12]}];
+const names=["di-craft","InversifyJS","Awilix PROXY","Awilix CLASSIC","TSyringe","TypeDI","Typed Inject"];
+const BAR_X=240,BAR_MAX=800,ROW_H=56;
+const root=document.querySelector('.bench-chart');
+if(!root)return;
+const tabs=Array.prototype.slice.call(root.querySelectorAll('.tab'));
+const rows=names.map(function(_,i){
+const el=root.querySelector('#row-'+i);
+return {el:el,bar:el.querySelector('.bar'),label:el.querySelector('.value'),title:el.querySelector('title'),y:0,w:0};
+});
+let frame=0;
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+function fmt(v){return v>=1000?v.toFixed(1):v>=100?v.toFixed(2):v.toFixed(3)}
+function select(index){
+if(frame)cancelAnimationFrame(frame);
+const scene=data[index];
+root.querySelector('#scenario-title').textContent=scene.name;
+root.querySelector('#chart').setAttribute('aria-labelledby','tab-'+index);
+tabs.forEach(function(tab,i){
+tab.setAttribute('aria-selected',i===index?'true':'false');
+tab.tabIndex=i===index?0:-1;
+});
+const key=scene.values.map(function(v){return v===null?Infinity:v});
+const order=names.map(function(_,i){return i}).sort(function(a,b){return key[a]-key[b]||a-b});
+let max=0;
+scene.values.forEach(function(v){if(v!==null&&v>max)max=v});
+if(max===0)max=1;
+const target=rows.map(function(){return {y:0,w:0}});
+order.forEach(function(subject,position){
+const v=scene.values[subject];
+target[subject]={y:position*ROW_H,w:v===null?0:Math.max(2,BAR_MAX*v/max)};
+});
+rows.forEach(function(row,i){
+const v=scene.values[i];
+row.label.textContent=v===null?'N/A':fmt(v);
+row.title.textContent=names[i]+': '+(v===null?'N/A':fmt(v)+' ns/op');
+});
+const from=rows.map(function(row){return {y:row.y,w:row.w}});
+const duration=reduced.matches?0:550;
+const start=performance.now();
+function step(now){
+const p=duration===0?1:Math.min(1,(now-start)/duration);
+const e=1-Math.pow(1-p,3);
+rows.forEach(function(row,i){
+const y=from[i].y+(target[i].y-from[i].y)*e;
+const w=Math.max(0,from[i].w+(target[i].w-from[i].w)*e);
+row.el.setAttribute('transform','translate(0 '+y.toFixed(2)+')');
+row.bar.setAttribute('width',w.toFixed(2));
+row.label.setAttribute('x',(BAR_X+w+12).toFixed(2));
+row.y=y;row.w=w;
+});
+if(p<1)frame=requestAnimationFrame(step);else frame=0;
+}
+frame=requestAnimationFrame(step);
+}
+tabs.forEach(function(tab,i){
+tab.addEventListener('click',function(){select(i)});
+tab.addEventListener('keydown',function(event){
+if(event.key==='ArrowRight'){event.preventDefault();const n=(i+1)%tabs.length;tabs[n].focus();select(n);}
+else if(event.key==='ArrowLeft'){event.preventDefault();const n=(i-1+tabs.length)%tabs.length;tabs[n].focus();select(n);}
+});
+});
+rows.forEach(function(row){
+const y=Number(row.el.getAttribute('transform').match(/-?[\d.]+/g)[1]);
+row.y=y;
+row.w=Number(row.bar.getAttribute('width'));
+});
+select(0);
+})();
+
+]]></script>
+</svg>

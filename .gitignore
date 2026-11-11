@@ -46,3 +46,5 @@ packages/*/examples/*
 
 .tmp
 .superpowers/
+.agents/
+skills-lock.json

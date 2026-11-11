@@ -1,0 +1,35 @@
+entry = [
+	# Launched as an isolated Bun child process by run-benchmarks.ts.
+	"src/runner/benchmark-subject.ts",
+]
+production = false
+
+# This is a private tooling package. Like the InferDI benchmark package, all
+# benchmark subjects and runner libraries intentionally stay in devDependencies.
+ignoreDependencies = [
+	"awilix",
+	"di-craft",
+	"inversify",
+	"reflect-metadata",
+	"tinybench",
+	"tsyringe",
+	"typed-inject",
+	"typedi",
+]
+
+ignorePatterns = [
+	# Fixture members are consumed through several containers' dynamic DI APIs.
+	"src/fixtures/**",
+]
+
+ignoreExports = [
+	# Container adapters intentionally expose the same contract-shaped factory.
+	{ file = "src/containers/*.ts", exports = ["buildRoot"] },
+]
+
+[duplicates]
+ignore = [
+	# Comparable container adapters intentionally repeat the same contract wiring.
+	"src/containers/**",
+]
+ignoreImports = true
