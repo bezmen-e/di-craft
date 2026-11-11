@@ -38,12 +38,15 @@ run = "bun run typecheck"
 [tasks.precondition]
 description = "Validate benchmark adapter contracts"
 depends = ["//packages/di-craft:build"]
-run = "bun run precondition"
+# Bun copies file: dependencies at install time. Re-run the install after the
+# build dependency so node_modules/di-craft always contains the fresh dist.
+run = ["bun install --frozen-lockfile", "bun run precondition"]
 
 [tasks.test]
 description = "Run benchmark workspace tests"
 depends = ["//packages/di-craft:build"]
-run = "bun run test"
+# Refresh the copied file: dependency after the build (see precondition).
+run = ["bun install --frozen-lockfile", "bun run test"]
 
 [tasks.quick]
 description = "Run one short comparative benchmark round"
