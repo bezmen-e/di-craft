@@ -21,7 +21,7 @@ HK_MISE = 1
 
 [deps.bun]
 auto = true
-sources = ["bun.lock", "bunfig.toml", "package.json", "docs/package.json", "packages/*/package.json"]
+sources = ["bun.lock", "bunfig.toml", "package.json", "benchmarks/package.json", "docs/package.json", "packages/*/package.json"]
 outputs = ["node_modules/.bun"]
 run = "bun install"
 

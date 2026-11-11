@@ -15,6 +15,7 @@ development workflow. Public library documentation lives under `docs/`.
 | Fallow | Dead-code, dependency, and duplicate-code analysis |
 | tsdown | ESM bundles, declarations, Publint, and ATTW |
 | Astro, Starlight, TypeDoc | Documentation site and API reference |
+| Tinybench | Comparative benchmark measurements under `benchmarks/` |
 | Wrangler | Cloudflare Pages deployment |
 | GitHub Actions | CI, documentation deployment, and npm publishing |
 
@@ -48,6 +49,7 @@ Run a workspace directly when narrowing the feedback loop:
 mise run //packages/di-craft:test
 mise run //packages/di-craft:build
 mise run //docs:typecheck
+mise run //benchmarks:quick
 mise run //docs:build
 ```
 
@@ -56,16 +58,34 @@ mise run //docs:build
 - `mise.toml` and `.config/mise/`: tools and repository workflows;
 - `packages/di-craft/mise.toml`: library checks, tests, and builds;
 - `docs/mise.toml`: documentation tasks;
+- `benchmarks/mise.toml`: comparative benchmark install, validation, and runs;
 - `biome.json`: repository formatting and linting policy;
 - `.config/hk.pkl`: local checks and Git hooks;
 - `.config/fallow.toml`: repository analysis scope;
 - `packages/di-craft/tsdown.config.ts`: published package artifacts;
 - `.github/workflows/`: CI, deployment, and releases.
 
+## Benchmarks
+
+The `benchmarks/` workspace compares `di-craft` with six DI subjects using the
+InferDI methodology: isolated per-subject processes, balanced rounds, and
+median/MAD aggregation. Results are recorded as JSON under
+`benchmarks/results/` and rendered to Markdown with the report task. Quick runs
+are for local iteration only; publishable claims use `benchmarks:public`.
+
+```sh
+bun run benchmarks:install
+bun run benchmarks:precondition
+bun run benchmarks:quick    # local iteration, single round
+bun run benchmarks:public   # publishable, 14 balanced rounds
+```
+
+Benchmarks are intentionally not part of `mise run ci`: they are too slow and
+too noisy on shared runners to gate merges. CI only type-checks the workspace
+and runs its adapter tests.
+
 ## Planned quality work
 
-- **Benchmarks:** a compact, reproducible suite with warm-up, fixed samples,
-  runtime metadata, and a measured noise budget before it can block CI.
 - **Package size:** budgets for the npm tarball and public entry points, based
   on a recorded baseline rather than an arbitrary universal limit.
 - **Coverage:** Bun LCOV output retained by CI and shown as a concise summary or
