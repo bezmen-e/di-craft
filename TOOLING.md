@@ -16,8 +16,9 @@ development workflow. Public library documentation lives under `docs/`.
 | tsdown                    | ESM bundles, declarations, Publint, and ATTW           |
 | Astro, Starlight, TypeDoc | Documentation site and API reference                   |
 | Tinybench                 | Comparative benchmark measurements under `benchmarks/` |
+| Changesets                | Version bumps, changelog entries, and the release PR   |
 | Wrangler                  | Cloudflare Pages deployment                            |
-| GitHub Actions            | CI, documentation deployment, and npm publishing       |
+| GitHub Actions            | CI, release staging, and documentation deployment      |
 
 ## Workflow
 
@@ -62,8 +63,31 @@ mise run //docs:build
 - `biome.json`: repository formatting and linting policy;
 - `.config/hk.pkl`: local checks and Git hooks;
 - `.config/fallow.toml`: repository analysis scope;
+- `.changeset/`: pending changesets and the Changesets config;
+- `scripts/`: release helpers such as `stage-publish.mjs`;
 - `packages/di-craft/tsdown.config.ts`: published package artifacts;
-- `.github/workflows/`: CI, deployment, and releases.
+- `.github/workflows/`: CI, releases, and documentation deployment.
+
+## Releases
+
+Releases flow through Changesets and the single Release workflow:
+
+1. Every user-facing pull request adds a changeset (`bun run changeset`,
+   `patch` while the library is versioned `0.0.x`).
+2. Merging to `main` makes the Release workflow open or update the Version
+   Packages pull request: it consumes the changeset files, bumps
+   `packages/di-craft/package.json`, and generates `CHANGELOG.md`.
+3. Merging that pull request runs the workflow again with no changesets left:
+   it builds the library and stages the package on npm (`npm stage publish`)
+   through OIDC trusted publishing. `scripts/stage-publish.mjs` skips every
+   other push to `main`, so ordinary merges never touch the registry.
+4. Approve the staged release on npmjs.com with 2FA — that human act publishes
+   the package — then push the matching `vX.Y.Z` tag.
+5. Dispatch the Docs workflow to deploy the Astro site to Cloudflare Pages
+   once the package is public.
+
+There is no tag-triggered publish workflow: staging happens on `main`, and the
+final approval deliberately stays outside CI.
 
 ## Benchmarks
 

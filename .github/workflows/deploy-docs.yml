@@ -1,9 +1,9 @@
 name: Docs
 
+# The documentation site tracks published releases, not main: run this
+# manually after approving the staged npm release on npmjs.com, or after
+# merging documentation-only work that should go live immediately.
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
