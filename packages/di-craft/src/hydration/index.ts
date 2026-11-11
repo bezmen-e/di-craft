@@ -10,6 +10,7 @@
  */
 
 export { dehydrate, hydrate } from "./hydration";
+export { createSnapshotBus } from "./snapshot-bus";
 export type {
 	DehydrateOptions,
 	Hydratable,
@@ -18,4 +19,6 @@ export type {
 	HydrationSnapshot,
 	Serializable,
 	SerializablePrimitive,
+	SnapshotBus,
+	SnapshotBusOptions,
 } from "./types";
