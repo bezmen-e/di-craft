@@ -48,3 +48,4 @@ packages/*/examples/*
 .superpowers/
 .agents/
 skills-lock.json
+.zed/
