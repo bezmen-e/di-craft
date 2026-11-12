@@ -14,10 +14,11 @@ in [our documentation](https://github.com/changesets/changesets/blob/main/docs/c
 - Merging to `main` makes the Release workflow open or update a "Version Packages" pull
   request that consumes the changeset files, bumps `packages/di-craft/package.json`, and
   writes the `packages/di-craft/CHANGELOG.md` entry.
-- Merging the version pull request makes the same workflow build the library and stage it
-  on npm (`npm stage publish`, trusted publishing, no 2FA needed in CI).
-- Approve the staged release on npmjs.com with 2FA to publish it, then push the matching
-  `vX.Y.Z` tag and dispatch the Docs workflow to deploy the site.
+- Merging the version pull request and pushing the matching `vX.Y.Z` tag starts the
+  Publish workflow, which builds the library and stages it on npm (`npm stage publish`,
+  trusted publishing, no 2FA needed in CI).
+- Approve the staged release on npmjs.com with 2FA to publish it, then dispatch the
+  Docs workflow to deploy the site.
 - Do not edit `packages/di-craft/CHANGELOG.md` by hand; it is generated from
   changesets. Biome ignores
   `.changeset/*.md` because its Markdown formatter does not understand the frontmatter.

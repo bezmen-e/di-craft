@@ -14,13 +14,12 @@ concurrency:
 
 jobs:
   release:
-    name: Create the release PR or stage the package
+    name: Create the release PR
     runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
-      contents: write # Required to push the version branch and branch tags.
+      contents: write # Required to push the version branch.
       pull-requests: write # Required to open the release pull request.
-      id-token: write # Required for npm trusted publishing OIDC.
     env:
       CI: true
     steps:
@@ -47,16 +46,14 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile --ignore-scripts
 
-      # Two modes, one workflow: while changeset files are pending, the action
-      # opens or updates the Version Packages pull request that assembles the
-      # changelog and bumps the version. Once that pull request merges, no
-      # changesets remain and the publish script builds and stages the package
-      # on npm; a human then approves the staged release with 2FA on npmjs.com.
-      - name: Create the release PR or stage the npm package
+      # While changeset files are pending, the action opens or updates the
+      # Version Packages pull request that assembles the changelog and bumps
+      # the version. Publishing is not this workflow's job: after the version
+      # pull request merges, push the matching vX.Y.Z tag, and the tag-
+      # triggered Publish workflow stages the package on npm.
+      - name: Create or update the release PR
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
           version-script: bun run changeset version
-          publish-script: bun run release:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true

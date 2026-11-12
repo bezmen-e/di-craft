@@ -18,7 +18,7 @@ development workflow. Public library documentation lives under `docs/`.
 | Tinybench                 | Comparative benchmark measurements under `benchmarks/` |
 | Changesets                | Version bumps, changelog entries, and the release PR   |
 | Wrangler                  | Cloudflare Pages deployment                            |
-| GitHub Actions            | CI, release staging, and documentation deployment      |
+| GitHub Actions            | Checks, release PR, npm staging, and docs deployment   |
 
 ## Workflow
 
@@ -64,13 +64,13 @@ mise run //docs:build
 - `.config/hk.pkl`: local checks and Git hooks;
 - `.config/fallow.toml`: repository analysis scope;
 - `.changeset/`: pending changesets and the Changesets config;
-- `scripts/`: release helpers such as `stage-publish.mjs`;
 - `packages/di-craft/tsdown.config.ts`: published package artifacts;
 - `.github/workflows/`: CI, releases, and documentation deployment.
 
 ## Releases
 
-Releases flow through Changesets and the single Release workflow:
+Releases flow through Changesets, the Release workflow, and the tag-triggered
+Publish workflow:
 
 1. Every user-facing pull request adds a changeset (`bun run changeset`,
    `patch` while the library is versioned `0.0.x`).
@@ -78,17 +78,21 @@ Releases flow through Changesets and the single Release workflow:
    Packages pull request: it consumes the changeset files, bumps
    `packages/di-craft/package.json`, and generates
    `packages/di-craft/CHANGELOG.md`.
-3. Merging that pull request runs the workflow again with no changesets left:
-   it builds the library and stages the package on npm (`npm stage publish`)
-   through OIDC trusted publishing. `scripts/stage-publish.mjs` skips every
-   other push to `main`, so ordinary merges never touch the registry.
-4. Approve the staged release on npmjs.com with 2FA — that human act publishes
-   the package — then push the matching `vX.Y.Z` tag.
-5. Dispatch the Docs workflow to deploy the Astro site to Cloudflare Pages
+3. Merge the Version Packages pull request, then push the matching tag:
+   `git tag vX.Y.Z && git push origin vX.Y.Z`.
+4. The tag starts the Publish workflow: a build job validates the library and
+   uploads `dist/`, then an isolated publish job (no workspace dependencies,
+   only `id-token: write`) verifies the tag against the package version and
+   stages the release on npm (`npm stage publish`) through OIDC trusted
+   publishing. Nothing is published automatically.
+5. Approve the staged release on npmjs.com with 2FA — that human act publishes
+   the package.
+6. Dispatch the Docs workflow to deploy the Astro site to Cloudflare Pages
    once the package is public.
 
-There is no tag-triggered publish workflow: staging happens on `main`, and the
-final approval deliberately stays outside CI.
+The trusted publisher on npmjs.com is bound to `publish.yaml`, so publishing
+must stay in that workflow: the publish job keeps `id-token` isolated from the
+build, from third-party release tooling, and from every push to `main`.
 
 ## Benchmarks
 
