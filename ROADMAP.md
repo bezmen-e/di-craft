@@ -1,10 +1,10 @@
 # Roadmap
 
-Development plan for the `di-craft` monorepo, organized as four tracks. Track A
-is the current focus, track D runs in the background, track B follows A
-starting with the Hono adapter, and track C is gated on real-world usage
-feedback. Tooling and release procedures live in [TOOLING.md](./TOOLING.md);
-user-facing changes are recorded in the
+Development plan for the `di-craft` monorepo, organized as three horizons —
+P1 (the next month, reliability and trust), P2 (the quarter, feature
+development), P3 (strategy, growing as a project) — plus a background section
+for small chores and externally blocked work. Tooling and release procedures
+live in [TOOLING.md](./TOOLING.md); user-facing changes are recorded in the
 [changelog](./packages/di-craft/CHANGELOG.md).
 
 ## Shipped recently (v0.0.35 → v0.0.36)
@@ -14,10 +14,12 @@ user-facing changes are recorded in the
   changes: allocation-free dependency iteration, inlined recursion, lazily
   allocated resolution context and instance store.
 - **Public benchmark suite** (#21): the `benchmarks/` workspace compares
-  `di-craft` with six DI subjects using the InferDI methodology (isolated
-  processes, balanced rounds, median/MAD aggregation), with recorded JSON
-  results and the interactive performance page at
+  `di-craft` with six DI subjects (including needle, tsyringe, and awilix)
+  using the InferDI methodology — isolated processes, balanced rounds,
+  median/MAD aggregation — with recorded JSON results and the interactive
+  performance page at
   [di-craft.pages.dev/performance](https://di-craft.pages.dev/performance/).
+  This closes the benchmark item from the earlier plan.
 - **Hydration** (#24, #25): framework-agnostic `di-craft/hydration` entry point
   (`dehydrate`, `hydrate`) and `createSnapshotBus` — a TTL holder for streamed
   snapshots that arrive before their consumers mount.
@@ -34,61 +36,76 @@ user-facing changes are recorded in the
   CI workflow renamed to Checks, local editor settings (`.zed/`) untracked,
   lockfile workspace version synced.
 
-## Track A — Adoption and content (current focus)
+## P1 — The next month: reliability and trust
 
-Engineering is in good shape; the bottleneck is awareness and human-facing
-documentation. The generated API reference covers every symbol, but the
-`examples/` and `adapters/` sections of the docs site are still empty.
+- **Disposal semantics.** `AggregateError` when multiple dispose hooks fail; an
+  explicit decision on use-after-dispose (throw or documented behavior); tests
+  for both scenarios.
+- **Uniform error hierarchy.** Adapter and hydration errors (Next runtime
+  failures, hydration mismatches) inherit from `DiError` like the core errors
+  already do, so one root type covers every catch block.
+- **Harden `createChildContainer`** against foreign `Container` implementations
+  passed as the parent.
+- **Trust documentation.** A caution about `onDispose` in RSC render
+  containers; an "async dependencies" section; an explanation of why the
+  lifetime rules are strict; a troubleshooting page with an error table — the
+  error messages are good, give them an index.
+- **Docs examples.** Fill the empty `examples/` and `adapters/` sections of the
+  docs site with worked, type-checked walkthroughs: Next.js App Router (RSC,
+  request containers, hydration with the snapshot bus) and Node HTTP.
+- **Community files.** CONTRIBUTING.md plus issue and pull request templates.
+- **CI quality gates**, as promised in TOOLING.md: coverage through Bun LCOV
+  retained by CI with thresholds starting from the observed baseline; package
+  size budgets for the npm tarball and public entry points, gated against a
+  recorded baseline instead of an arbitrary universal limit.
+- **GitHub Releases hygiene.** Backfill release notes for v0.0.29 → v0.0.36
+  from the changelog ("Latest" is stuck on v0.0.28) and wire per-tag release
+  note generation.
 
-- **Docs examples.** Fill the empty sections with worked, type-checked
-  examples: a Next.js App Router walkthrough (RSC, request containers,
-  hydration with the snapshot bus), a Node HTTP walkthrough, and an "adopting
-  di-craft in an existing app" recipe.
-- **Migration guides.** Step-by-step guides from tsyringe, inversify, and
-  awilix with concept mapping tables and code diffs.
-- **Benchmark story.** Turn the public benchmark suite into an article (dev.to
-  / Habr): methodology, results against six DI libraries, and what the
-  optimizations changed. The data and the performance page already exist.
-- **Release visibility.** GitHub Releases stop at v0.0.28 while tags continue
-  to v0.0.36, so "Latest" is stale. Backfill release notes from the changelog
-  and generate them per tag from now on.
-- **Repository presentation.** Topics and description on GitHub, a short
-  usage demo in the README.
+## P2 — The quarter: feature development
 
-## Track B — Adapters and ecosystem
+- **Test utilities** — the most requested next step for a DI library:
+  `createTestContainer(base, { overrides })` or a token-substitution helper.
+  It sharply lowers the adoption barrier.
+- **Devtools.** `container.inspect()` and dependency-graph export to
+  Mermaid/DOT. For an "explicit composition" library, graph visualization is a
+  killer feature: it sells the core idea itself.
+- **Aliases and multi-providers.** `useExisting`-style aliases and, likely,
+  multi-providers (an array under one token, plugin-style) — frequent requests
+  of any DI library.
+- **Hono adapter.** The fastest-growing TypeScript server framework; the
+  adapter is cheap (the same ALS pattern as Node) and widens the audience
+  noticeably.
+- **Deeper Next/RSC patterns.** Grow the snapshot bus and per-request provider
+  sets into canonical documented patterns: streaming hydration, auth-aware
+  request containers.
 
-- **Hono adapter** is next: TypeScript-first, minimal, and aligned with the
-  library's positioning. Request containers and the request `context` from
-  v0.0.36 are the building blocks.
-- **Deepen Next/RSC patterns.** The snapshot bus and per-request provider sets
-  are new; grow them into canonical, documented patterns (streaming
-  hydration, auth-aware request containers).
-- **Further adapters** (Astro, SvelteKit, TanStack Start) follow real user
-  demand, not speculation — each adapter is permanent maintenance surface.
+## P3 — Strategy: growing as a project
 
-## Track C — Road to 1.0
+- **Own the niche: "DI for the Next.js App Router".** Neither tsyringe, nor
+  awilix, nor needle has an RSC render scope via React `cache` plus a typed
+  dehydrate/hydrate bridge. That is the moat; extend it with guides: auth
+  context per request, database connection pools, server actions + hydration
+  into the client container, adopting di-craft in an existing app.
+- **Migration guides** from tsyringe, inversify, and awilix with concept
+  mapping tables and code diffs.
+- **Promotion.** Two or three articles ("Dependency injection in React Server
+  Components", "Why we do not use reflect-metadata", and the benchmark story
+  built on the public suite), a Next.js + di-craft template repository,
+  Show HN / Reddit r/nextjs posts, GitHub topics, and a usage demo in the
+  README. For a library of this class, obscurity — not code — is the main
+  constraint.
+- **Road to 1.0.** After P1–P2: fix the public API (add a snapshot of the
+  public exports next to `public-api-types.test.ts` so it cannot break by
+  accident), run a stability review of core/hydration/adapters, and publish a
+  semver policy. Until then, versions below 1.0.0 keep the freedom to ship
+  breaking changes in minor releases.
 
-Deliberately last: freezing the API without user feedback would lock in
-design decisions in a vacuum. Versions below 1.0.0 may still include breaking
-changes in minor releases, which is an advantage while the surface settles.
+## Background — chores and externally blocked work
 
-- **Entry criteria:** measurable adoption from tracks A and B, and a period
-  without API-shape changes requested by real usage.
-- **Stability review:** audit the public surface (core, hydration, adapters),
-  stabilize the hydration layer, then declare an API freeze.
-- **Semver guarantees:** publish the compatibility policy and honor it from
-  1.0.0.
-
-## Track D — Engineering gates (background)
-
-- **Package size budgets.** Record the npm tarball and per-entry-point size
-  baseline, then gate growth in CI relative to that baseline instead of an
-  arbitrary universal limit.
-- **Coverage baseline.** Retain Bun LCOV output in CI, show a concise summary
-  or badge, and set thresholds from the observed baseline.
-- **TypeScript 7 migration.** Deferred until TS 7.1 stable ships (expected end
+- **README release section.** Still describes the manual "bump version, push
+  tag" flow; sync it with the changesets procedure in TOOLING.md.
+- **TypeScript 7 migration.** Blocked until TS 7.1 stable ships (expected end
   of November 2026) with `@astrojs/ts-content-mapper` support in `astro check`;
   typedoc and starlight-typedoc must also catch up with the new compiler API.
   Then migrate the whole workspace in one pass.
-- **README release section.** It still describes the manual "bump version,
-  push tag" flow; sync it with the changesets procedure in TOOLING.md.
