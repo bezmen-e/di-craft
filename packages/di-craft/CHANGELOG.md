@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.0.36
+
+### Patch Changes
+
+- [#24](https://github.com/bezmen-e/di-craft/pull/24) [`d5bd730`](https://github.com/bezmen-e/di-craft/commit/d5bd7300f3fe3ab970f2910433e950c98554ee31) Thanks [@bezmen-e](https://github.com/bezmen-e)! - Add the framework-agnostic `di-craft/hydration` entry point exposing `dehydrate`, `hydrate`, and the shared hydration types. The Next.js entry points re-export the same helpers, so existing imports keep working.
+
+- [#26](https://github.com/bezmen-e/di-craft/pull/26) [`2b0e9ac`](https://github.com/bezmen-e/di-craft/commit/2b0e9acff361a4e59740363e06b5a2f69acd99e2) Thanks [@bezmen-e](https://github.com/bezmen-e)! - `runWithRequestContainer()` and `createRequestContainer()` in the Node and Next adapters accept an optional request `context` that is forwarded to `requestProviders`, so each kind of request can register a different provider set.
+
+- [#25](https://github.com/bezmen-e/di-craft/pull/25) [`6f7ca19`](https://github.com/bezmen-e/di-craft/commit/6f7ca19f013ae7fe8e45c3e0d37459341b351695) Thanks [@bezmen-e](https://github.com/bezmen-e)! - Add `createSnapshotBus` to `di-craft/hydration`: a short-lived holder for streamed snapshots that arrive before their consumers mount, with a 30-second default TTL and lazy expiration.
+
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
