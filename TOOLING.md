@@ -5,20 +5,20 @@ development workflow. Public library documentation lives under `docs/`.
 
 ## Ownership
 
-| Tool                      | Responsibility                                         |
-| ------------------------- | ------------------------------------------------------ |
-| Bun                       | Workspace dependencies, lockfile, and library tests    |
-| mise                      | Tool versions, environment, and task orchestration     |
-| Biome                     | Formatting, linting, imports, and safe code actions    |
-| TypeScript                | Library, adapter, test, and docs type-checking         |
-| hk                        | Fast checks and Git hooks backed by mise tasks         |
-| Fallow                    | Dead-code, dependency, and duplicate-code analysis     |
-| tsdown                    | ESM bundles, declarations, Publint, and ATTW           |
-| Astro, Starlight, TypeDoc | Documentation site and API reference                   |
-| Tinybench                 | Comparative benchmark measurements under `benchmarks/` |
-| Changesets                | Version bumps, changelog entries, and the release PR   |
-| Wrangler                  | Cloudflare Pages deployment                            |
-| GitHub Actions            | Checks, release PR, npm staging, and docs deployment   |
+| Tool                      | Responsibility                                                        |
+| ------------------------- | --------------------------------------------------------------------- |
+| Bun                       | Workspace dependencies, lockfile, and library tests                   |
+| mise                      | Tool versions, environment, and task orchestration                    |
+| Biome                     | Formatting, linting, imports, and safe code actions                   |
+| TypeScript                | Library, adapter, test, and docs type-checking                        |
+| hk                        | Fast checks and Git hooks backed by mise tasks                        |
+| Fallow                    | Dead-code, dependency, and duplicate-code analysis                    |
+| tsdown                    | ESM bundles, declarations, Publint, and ATTW                          |
+| Astro, Starlight, TypeDoc | Documentation site and API reference                                  |
+| Tinybench                 | Comparative benchmark measurements under `benchmarks/`                |
+| Changesets                | Version bumps, changelog entries, and the release PR                  |
+| Wrangler                  | Cloudflare Pages deployment                                           |
+| GitHub Actions            | Checks, release PR, npm staging, GitHub Releases, and docs deployment |
 
 ## Workflow
 
@@ -82,12 +82,15 @@ Publish workflow:
    `packages/di-craft/CHANGELOG.md`.
 3. Merge the Version Packages pull request, then push the matching tag:
    `git tag vX.Y.Z && git push origin vX.Y.Z`.
-4. The tag starts the Publish workflow: a build job validates the library and
-   uploads `dist/`, then an isolated publish job (no workspace dependencies,
-   only `id-token: write`) verifies the tag against the package version and
-   stages the release on npm (`npm stage publish`) through OIDC trusted
-   publishing. Harden-runner blocks all egress except allow-listed endpoints
-   in both jobs. Nothing is published automatically.
+4. The tag starts two workflows. The Publish workflow's build job validates
+   the library and uploads `dist/`, then an isolated publish job (no workspace
+   dependencies, only `id-token: write`) verifies the tag against the package
+   version and stages the release on npm (`npm stage publish`) through OIDC
+   trusted publishing. In parallel, the GitHub Release workflow runs the same
+   tag-versus-version guard and creates the GitHub Release with notes
+   extracted from the package changelog (`contents: write` only, no
+   `id-token`). Harden-runner blocks all egress except allow-listed endpoints
+   in the publish jobs. Nothing is published automatically.
 5. Approve the staged release on npmjs.com with 2FA — that human act publishes
    the package.
 6. Dispatch the Docs workflow to deploy the Astro site to Cloudflare Pages

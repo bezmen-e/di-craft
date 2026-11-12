@@ -1,0 +1,78 @@
+name: GitHub Release
+
+# Runs next to the tag-triggered Publish workflow. Publishing to npm stays in
+# publish.yaml (the trusted publisher is bound to that workflow); this one only
+# creates the GitHub Release with notes extracted from the package changelog.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  create-release:
+    name: Create the GitHub Release
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    permissions:
+      contents: write # Required to create the release. No id-token here.
+    env:
+      CI: true
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          # Audit first: after the next tag run, collect the reported endpoints
+          # and switch to `block` with an `allowed-endpoints` list
+          # (github.com:443, api.github.com:443, plus whatever this run
+          # legitimately called).
+          egress-policy: audit
+
+      - name: Checkout the tagged commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+
+      # Same guard as the Publish workflow: a tag that does not match the
+      # package version it points at must not announce a release.
+      - name: Verify release tag matches package version
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          PKG_VERSION="$(node -p "require('./packages/di-craft/package.json').version")"
+          TAG_VERSION="${TAG_NAME#v}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Release tag '$TAG_NAME' does not match package version '$PKG_VERSION'"
+            exit 1
+          fi
+
+      - name: Extract the changelog entry
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: node .github/scripts/release-notes.mjs "${TAG_NAME#v}" > release-notes.md
+
+      - name: Create the GitHub Release
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG_NAME" --json tagName > /dev/null 2>&1; then
+            echo "Release ${TAG_NAME} already exists; leaving it untouched."
+            exit 0
+          fi
+          gh release create "$TAG_NAME" \
+            --title "$TAG_NAME" \
+            --notes-file release-notes.md \
+            --latest

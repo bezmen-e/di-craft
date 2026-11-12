@@ -35,6 +35,10 @@ live in [TOOLING.md](./TOOLING.md); user-facing changes are recorded in the
 - **Repository hygiene** (#32, #33, #37): changelog moved next to the package,
   CI workflow renamed to Checks, local editor settings (`.zed/`) untracked,
   lockfile workspace version synced.
+- **GitHub Releases restored**: backfilled v0.0.29 → v0.0.36 from the
+  changelog ("Latest" had been stuck on v0.0.28), and a tag-triggered workflow
+  now creates each release automatically with changelog-extracted notes under
+  the same tag-versus-version guard as the Publish workflow.
 
 ## P1 — The next month: reliability and trust
 
@@ -58,9 +62,6 @@ live in [TOOLING.md](./TOOLING.md); user-facing changes are recorded in the
   retained by CI with thresholds starting from the observed baseline; package
   size budgets for the npm tarball and public entry points, gated against a
   recorded baseline instead of an arbitrary universal limit.
-- **GitHub Releases hygiene.** Backfill release notes for v0.0.29 → v0.0.36
-  from the changelog ("Latest" is stuck on v0.0.28) and wire per-tag release
-  note generation.
 
 ## P2 — The quarter: feature development
 
@@ -103,8 +104,6 @@ live in [TOOLING.md](./TOOLING.md); user-facing changes are recorded in the
 
 ## Background — chores and externally blocked work
 
-- **README release section.** Still describes the manual "bump version, push
-  tag" flow; sync it with the changesets procedure in TOOLING.md.
 - **TypeScript 7 migration.** Blocked until TS 7.1 stable ships (expected end
   of November 2026) with `@astrojs/ts-content-mapper` support in `astro check`;
   typedoc and starlight-typedoc must also catch up with the new compiler API.
