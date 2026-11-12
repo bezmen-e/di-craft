@@ -86,8 +86,8 @@ Publish workflow:
    uploads `dist/`, then an isolated publish job (no workspace dependencies,
    only `id-token: write`) verifies the tag against the package version and
    stages the release on npm (`npm stage publish`) through OIDC trusted
-   publishing. Harden-runner audits egress traffic in both jobs. Nothing is
-   published automatically.
+   publishing. Harden-runner blocks all egress except allow-listed endpoints
+   in both jobs. Nothing is published automatically.
 5. Approve the staged release on npmjs.com with 2FA — that human act publishes
    the package.
 6. Dispatch the Docs workflow to deploy the Astro site to Cloudflare Pages
