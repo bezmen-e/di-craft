@@ -61,6 +61,8 @@ mise run //docs:build
 - `docs/mise.toml`: documentation tasks;
 - `benchmarks/mise.toml`: comparative benchmark install, validation, and runs;
 - `biome.json`: repository formatting and linting policy;
+- `.npmrc` and `bunfig.toml`: 3-day cooldown before installing newly
+  published dependency versions (`min-release-age`, `minimumReleaseAge`);
 - `.config/hk.pkl`: local checks and Git hooks;
 - `.config/fallow.toml`: repository analysis scope;
 - `.changeset/`: pending changesets and the Changesets config;
@@ -84,7 +86,8 @@ Publish workflow:
    uploads `dist/`, then an isolated publish job (no workspace dependencies,
    only `id-token: write`) verifies the tag against the package version and
    stages the release on npm (`npm stage publish`) through OIDC trusted
-   publishing. Nothing is published automatically.
+   publishing. Harden-runner audits egress traffic in both jobs. Nothing is
+   published automatically.
 5. Approve the staged release on npmjs.com with 2FA — that human act publishes
    the package.
 6. Dispatch the Docs workflow to deploy the Astro site to Cloudflare Pages
