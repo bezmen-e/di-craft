@@ -51,10 +51,13 @@ repository-level concern. The release workflow does not deploy documentation.
 
 ## Package release
 
-Set the version in `packages/di-craft/package.json`, commit the change, and push
-a matching `v<version>` tag. The release workflow tests and builds the package in
-jobs without OIDC publishing permission. A separate minimal job downloads the
-build artifact and runs npm Staged Publishing through Trusted Publishing.
+Versioning and the changelog are managed by Changesets: merge the Version
+Packages pull request, then push a matching `v<version>` tag. The tag starts
+the Publish workflow, which tests and builds the package in jobs without OIDC
+publishing permission; a separate minimal job downloads the build artifact and
+stages the release on npm through Trusted Publishing. In parallel, the GitHub
+Release workflow publishes release notes extracted from the changelog.
 
 After the workflow succeeds, review and approve the staged version on npm. No
-long-lived npm token is stored in GitHub.
+long-lived npm token is stored in GitHub. See [TOOLING.md](./TOOLING.md) for
+the full procedure.
