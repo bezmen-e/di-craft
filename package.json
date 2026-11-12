@@ -32,7 +32,6 @@
 		"lint:docs": "mise run //docs:lint",
 		"prepare": "mise run --no-deps prepare",
 		"preview:docs": "mise run preview:docs",
-		"release:publish": "mise run --no-deps //packages/di-craft:build && node scripts/stage-publish.mjs",
 		"test:lib": "mise run test:lib",
 		"typecheck:docs": "mise run typecheck:docs",
 		"typecheck:lib": "mise run typecheck:lib"
